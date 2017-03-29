@@ -12,6 +12,9 @@ namespace TGC.Group
         [STAThread]
         private static void Main()
         {
+            // Hola forros
+            // asdasdasd
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new GameForm());

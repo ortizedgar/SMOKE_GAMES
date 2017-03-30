@@ -58,7 +58,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TGC.Group\2017_1C_0_SmokeGames.csproj">
+    <ProjectReference Include="..\2017_1C_0_SmokeGames\2017_1C_0_SmokeGames.csproj">
       <Project>{6CB42457-A2B1-4472-846E-1AB760B3226B}</Project>
       <Name>2017_1C_0_SmokeGames</Name>
     </ProjectReference>

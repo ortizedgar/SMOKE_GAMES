@@ -1,6 +1,6 @@
+using System.Drawing;
 using Microsoft.DirectX;
 using Microsoft.DirectX.DirectInput;
-using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Geometry;

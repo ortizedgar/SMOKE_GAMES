@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2017_1C_0_SmokeGames", "2017_1C_0_SmokeGames\2017_1C_0_SmokeGames.csproj", "{6CB42457-A2B1-4472-846E-1AB760B3226B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.Group", "TGC.Group\TGC.Group.csproj", "{6CB42457-A2B1-4472-846E-1AB760B3226B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2017_1C_0_SmokeGames.Test", "2017_1C_0_SmokeGames.Test\2017_1C_0_SmokeGames.Test.csproj", "{2B808ED2-3DCA-4312-99AA-530408A2A67F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.Group.Test", "TGC.Group.Test\TGC.Group.Test.csproj", "{2B808ED2-3DCA-4312-99AA-530408A2A67F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -25,7 +25,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Edgar Ortiz, Damian Novosak, K3054")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Alumnos: Edgar Ortiz, Damian Novosak")]
         public string Category {
             get {
                 return ((string)(this["Category"]));
@@ -37,7 +37,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("SMOKE_GAMES")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Grupo SMOKE_GAMES")]
         public string Name {
             get {
                 return ((string)(this["Name"]));

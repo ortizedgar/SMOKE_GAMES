@@ -58,9 +58,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\2017_1C_0_SmokeGames\2017_1C_0_SmokeGames.csproj">
+    <ProjectReference Include="..\TGC.Group\TGC.Group.csproj">
       <Project>{6CB42457-A2B1-4472-846E-1AB760B3226B}</Project>
-      <Name>2017_1C_0_SmokeGames</Name>
+      <Name>TGC.Group</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

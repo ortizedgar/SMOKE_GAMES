@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="Category" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Edgar Ortiz, Damian Novosak</Value>
+      <Value Profile="(Default)">Edgar Ortiz, Damian Novosak, K3054</Value>
     </Setting>
     <Setting Name="Name" Type="System.String" Scope="User">
       <Value Profile="(Default)">SMOKE_GAMES</Value>

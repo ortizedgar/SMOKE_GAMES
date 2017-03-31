@@ -25,7 +25,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Edgar Ortiz, Damian Novosak")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Edgar Ortiz, Damian Novosak, K3054")]
         public string Category {
             get {
                 return ((string)(this["Category"]));

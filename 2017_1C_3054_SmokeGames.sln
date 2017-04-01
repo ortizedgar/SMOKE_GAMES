@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.Group", "TGC.Group\TGC.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.Group.Test", "TGC.Group.Test\TGC.Group.Test.csproj", "{2B808ED2-3DCA-4312-99AA-530408A2A67F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TGC.Group.Interfaces", "TGC.Group.Interfaces\TGC.Group.Interfaces.csproj", "{2695B158-31C4-49DB-89DC-0A1F31CE165D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2B808ED2-3DCA-4312-99AA-530408A2A67F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B808ED2-3DCA-4312-99AA-530408A2A67F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B808ED2-3DCA-4312-99AA-530408A2A67F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2695B158-31C4-49DB-89DC-0A1F31CE165D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2695B158-31C4-49DB-89DC-0A1F31CE165D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2695B158-31C4-49DB-89DC-0A1F31CE165D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2695B158-31C4-49DB-89DC-0A1F31CE165D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

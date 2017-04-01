@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using Autofac;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
 using TGC.Core.Input;
@@ -94,8 +95,12 @@ namespace TGC.Group.Form
             TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
 
             //Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
-            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory,
-                currentDirectory + Game.Default.ShadersDirectory);
+            var builder = new ContainerBuilder();
+            builder.RegisterType<TgcPlaneFactory>();
+            builder.RegisterType<Vector3Factory>();
+            var container = builder.Build();
+
+            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>());
 
             //Cargar juego.
             ExecuteModel();

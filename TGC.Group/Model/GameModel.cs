@@ -70,7 +70,7 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            InitCamera();
+            Camara = new TgcRotationalCamera(Input);
 
             scenarioElements = scenarioCreator.CreateScenario(MediaDir, vector3Factory, tgcPlaneFactory, planeSize);
         }
@@ -109,23 +109,34 @@ namespace TGC.Group.Model
 
         private void InitCamera()
         {
-            var camaraLocation = vector3Factory.CreateVector3(5, 5, 0);
-            Camara.SetCamera(camaraLocation, vector3Factory.CreateVector3(camaraLocation.X, camaraLocation.Y, camaraLocation.Z + 1));
+            var camaraLocation = vector3Factory.CreateVector3(0, 300, 20);
+            Camara.SetCamera(camaraLocation, vector3Factory.CreateVector3(0, 0, 21));
         }
 
         private void MoveCamara()
         {
-            Vector3 cameraPosition;
-            if (Input.keyDown(Key.W))
-            {
-                cameraPosition = vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 10 * ElapsedTime);
-                Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
-            }
-            if (Input.keyDown(Key.S))
-            {
-                cameraPosition = vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z - 10 * ElapsedTime);
-                Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
-            }
+            //Vector3 cameraPosition;
+            //if (Input.keyDown(Key.W))
+            //{
+            //    cameraPosition = vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 100 * ElapsedTime);
+            //    Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
+            //}
+            //if (Input.keyDown(Key.S))
+            //{
+            //    cameraPosition = vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z - 100 * ElapsedTime);
+            //    Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
+            //}
+
+            //if (Input.keyDown(Key.A))
+            //{
+            //    cameraPosition = vector3Factory.CreateVector3(Camara.Position.X - 100 * ElapsedTime, Camara.Position.Y, Camara.Position.Z);
+            //    Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
+            //}
+            //if (Input.keyDown(Key.D))
+            //{
+            //    cameraPosition = vector3Factory.CreateVector3(Camara.Position.X + 100 * ElapsedTime, Camara.Position.Y, Camara.Position.Z);
+            //    Camara.SetCamera(cameraPosition, vector3Factory.CreateVector3(Camara.Position.X, Camara.Position.Y, Camara.Position.Z + 1));
+            //}
         }
     }
 }

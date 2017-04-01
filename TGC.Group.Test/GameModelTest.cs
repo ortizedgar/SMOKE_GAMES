@@ -22,9 +22,10 @@ namespace TGC.Group.Test
             var builder = new ContainerBuilder();
             builder.RegisterType<TgcPlaneFactory>();
             builder.RegisterType<Vector3Factory>();
+            builder.RegisterType<ScenarioCreator>();
             var container = builder.Build();
 
-            gameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>());
+            gameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
         }
 
         [TestMethod]

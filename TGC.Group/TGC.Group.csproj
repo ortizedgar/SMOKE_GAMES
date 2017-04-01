@@ -90,6 +90,7 @@
       <DependentUpon>Game.settings</DependentUpon>
     </Compile>
     <Compile Include="Model\GameModel.cs" />
+    <Compile Include="Model\ScenarioCreator.cs" />
     <Compile Include="Model\Vector3Factory.cs" />
     <Compile Include="Model\TgcPlaneFactory.cs" />
     <Compile Include="Program.cs" />
@@ -162,15 +163,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Media\floor.bmp" />
-    <Content Include="Media\roof.jpg" />
-    <Content Include="Media\wall.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\TGC.Group.Interfaces\TGC.Group.Interfaces.csproj">
       <Project>{2695B158-31C4-49DB-89DC-0A1F31CE165D}</Project>
       <Name>TGC.Group.Interfaces</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Media\floor.bmp" />
+    <Content Include="Media\roof.bmp" />
+    <Content Include="Media\wall.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

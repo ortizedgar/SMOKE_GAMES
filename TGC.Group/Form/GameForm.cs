@@ -27,11 +27,6 @@ namespace TGC.Group.Form
         }
 
         /// <summary>
-        ///     Ejemplo del juego a correr
-        /// </summary>
-        private TgcExample Modelo { get; set; }
-
-        /// <summary>
         ///     Obtener o parar el estado del RenderLoop.
         /// </summary>
         private bool ApplicationRunning { get; set; }
@@ -46,92 +41,10 @@ namespace TGC.Group.Form
         /// </summary>
         private TgcD3dInput Input { get; set; }
 
-        private void GameForm_Load(object sender, EventArgs e)
-        {
-            //Iniciar graficos.
-            InitGraphics();
-
-            //Titulo de la ventana principal.
-            Text = Modelo.Name + " - " + Modelo.Description;
-
-            //Focus panel3D.
-            panel3D.Focus();
-
-            //Inicio el ciclo de Render.
-            InitRenderLoop();
-        }
-
-        private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (ApplicationRunning)
-            {
-                ShutDown();
-            }
-        }
-
         /// <summary>
-        ///     Inicio todos los objetos necesarios para cargar el ejemplo y directx.
+        ///     Ejemplo del juego a correr
         /// </summary>
-        public void InitGraphics()
-        {
-            //Se inicio la aplicación
-            ApplicationRunning = true;
-
-            //Inicio Device
-            D3DDevice.Instance.InitializeD3DDevice(panel3D);
-
-            //Inicio inputs
-            Input = new TgcD3dInput();
-            Input.Initialize(this, panel3D);
-
-            //Inicio sonido
-            DirectSound = new TgcDirectSound();
-            DirectSound.InitializeD3DDevice(panel3D);
-
-            //Directorio actual de ejecución
-            var currentDirectory = Environment.CurrentDirectory + "\\";
-
-            //Cargar shaders del framework
-            TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
-
-            //Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
-            var builder = new ContainerBuilder();
-            builder.RegisterType<TgcPlaneFactory>();
-            builder.RegisterType<Vector3Factory>();
-            var container = builder.Build();
-
-            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>());
-
-            //Cargar juego.
-            ExecuteModel();
-        }
-
-        /// <summary>
-        ///     Comienzo el loop del juego.
-        /// </summary>
-        public void InitRenderLoop()
-        {
-            while (ApplicationRunning)
-            {
-                //Renderizo si es que hay un ejemplo activo.
-                if (Modelo != null)
-                {
-                    //Solo renderizamos si la aplicacion tiene foco, para no consumir recursos innecesarios.
-                    if (ApplicationActive())
-                    {
-                        Modelo.Update();
-                        Modelo.Render();
-                    }
-                    else
-                    {
-                        //Si no tenemos el foco, dormir cada tanto para no consumir gran cantidad de CPU.
-                        Thread.Sleep(100);
-                    }
-                }
-                // Process application messages.
-                Application.DoEvents();
-            }
-        }
+        private TgcExample Modelo { get; set; }
 
         /// <summary>
         ///     Indica si la aplicacion esta activa.
@@ -177,14 +90,67 @@ namespace TGC.Group.Form
         }
 
         /// <summary>
-        ///     Deja de ejecutar el ejemplo actual
+        ///     Inicio todos los objetos necesarios para cargar el ejemplo y directx.
         /// </summary>
-        public void StopCurrentExample()
+        public void InitGraphics()
         {
-            if (Modelo != null)
+            //Se inicio la aplicación
+            ApplicationRunning = true;
+
+            //Inicio Device
+            D3DDevice.Instance.InitializeD3DDevice(panel3D);
+
+            //Inicio inputs
+            Input = new TgcD3dInput();
+            Input.Initialize(this, panel3D);
+
+            //Inicio sonido
+            DirectSound = new TgcDirectSound();
+            DirectSound.InitializeD3DDevice(panel3D);
+
+            //Directorio actual de ejecución
+            var currentDirectory = Environment.CurrentDirectory + "\\";
+
+            //Cargar shaders del framework
+            TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
+
+            //Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
+            var builder = new ContainerBuilder();
+            builder.RegisterType<TgcPlaneFactory>();
+            builder.RegisterType<Vector3Factory>();
+            builder.RegisterType<ScenarioCreator>();
+            var container = builder.Build();
+
+            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
+
+            //Cargar juego.
+            ExecuteModel();
+        }
+
+        /// <summary>
+        ///     Comienzo el loop del juego.
+        /// </summary>
+        public void InitRenderLoop()
+        {
+            while (ApplicationRunning)
             {
-                Modelo.Dispose();
-                Modelo = null;
+                //Renderizo si es que hay un ejemplo activo.
+                if (Modelo != null)
+                {
+                    //Solo renderizamos si la aplicacion tiene foco, para no consumir recursos innecesarios.
+                    if (ApplicationActive())
+                    {
+                        Modelo.Update();
+                        Modelo.Render();
+                    }
+                    else
+                    {
+                        //Si no tenemos el foco, dormir cada tanto para no consumir gran cantidad de CPU.
+                        Thread.Sleep(100);
+                    }
+                }
+                // Process application messages.
+                Application.DoEvents();
             }
         }
 
@@ -200,6 +166,41 @@ namespace TGC.Group.Form
             //Liberar Device al finalizar la aplicacion
             D3DDevice.Instance.Dispose();
             TexturesPool.Instance.clearAll();
+        }
+
+        /// <summary>
+        ///     Deja de ejecutar el ejemplo actual
+        /// </summary>
+        public void StopCurrentExample()
+        {
+            if (Modelo != null)
+            {
+                Modelo.Dispose();
+                Modelo = null;
+            }
+        }
+
+        private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (ApplicationRunning)
+            {
+                ShutDown();
+            }
+        }
+
+        private void GameForm_Load(object sender, EventArgs e)
+        {
+            //Iniciar graficos.
+            InitGraphics();
+
+            //Titulo de la ventana principal.
+            Text = Modelo.Name + " - " + Modelo.Description;
+
+            //Focus panel3D.
+            panel3D.Focus();
+
+            //Inicio el ciclo de Render.
+            InitRenderLoop();
         }
     }
 }

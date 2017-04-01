@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IScenarioCreator.cs" />
     <Compile Include="ITgcPlaneFactory.cs" />
     <Compile Include="IVector3Factory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

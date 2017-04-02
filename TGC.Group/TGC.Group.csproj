@@ -91,7 +91,7 @@
     </Compile>
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\ScenarioCreator.cs" />
-    <Compile Include="Model\TgcRotationalCamera.cs" />
+    <Compile Include="Model\TgcFpsCamera.cs" />
     <Compile Include="Model\Vector3Factory.cs" />
     <Compile Include="Model\TgcPlaneFactory.cs" />
     <Compile Include="Program.cs" />

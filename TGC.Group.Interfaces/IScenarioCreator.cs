@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using TGC.Core.Geometry;
+using TGC.Core.SceneLoader;
 
 namespace TGC.Group.Interfaces
 {
     public interface IScenarioCreator
     {
-        List<List<TgcPlane>> CreateScenario(string mediaDir, IVector3Factory vector3Factory, ITgcPlaneFactory tgcPlaneFactory, float planeSize);
+        List<List<IRenderObject>> CreateScenario(string mediaDir, IVector3Factory vector3Factory, ITgcPlaneFactory tgcPlaneFactory, float planeSize);
     }
 }

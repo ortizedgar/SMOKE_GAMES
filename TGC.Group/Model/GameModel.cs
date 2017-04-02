@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
+using TGC.Core.SceneLoader;
 using TGC.Group.Interfaces;
 
 namespace TGC.Group.Model
@@ -18,9 +19,9 @@ namespace TGC.Group.Model
         private readonly IScenarioCreator scenarioCreator;
 
         /// <summary>
-        /// Lista de <see cref="TgcPlane"/> que contiene las paredes, pisos y techos del escenario
+        /// Lista de <see cref="IRenderObject"/> que contiene las paredes, pisos, techos y objetos del escenario
         /// </summary>
-        private List<List<TgcPlane>> scenarioElements;
+        private List<List<IRenderObject>> scenarioElements;
         /// <summary>
         /// Fabrica de <see cref="TgcPlane"/>
         /// </summary>
@@ -68,7 +69,7 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            Camara = new TgcRotationalCamera(Input);
+            Camara = new TgcFpsCamera(vector3Factory.CreateVector3(5, 5, 5), 10, 50, Input);
 
             scenarioElements = scenarioCreator.CreateScenario(MediaDir, vector3Factory, tgcPlaneFactory, planeSize);
         }
@@ -86,7 +87,11 @@ namespace TGC.Group.Model
             {
                 foreach (var element in scenarioElement)
                 {
-                    element.updateValues();
+                    if (element is TgcPlane)
+                    {
+                        ((TgcPlane)element).updateValues();
+                    }
+
                     element.render();
                 }
             }

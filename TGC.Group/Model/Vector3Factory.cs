@@ -1,7 +1,7 @@
 ﻿using Microsoft.DirectX;
 using TGC.Group.Interfaces;
 
-namespace TGC.Group
+namespace TGC.Group.Model
 {
     public class Vector3Factory : IVector3Factory
     {

@@ -1,7 +1,7 @@
 ﻿using TGC.Core.Geometry;
 using TGC.Group.Interfaces;
 
-namespace TGC.Group
+namespace TGC.Group.Model
 {
     public class TgcPlaneFactory : ITgcPlaneFactory
     {

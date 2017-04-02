@@ -10,7 +10,7 @@ namespace TGC.Group.Model
     /// </summary>
     public class GameModel : TgcExample
     {
-        private const short planeSize = 10;
+        private const float planeSize = 10;
 
         /// <summary>
         /// Creador de escenario

@@ -113,6 +113,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Game.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Media\LamparaTecho\Lampara-Techo.max" />
+    <None Include="Media\LockerMetal\LockerMetal.max" />
+    <None Include="Media\Mesa\Mesa.max" />
+    <None Include="Media\Sillon\Sillon.max" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -171,7 +175,20 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Media\floor.bmp" />
+    <Content Include="Media\LamparaTecho\LamparaTecho-TgcScene.xml" />
+    <Content Include="Media\LamparaTecho\preview.jpg" />
+    <Content Include="Media\LamparaTecho\Textures\tl.jpg" />
+    <Content Include="Media\LockerMetal\LockerMetal-TgcScene.xml" />
+    <Content Include="Media\LockerMetal\preview.jpg" />
+    <Content Include="Media\LockerMetal\Textures\kast.jpg" />
+    <Content Include="Media\Mesa\Mesa-TgcScene.xml" />
+    <Content Include="Media\Mesa\preview.jpg" />
+    <Content Include="Media\Mesa\Textures\table.bmp" />
+    <Content Include="Media\Mesa\Textures\table.jpg" />
     <Content Include="Media\roof.bmp" />
+    <Content Include="Media\Sillon\preview.jpg" />
+    <Content Include="Media\Sillon\Sillon-TgcScene.xml" />
+    <Content Include="Media\Sillon\Textures\bench.jpg" />
     <Content Include="Media\wall.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

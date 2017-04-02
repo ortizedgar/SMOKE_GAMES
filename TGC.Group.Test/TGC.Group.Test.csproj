@@ -74,6 +74,7 @@
     <None Include="Media\Mesa\Mesa.max">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Media\Puerta\Puerta.max" />
     <None Include="Media\Sillon\Sillon.max">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -168,6 +169,11 @@
     <None Include="Media\Sillon\Textures\bench.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Media\Puerta\preview.jpg" />
+    <Content Include="Media\Puerta\Puerta-TgcScene.xml" />
+    <Content Include="Media\Puerta\Textures\Puerta.jpg" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

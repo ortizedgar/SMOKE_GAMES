@@ -68,7 +68,8 @@ namespace TGC.Group.Model
                     floorElement.AutoAdjustUv = false;
                     floorElement.UTile = 1;
                     floorElement.VTile = 1;
-                    layer.Add(floorElement);
+                    layer.Add(floorElement); 
+                    
                 }
             }
 
@@ -120,12 +121,33 @@ namespace TGC.Group.Model
             CreateWallLine(vertical, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
 
             // PAREDES HORIZONTALES
+
+            CreateWallLine(horizontal, 0, new float[] { 0, 2, 4, 20, 22 });
+            CreateWallLine(horizontal, 1, new float[] { 0, 2, 4, 20, 22 });
+            CreateWallLine(horizontal, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateWallLine(horizontal, 3, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateWallLine(horizontal, 4, new float[] { 0, 2, 6, 8, 20, 22 });
+            CreateWallLine(horizontal, 5, new float[] { 0, 2, 6, 16, 18, 20, 22 });
+            CreateWallLine(horizontal, 6, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallLine(horizontal, 7, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallLine(horizontal, 8, new float[] { 0, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
             CreateWallLine(horizontal, 9, new float[] { 0, 6, 16, 22 });
             CreateWallLine(horizontal, 10, new float[] { 0, 6, 16, 22 });
             CreateWallLine(horizontal, 11, new float[] { 0, 6, 16, 22 });
-            CreateWallLine(horizontal, 12, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 22 });
-            CreateWallLine(horizontal, 13, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 22 });
-            CreateWallLine(horizontal, 14, new float[] { 0, 3, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            // DEL 13 AL 14 FALTA UNA PARED Q NO SE COMO PORONGA ESCRIBIR, PUTO EL QUE LEE
+            CreateWallLine(horizontal, 12, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18,20, 22 });
+            CreateWallLine(horizontal, 13, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18,20, 22 });
+            CreateWallLine(horizontal, 14, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallLine(horizontal, 15, new float[] { 0, 3, 4, 6, 16, 20, 22 });
+            CreateWallLine(horizontal, 16, new float[] { 0, 3, 4, 6, 20, 22 });
+            CreateWallLine(horizontal, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateWallLine(horizontal, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateWallLine(horizontal, 19, new float[] { 0, 2, 4, 6, 7, 9, 15, 20, 22 });
+            CreateWallLine(horizontal, 20, new float[] { 0, 2, 4, 6, 7, 9, 11, 14, 17, 19, 22});
+
+
+
+
 
             return walls;
         }

@@ -10,10 +10,10 @@ namespace TGC.Group.Model
     /// </summary>
     public class TgcRotationalCamera : TgcCamera
     {
-        public static float DEFAULT_ZOOM_FACTOR = 0.15f;
-        public static float DEFAULT_CAMERA_DISTANCE = 10f;
-        public static float DEFAULT_ROTATION_SPEED = 100f;
-        public static Vector3 DEFAULT_DOWN = new Vector3(0f, -1f, 0f);
+        public static readonly float DEFAULT_CAMERA_DISTANCE = 10f;
+        public static readonly Vector3 DEFAULT_DOWN = new Vector3(0f, -1f, 0f);
+        public static readonly float DEFAULT_ROTATION_SPEED = 100f;
+        public static readonly float DEFAULT_ZOOM_FACTOR = 0.15f;
 
         /// <summary>
         ///     Crea camara con valores por defecto.
@@ -85,14 +85,53 @@ namespace TGC.Group.Model
         {
         }
 
+        /// <summary>
+        ///     Centro de la camara sobre la cual se rota
+        /// </summary>
+        public Vector3 CameraCenter { get; set; }
+
+        /// <summary>
+        ///     Distance entre la camara y el centro
+        /// </summary>
+        public float CameraDistance { get; set; }
+
+        public float DiffX { get; set; }
+        public float DiffY { get; set; }
+        public float DiffZ { get; set; }
+
+        public Vector3 NextPos { get; set; }
+
+        /// <summary>
+        ///     Velocidad de paneo
+        /// </summary>
+        public float PanSpeed { get; set; }
+
+        /// <summary>
+        ///     Velocidad de rotacion de la camara
+        /// </summary>
+        public float RotationSpeed { get; set; }
+
+        /// <summary>
+        ///     Velocidad con la que se hace Zoom
+        /// </summary>
+        public float ZoomFactor { get; set; }
+
         private TgcD3dInput Input { get; }
+
+        public override void SetCamera(Vector3 position, Vector3 target)
+        {
+            NextPos = position;
+            CameraCenter = target;
+            base.SetCamera(NextPos, CameraCenter, UpVector);
+        }
 
         /// <summary>
         ///     Actualiza los valores de la camara.
         /// </summary>
+        /// <param name="elapsedTime">Tiempo transcurrido desde el frame anterior</param>
         public override void UpdateCamera(float elapsedTime)
         {
-            //Obtener variacion XY del mouse
+            // Obtener variacion XY del mouse
             var mouseX = 0f;
             var mouseY = 0f;
             if (Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
@@ -109,54 +148,43 @@ namespace TGC.Group.Model
                 DiffY += mouseY;
             }
 
-            //Calcular rotacion a aplicar
+            // Calcular rotacion a aplicar
             var rotX = -DiffY / FastMath.PI;
             var rotY = DiffX / FastMath.PI;
 
-            //Truncar valores de rotacion fuera de rango
+            // Truncar valores de rotacion fuera de rango
             if (rotX > FastMath.PI * 2 || rotX < -FastMath.PI * 2)
             {
                 DiffY = 0;
                 rotX = 0;
             }
 
-            //Invertir Y de UpVector segun el angulo de rotacion
-            if (rotX < -FastMath.PI / 2 && rotX > -FastMath.PI * 3 / 2)
-            {
-                UpVector = DEFAULT_DOWN;
-            }
-            else if (rotX > FastMath.PI / 2 && rotX < FastMath.PI * 3 / 2)
-            {
-                UpVector = DEFAULT_DOWN;
-            }
-            else
-            {
-                UpVector = DEFAULT_UP_VECTOR;
-            }
+            // Invertir Y de UpVector segun el angulo de rotacion
+            UpVector = rotX < -FastMath.PI / 2 && rotX > -FastMath.PI * 3 / 2 ? DEFAULT_DOWN : rotX > FastMath.PI / 2 && rotX < FastMath.PI * 3 / 2 ? DEFAULT_DOWN : DEFAULT_UP_VECTOR;
 
-            //Determinar distancia de la camara o zoom segun el Mouse Wheel
+            // Determinar distancia de la camara o zoom segun el Mouse Wheel
             if (Input.WheelPos != 0)
             {
                 DiffZ += ZoomFactor * Input.WheelPos * -1;
             }
             var distance = -CameraDistance * DiffZ;
 
-            //Limitar el zoom a 0
+            // Limitar el zoom a 0
             if (distance > 0)
             {
                 distance = 0;
             }
 
-            //Realizar Transformacion: primero alejarse en Z, despues rotar en X e Y y despues ir al centro de la cmara
+            // Realizar Transformacion: primero alejarse en Z, despues rotar en X e Y y despues ir al centro de la cmara
             var m = Matrix.Translation(0, 0, -distance)
                     * Matrix.RotationX(rotX)
                     * Matrix.RotationY(rotY)
                     * Matrix.Translation(CameraCenter);
 
-            //Extraer la posicion final de la matriz de transformacion
+            // Extraer la posicion final de la matriz de transformacion
             NextPos = new Vector3(m.M41, m.M42, m.M43);
 
-            //Hacer efecto de Pan View
+            // Hacer efecto de Pan View
             if (Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_RIGHT))
             {
                 var dx = -Input.XposRelative;
@@ -175,50 +203,8 @@ namespace TGC.Group.Model
                 CameraCenter = CameraCenter + desf;
             }
 
-            //asigna las posiciones de la camara.
+            // Asigna las posiciones de la camara.
             base.SetCamera(NextPos, CameraCenter, UpVector);
         }
-
-        public override void SetCamera(Vector3 position, Vector3 target)
-        {
-            NextPos = position;
-            CameraCenter = target;
-            base.SetCamera(NextPos, CameraCenter, UpVector);
-        }
-
-        #region Getters y Setters
-
-        /// <summary>
-        ///     Centro de la camara sobre la cual se rota
-        /// </summary>
-        public Vector3 CameraCenter { get; set; }
-
-        /// <summary>
-        ///     Distance entre la camara y el centro
-        /// </summary>
-        public float CameraDistance { get; set; }
-
-        /// <summary>
-        ///     Velocidad con la que se hace Zoom
-        /// </summary>
-        public float ZoomFactor { get; set; }
-
-        /// <summary>
-        ///     Velocidad de rotacion de la camara
-        /// </summary>
-        public float RotationSpeed { get; set; }
-
-        /// <summary>
-        ///     Velocidad de paneo
-        /// </summary>
-        public float PanSpeed { get; set; }
-
-        public Vector3 NextPos { get; set; }
-
-        public float DiffX { get; set; }
-        public float DiffY { get; set; }
-        public float DiffZ { get; set; }
-
-        #endregion Getters y Setters
     }
 }

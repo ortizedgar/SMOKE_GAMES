@@ -56,17 +56,52 @@ namespace TGC.Group.Model
                 //CreateRoof(),
                 CreateWalls(),
                 CreateDoors(),
+                //createwindow
                 //CreateObjects()
             };
         }
+
 
         private List<IRenderObject> CreateDoors()
         {
             doors = new List<IRenderObject>();
             meshPuerta = new TgcSceneLoader().loadSceneFromFile(mediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
 
-            CreateDoorsLine(horizontal, 0, new float[] { 0 });
-            CreateDoorsLine(vertical, 0, new float[] { 0 });
+
+            CreateDoorsLine(horizontal, 5, new float[] { 40, 200 });
+            CreateDoorsLine(horizontal, 25, new float[] {100, 200 });
+            CreateDoorsLine(horizontal, 45, new float[] { 200 });
+            CreateDoorsLine(horizontal, 60, new float[] { 200 });
+            CreateDoorsLine(horizontal, 95, new float[] { 0, 60, 160, 220 });
+            CreateDoorsLine(horizontal, 105, new float[] { 0, 60, 160, 220 });
+            CreateDoorsLine(horizontal, 120, new float[] { 40 });
+            CreateDoorsLine(horizontal, 130, new float[] { 200 });
+            CreateDoorsLine(horizontal, 150, new float[] { 40, 200 });
+            CreateDoorsLine(horizontal, 170, new float[] { 30, 40 });
+            CreateDoorsLine(horizontal, 175, new float[] { 70 });
+            CreateDoorsLine(horizontal, 180, new float[] { 200 });
+            CreateDoorsLine(horizontal, 190, new float[] { 20 });
+            CreateDoorsLine(horizontal, 200, new float[] { 190 });
+
+
+
+
+
+
+            CreateDoorsLine(vertical, 20, new float[] { 80, 100, 140});
+            CreateDoorsLine(vertical, 30, new float[] { 10, 30 });
+            CreateDoorsLine(vertical, 50, new float[] { 160 });
+            CreateDoorsLine(vertical, 60, new float[] { 0, 20, 40, 80, 140, 205 });
+            CreateDoorsLine(vertical, 120, new float[] { 170 });
+            CreateDoorsLine(vertical, 140, new float[] { 50, 160 });
+            CreateDoorsLine(vertical, 150, new float[] { 0, 20, 70, 120, 200 });
+            CreateDoorsLine(vertical, 170, new float[] { 0, 40, 130 });
+            CreateDoorsLine(vertical, 190, new float[] { 40, 80, 200 });
+            CreateDoorsLine(vertical, 200, new float[] { 90, 140, 160 });
+
+
+
+
 
             return doors;
         }
@@ -197,12 +232,10 @@ namespace TGC.Group.Model
             CreateWallsLine(horizontal, 9, new float[] { 0, 6, 16, 22 });
             CreateWallsLine(horizontal, 10, new float[] { 0, 6, 16, 22 });
             CreateWallsLine(horizontal, 11, new float[] { 0, 6, 16, 22 });
-
-            // DEL 13 AL 14 FALTA UNA PARED Q NO SE COMO ESCRIBIR
-            CreateWallsLine(horizontal, 12, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(horizontal, 13, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(horizontal, 14, new float[] { 0, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(horizontal, 15, new float[] { 0, 3, 4, 6, 16, 20, 22 });
+            CreateWallsLine(horizontal, 12, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateWallsLine(horizontal, 13, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateWallsLine(horizontal, 14, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallsLine(horizontal, 15, new float[] { 0, 4, 6, 16, 20, 22 });
             CreateWallsLine(horizontal, 16, new float[] { 0, 3, 4, 6, 20, 22 });
             CreateWallsLine(horizontal, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
             CreateWallsLine(horizontal, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });

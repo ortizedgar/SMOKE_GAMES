@@ -54,13 +54,7 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             // Limpiar el escenario
-            foreach (var scenarioElement in ScenarioElements)
-            {
-                foreach (var element in scenarioElement.Item2)
-                {
-                    element.dispose();
-                }
-            }
+            DisposeScenario();
         }
 
         /// <summary>
@@ -82,6 +76,52 @@ namespace TGC.Group.Model
             PreRender();
 
             // Renderizar el escenario
+            ScenarioRender();
+
+            // Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
+            PostRender();
+        }
+
+        /// <summary>
+        ///     Se llama en cada frame.
+        /// </summary>
+        public override void Update()
+        {
+            PreUpdate();
+
+            ActivateRoofAndFloor();
+        }
+
+        /// <summary>
+        /// Verifica si hay que dibujar el piso y el techo
+        /// </summary>
+        private void ActivateRoofAndFloor()
+        {
+            if (Input.keyPressed(Key.F))
+            {
+                RenderFloorAndRoof = !RenderFloorAndRoof;
+            }
+        }
+
+        /// <summary>
+        /// Libera la memoria utilizada para el escenario
+        /// </summary>
+        private void DisposeScenario()
+        {
+            foreach (var scenarioElement in ScenarioElements)
+            {
+                foreach (var element in scenarioElement.Item2)
+                {
+                    element.dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Renderiza el escenario
+        /// </summary>
+        private void ScenarioRender()
+        {
             foreach (var scenarioElement in ScenarioElements)
             {
                 foreach (var element in scenarioElement.Item2)
@@ -96,22 +136,6 @@ namespace TGC.Group.Model
                         element.render();
                     }
                 }
-            }
-
-            // Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
-            PostRender();
-        }
-
-        /// <summary>
-        ///     Se llama en cada frame.
-        /// </summary>
-        public override void Update()
-        {
-            PreUpdate();
-
-            if (Input.keyPressed(Key.F))
-            {
-                RenderFloorAndRoof = !RenderFloorAndRoof;
             }
         }
     }

@@ -10,8 +10,6 @@ namespace TGC.Group.Test
     [TestClass]
     public class GameModelTest
     {
-        private readonly GameModel gameModel;
-
         public GameModelTest()
         {
             using (var panel = new Panel())
@@ -25,13 +23,13 @@ namespace TGC.Group.Test
             builder.RegisterType<ScenarioCreator>();
             var container = builder.Build();
 
-            gameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
+            GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
         }
+        private GameModel GameModel { get; set; }
 
         [TestMethod]
         public void InitTestOk()
         {
-            //gameModel.Init();
             Assert.IsTrue(true);
         }
     }

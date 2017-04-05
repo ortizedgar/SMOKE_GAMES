@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Microsoft.DirectX.DirectInput;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
@@ -11,27 +13,6 @@ namespace TGC.Group.Model
     /// </summary>
     public class GameModel : TgcExample
     {
-        private const float planeSize = 10;
-
-        /// <summary>
-        /// Creador de escenario
-        /// </summary>
-        private readonly IScenarioCreator scenarioCreator;
-
-        /// <summary>
-        /// Lista de <see cref="IRenderObject"/> que contiene las paredes, pisos, techos y objetos del escenario
-        /// </summary>
-        private List<List<IRenderObject>> scenarioElements;
-        /// <summary>
-        /// Fabrica de <see cref="TgcPlane"/>
-        /// </summary>
-        private readonly ITgcPlaneFactory tgcPlaneFactory;
-
-        /// <summary>
-        /// Fabrica de <see cref="Vector3"/>
-        /// </summary>
-        private readonly IVector3Factory vector3Factory;
-
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -42,10 +23,40 @@ namespace TGC.Group.Model
             Category = Game.Default.Category;
             Name = Game.Default.Name;
             Description = Game.Default.Description;
-            this.tgcPlaneFactory = tgcPlaneFactory;
-            this.vector3Factory = vector3Factory;
-            this.scenarioCreator = scenarioCreator;
+            TgcPlaneFactory = tgcPlaneFactory;
+            Vector3Factory = vector3Factory;
+            ScenarioCreator = scenarioCreator;
         }
+
+        /// <summary>
+        /// Tamaño del plano de las paredes, techo y piso
+        /// </summary>
+        private float PlaneSize { get; } = 10;
+
+        /// <summary>
+        /// Creador de escenario
+        /// </summary>
+        private IScenarioCreator ScenarioCreator { get; set; }
+
+        /// <summary>
+        /// Lista de <see cref="IRenderObject"/> que contiene las paredes, pisos, techos y objetos del escenario
+        /// </summary>
+        private List<Tuple<string, List<IRenderObject>>> ScenarioElements { get; set; }
+
+        /// <summary>
+        /// Fabrica de <see cref="TgcPlane"/>
+        /// </summary>
+        private ITgcPlaneFactory TgcPlaneFactory { get; set; }
+
+        /// <summary>
+        /// Fabrica de <see cref="Vector3"/>
+        /// </summary>
+        private IVector3Factory Vector3Factory { get; set; }
+
+        /// <summary>
+        /// Indica si el techo y el piso deben renderizarse
+        /// </summary>
+        private bool RenderFloorAndRoof { get; set; } = false;
 
         /// <summary>
         ///     Se llama cuando termina la ejecución del ejemplo.
@@ -55,9 +66,9 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             // Limpiar el escenario
-            foreach (var scenarioElement in scenarioElements)
+            foreach (var scenarioElement in ScenarioElements)
             {
-                foreach (var element in scenarioElement)
+                foreach (var element in scenarioElement.Item2)
                 {
                     element.dispose();
                 }
@@ -69,9 +80,9 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            Camara = new TgcFpsCamera(vector3Factory.CreateVector3(5, 5, 5), 10, 50, Input);
+            Camara = new TgcFpsCamera(Vector3Factory.CreateVector3(5, 5, 5), 10, 50, Input);
 
-            scenarioElements = scenarioCreator.CreateScenario(MediaDir, vector3Factory, tgcPlaneFactory, planeSize);
+            ScenarioElements = ScenarioCreator.CreateScenario(MediaDir, Vector3Factory, TgcPlaneFactory, PlaneSize);
         }
 
         /// <summary>
@@ -83,16 +94,19 @@ namespace TGC.Group.Model
             PreRender();
 
             // Renderizar el escenario
-            foreach (var scenarioElement in scenarioElements)
+            foreach (var scenarioElement in ScenarioElements)
             {
-                foreach (var element in scenarioElement)
+                foreach (var element in scenarioElement.Item2)
                 {
                     if (element is TgcPlane)
                     {
                         ((TgcPlane)element).updateValues();
                     }
 
-                    element.render();
+                    if (RenderFloorAndRoof || !(scenarioElement.Item1.Equals("Floor") || scenarioElement.Item1.Equals("Roof")))
+                    {
+                        element.render();
+                    }
                 }
             }
 
@@ -106,6 +120,11 @@ namespace TGC.Group.Model
         public override void Update()
         {
             PreUpdate();
+
+            if (Input.keyPressed(Key.F))
+            {
+                RenderFloorAndRoof = !RenderFloorAndRoof;
+            }
         }
     }
 }

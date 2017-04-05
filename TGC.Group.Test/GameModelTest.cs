@@ -21,9 +21,8 @@ namespace TGC.Group.Test
             builder.RegisterType<TgcPlaneFactory>();
             builder.RegisterType<Vector3Factory>();
             builder.RegisterType<ScenarioCreator>();
-            var container = builder.Build();
 
-            GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
+            GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", builder.Build());
         }
         private GameModel GameModel { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Autofac;
 using Microsoft.DirectX;
 using TGC.Core.Direct3D;
 using TGC.Core.Geometry;
@@ -12,25 +13,19 @@ namespace TGC.Group.Model
     public class ScenarioCreator : IScenarioCreator
     {
         /// <summary>
-        /// Lista de objetos que representan las puertas
-        /// </summary>
-        private List<IRenderObject> Doors { get; set; }
-
-        /// <summary>
         /// Representa la direccion Este
         /// </summary>
         private string Este { get; } = "E";
+
+        /// <summary>
+        /// Representa la orientacion horizontal
+        /// </summary>
         private string Horizontal { get; } = "H";
 
         /// <summary>
         /// Directorio de texturas, etc.
         /// </summary>
         private string MediaDir { get; set; }
-
-        /// <summary>
-        /// Contiene el mesh de las puertas
-        /// </summary>
-        private TgcMesh MeshPuerta { get; set; }
 
         /// <summary>
         /// Representa la direccion Norte
@@ -96,84 +91,64 @@ namespace TGC.Group.Model
         /// Crea la lista con todos los objetos que componen el escenario
         /// </summary>
         /// <param name="mediaDir">Directorio de medios</param>
-        /// <param name="vector3Factory">Fabrica de objetos <see cref="Vector3"/></param>
-        /// <param name="tgcPlaneFactory">Fabrica de objetos <see cref="ITgcPlaneFactory"/></param>
         /// <param name="planeSize">Tamaño de las paredes</param>
+        /// <param name="container">Container IOC</param>
         /// <returns></returns>
-        public List<Tuple<string, List<IRenderObject>>> CreateScenario(string mediaDir, IVector3Factory vector3Factory, ITgcPlaneFactory tgcPlaneFactory, float planeSize)
+        public List<Tuple<string, List<IRenderObject>>> CreateScenario(string mediaDir, IContainer container, float planeSize)
         {
             MediaDir = mediaDir;
-            Vector3Factory = vector3Factory;
-            TgcPlaneFactory = tgcPlaneFactory;
             PlaneSize = planeSize;
+            TgcPlaneFactory = container.Resolve<TgcPlaneFactory>();
+            Vector3Factory = container.Resolve<Vector3Factory>();
 
             return new List<Tuple<string, List<IRenderObject>>> {
                 Tuple.Create("Floor", CreateFloor()),
                 Tuple.Create("Roof", CreateRoof()),
                 Tuple.Create(nameof(Walls), CreateWalls()),
-                Tuple.Create(nameof(Doors), CreateDoors()),
                 Tuple.Create(nameof(Objects), CreateObjects())
             };
         }
 
         /// <summary>
-        /// Crea la lista con las puertas del escenario
+        /// Calcula la rotacion del objeto sobre el eje Y en base a la orientacion indicada
         /// </summary>
-        /// <returns>La lista de puertas</returns>
-        private List<IRenderObject> CreateDoors()
+        /// <param name="orientation">Orientacion deseada</param>
+        /// <returns><see cref="Vector3"/> indicando la rotacion del objeto</returns>
+        private Vector3 CalculateRotation(string orientation)
         {
-            Doors = new List<IRenderObject>();
-            MeshPuerta = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
+            if (orientation == Sur)
+            {
+                return Vector3Factory.CreateVector3(0, 600, 0);
+            }
+            if (orientation == Este)
+            {
+                return Vector3Factory.CreateVector3(0, 300, 0);
+            }
+            if (orientation == Oeste)
+            {
+                return Vector3Factory.CreateVector3(0, 900, 0);
+            }
 
-            // Puertas horizontales
-            CreateDoorsLine(Horizontal, 5, new float[] { 40, 200 });
-            CreateDoorsLine(Horizontal, 25, new float[] { 100, 200 });
-            CreateDoorsLine(Horizontal, 45, new float[] { 200 });
-            CreateDoorsLine(Horizontal, 60, new float[] { 200 });
-            CreateDoorsLine(Horizontal, 95, new float[] { 0, 60, 160, 220 });
-            CreateDoorsLine(Horizontal, 105, new float[] { 0, 60, 160, 220 });
-            CreateDoorsLine(Horizontal, 120, new float[] { 40 });
-            CreateDoorsLine(Horizontal, 130, new float[] { 200 });
-            CreateDoorsLine(Horizontal, 150, new float[] { 40, 200 });
-            CreateDoorsLine(Horizontal, 170, new float[] { 30, 40 });
-            CreateDoorsLine(Horizontal, 175, new float[] { 70 });
-            CreateDoorsLine(Horizontal, 180, new float[] { 200 });
-            CreateDoorsLine(Horizontal, 190, new float[] { 20 });
-            CreateDoorsLine(Horizontal, 200, new float[] { 190 });
-
-            // Puertas verticales
-            CreateDoorsLine(Vertical, 20, new float[] { 80, 100, 140 });
-            CreateDoorsLine(Vertical, 30, new float[] { 10, 30 });
-            CreateDoorsLine(Vertical, 50, new float[] { 160 });
-            CreateDoorsLine(Vertical, 60, new float[] { 0, 20, 40, 80, 140, 205 });
-            CreateDoorsLine(Vertical, 120, new float[] { 170 });
-            CreateDoorsLine(Vertical, 140, new float[] { 50, 160 });
-            CreateDoorsLine(Vertical, 150, new float[] { 0, 20, 70, 120, 200 });
-            CreateDoorsLine(Vertical, 170, new float[] { 0, 40, 130 });
-            CreateDoorsLine(Vertical, 190, new float[] { 40, 80, 200 });
-            CreateDoorsLine(Vertical, 200, new float[] { 90, 140, 160 });
-
-            return Doors;
+            return Vector3Factory.CreateVector3(0, 0, 0);
         }
 
         /// <summary>
-        /// Crea una linea de puertas
+        /// Calcula la transalacion del objeto, diferenciando las puertas
         /// </summary>
-        /// <param name="orientation">Indica si las puertas deben dibujarse horizontales o verticales</param>
-        /// <param name="xCoordinate">Indica las coordenadas en el eje X sobre el cual deben dibujarse las puertas</param>
-        /// <param name="zCoordinates">Indica todas las coordenadas Z donde debe dibujarse cada puerta</param>
-        private void CreateDoorsLine(string orientation, float xCoordinate, float[] zCoordinates)
+        /// <param name="mesh">Mesh a transladar</param>
+        /// <param name="orientation">Orientacion del mesh</param>
+        /// <param name="xCoordinate">Cordenada X</param>
+        /// <param name="yCoordinate">Cordenada y</param>
+        /// <param name="zCoordinate">Cordenada Z</param>
+        /// <returns></returns>
+        private Vector3 CalculateTranslation(TgcMesh mesh, string orientation, float xCoordinate, float yCoordinate, float zCoordinate)
         {
-            foreach (var zCoordinate in zCoordinates)
+            if (mesh.Name.Equals("Puerta", StringComparison.OrdinalIgnoreCase))
             {
-                var meshInstance = MeshPuerta.createMeshInstance(
-                    Doors.Count + "_" + MeshPuerta.Name,
-                    orientation == Horizontal ? Vector3Factory.CreateVector3(xCoordinate + 5, 0, zCoordinate) : Vector3Factory.CreateVector3(xCoordinate, 0, zCoordinate + 5),
-                    orientation == Horizontal ? Vector3Factory.CreateVector3(0, 0, 0) : Vector3Factory.CreateVector3(0, 300, 0),
-                    Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f));
-                meshInstance.AutoTransformEnable = true;
-                Doors.Add(meshInstance);
+                return orientation == Este || orientation == Oeste ? Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate + 5) : Vector3Factory.CreateVector3(xCoordinate + 5, yCoordinate, zCoordinate);
             }
+
+            return Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate);
         }
 
         /// <summary>
@@ -194,20 +169,21 @@ namespace TGC.Group.Model
         private List<IRenderObject> CreateHorizontalLayer(float yCoordinate, TgcTexture texture)
         {
             var layer = new List<IRenderObject>();
+            TgcPlane layerElement;
 
             for (var i = 0; i < ScenarioWide; i++)
             {
                 for (int j = 0; j < ScenarioDepth; j++)
                 {
-                    var floorElement = TgcPlaneFactory.CreateTgcPlane();
-                    floorElement.setTexture(texture);
-                    floorElement.Origin = Vector3Factory.CreateVector3(PlaneSize * i, yCoordinate, PlaneSize * j);
-                    floorElement.Size = Vector3Factory.CreateVector3(PlaneSize, PlaneSize, PlaneSize);
-                    floorElement.Orientation = TgcPlane.Orientations.XZplane;
-                    floorElement.AutoAdjustUv = false;
-                    floorElement.UTile = 1;
-                    floorElement.VTile = 1;
-                    layer.Add(floorElement);
+                    layerElement = TgcPlaneFactory.CreateTgcPlane();
+                    layerElement.setTexture(texture);
+                    layerElement.Origin = Vector3Factory.CreateVector3(PlaneSize * i, yCoordinate, PlaneSize * j);
+                    layerElement.Size = Vector3Factory.CreateVector3(PlaneSize, PlaneSize, PlaneSize);
+                    layerElement.Orientation = TgcPlane.Orientations.XZplane;
+                    layerElement.AutoAdjustUv = false;
+                    layerElement.UTile = 1;
+                    layerElement.VTile = 1;
+                    layer.Add(layerElement);
                 }
             }
 
@@ -225,18 +201,47 @@ namespace TGC.Group.Model
             var meshLamparaTecho = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"LamparaTecho\LamparaTecho-TgcScene.xml").Meshes[0];
             var meshSillon = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Sillon\Sillon-TgcScene.xml").Meshes[0];
             var meshLockerMetal = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"LockerMetal\LockerMetal-TgcScene.xml").Meshes[0];
+            var meshPuerta = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
+
+            // Puertas horizontales
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 25, 0, new float[] { 100, 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 45, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 95, 0, new float[] { 0, 60, 160, 220 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 105, 0, new float[] { 0, 60, 160, 220 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 40 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 130, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 40, 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 30, 40 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 175, 0, new float[] { 70 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 180, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 20 });
+            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 190 });
+
+            // Puertas verticales
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 20, 0, new float[] { 80, 100, 140 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, new float[] { 10, 30 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 50, 0, new float[] { 160 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 0, 20, 40, 80, 140, 205 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 170 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 140, 0, new float[] { 50, 160 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 0, 20, 70, 120, 200 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 0, 40, 130 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 40, 80, 200 });
+            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 90, 140, 160 });
 
             // Lockers
-            CreateObjectsLine(meshLockerMetal, Norte, 5, 0, new float[] { 5 });
+            CreateObjectsLine(meshLockerMetal, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 5 });
 
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, 5, PlaneSize, new float[] { 50 });
+            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, PlaneSize, new float[] { 50 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, 5, 0, new float[] { 100 });
+            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 100 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Oeste, 5, 0, new float[] { 150 });
+            CreateObjectsLine(meshMesa, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 150 });
 
             return Objects;
         }
@@ -249,31 +254,17 @@ namespace TGC.Group.Model
         /// <param name="xCoordinate">Indica la ubicacion en la coordenada X de la linea de objetos</param>
         /// <param name="yCoordinate">Indica la ubicacion en la coordenada Y de la linea de objetos</param>
         /// <param name="zCoordinates">Indica la ubicacion en la coordenada Z donde debe colocarse cada objeto</param>
-        private void CreateObjectsLine(TgcMesh mesh, string orientation, float xCoordinate, float yCoordinate, float[] zCoordinates)
+        /// <param name="scale">Tamaño del objeto</param>
+        private void CreateObjectsLine(TgcMesh mesh, string orientation, Vector3 scale, float xCoordinate, float yCoordinate, float[] zCoordinates)
         {
             TgcMesh meshInstance;
-            Vector3 rotation;
             foreach (var zCoordinate in zCoordinates)
             {
-                rotation = Vector3Factory.CreateVector3(0, 0, 0);
-                if (orientation == Sur)
-                {
-                    rotation = Vector3Factory.CreateVector3(0, 600, 0);
-                }
-                if (orientation == Este)
-                {
-                    rotation = Vector3Factory.CreateVector3(0, 300, 0);
-                }
-                if (orientation == Oeste)
-                {
-                    rotation = Vector3Factory.CreateVector3(0, 900, 0);
-                }
-
                 meshInstance = mesh.createMeshInstance(
                     Objects.Count + "_" + mesh.Name,
-                    Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate),
-                    rotation,
-                    Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f));
+                    CalculateTranslation(mesh, orientation, xCoordinate, yCoordinate, zCoordinate),
+                    CalculateRotation(orientation),
+                    scale);
                 meshInstance.AutoTransformEnable = true;
                 Objects.Add(meshInstance);
             }

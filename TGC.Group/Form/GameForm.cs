@@ -74,7 +74,7 @@ namespace TGC.Group.Form
         /// </summary>
         public void ExecuteModel()
         {
-            //Ejecutar Init
+            // Ejecutar Init
             try
             {
                 Modelo.ResetDefaultConfig();
@@ -94,36 +94,35 @@ namespace TGC.Group.Form
         /// </summary>
         public void InitGraphics()
         {
-            //Se inicio la aplicación
+            // Se inicio la aplicación
             ApplicationRunning = true;
 
-            //Inicio Device
+            // Inicio Device
             D3DDevice.Instance.InitializeD3DDevice(panel3D);
 
-            //Inicio inputs
+            // Inicio inputs
             Input = new TgcD3dInput();
             Input.Initialize(this, panel3D);
 
-            //Inicio sonido
+            // Inicio sonido
             DirectSound = new TgcDirectSound();
             DirectSound.InitializeD3DDevice(panel3D);
 
-            //Directorio actual de ejecución
+            // Directorio actual de ejecución
             var currentDirectory = Environment.CurrentDirectory + "\\";
 
-            //Cargar shaders del framework
+            // Cargar shaders del framework
             TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
 
-            //Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
+            // Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
             var builder = new ContainerBuilder();
-            builder.RegisterType<TgcPlaneFactory>();
-            builder.RegisterType<Vector3Factory>();
-            builder.RegisterType<ScenarioCreator>();
-            var container = builder.Build();
+            builder.RegisterType<TgcPlaneFactory>().SingleInstance();
+            builder.RegisterType<Vector3Factory>().SingleInstance();
+            builder.RegisterType<ScenarioCreator>().SingleInstance();
 
-            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, container.Resolve<TgcPlaneFactory>(), container.Resolve<Vector3Factory>(), container.Resolve<ScenarioCreator>());
+            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, builder.Build());
 
-            //Cargar juego.
+            // Cargar juego.
             ExecuteModel();
         }
 
@@ -134,10 +133,10 @@ namespace TGC.Group.Form
         {
             while (ApplicationRunning)
             {
-                //Renderizo si es que hay un ejemplo activo.
+                // Renderizo si es que hay un ejemplo activo.
                 if (Modelo != null)
                 {
-                    //Solo renderizamos si la aplicacion tiene foco, para no consumir recursos innecesarios.
+                    // Solo renderizamos si la aplicacion tiene foco, para no consumir recursos innecesarios.
                     if (ApplicationActive())
                     {
                         Modelo.Update();
@@ -145,10 +144,11 @@ namespace TGC.Group.Form
                     }
                     else
                     {
-                        //Si no tenemos el foco, dormir cada tanto para no consumir gran cantidad de CPU.
+                        // Si no tenemos el foco, dormir cada tanto para no consumir gran cantidad de CPU.
                         Thread.Sleep(100);
                     }
                 }
+
                 // Process application messages.
                 Application.DoEvents();
             }
@@ -163,7 +163,7 @@ namespace TGC.Group.Form
 
             StopCurrentExample();
 
-            //Liberar Device al finalizar la aplicacion
+            // Liberar Device al finalizar la aplicacion
             D3DDevice.Instance.Dispose();
             TexturesPool.Instance.clearAll();
         }
@@ -190,16 +190,16 @@ namespace TGC.Group.Form
 
         private void GameForm_Load(object sender, EventArgs e)
         {
-            //Iniciar graficos.
+            // Iniciar graficos.
             InitGraphics();
 
-            //Titulo de la ventana principal.
+            // Titulo de la ventana principal.
             Text = Modelo.Name + " - " + Modelo.Description;
 
-            //Focus panel3D.
+            // Focus panel3D.
             panel3D.Focus();
 
-            //Inicio el ciclo de Render.
+            // Inicio el ciclo de Render.
             InitRenderLoop();
         }
     }

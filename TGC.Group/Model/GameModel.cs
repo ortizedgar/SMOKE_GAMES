@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Autofac;
 using Microsoft.DirectX.DirectInput;
 using TGC.Core.Example;
 using TGC.Core.Geometry;
 using TGC.Core.SceneLoader;
-using TGC.Group.Interfaces;
 
 namespace TGC.Group.Model
 {
@@ -18,15 +18,18 @@ namespace TGC.Group.Model
         /// </summary>
         /// <param name="mediaDir">Ruta donde esta la carpeta con los assets</param>
         /// <param name="shadersDir">Ruta donde esta la carpeta con los shaders</param>
-        public GameModel(string mediaDir, string shadersDir, ITgcPlaneFactory tgcPlaneFactory, IVector3Factory vector3Factory, IScenarioCreator scenarioCreator) : base(mediaDir, shadersDir)
+        public GameModel(string mediaDir, string shadersDir, IContainer container) : base(mediaDir, shadersDir)
         {
             Category = Game.Default.Category;
             Name = Game.Default.Name;
             Description = Game.Default.Description;
-            TgcPlaneFactory = tgcPlaneFactory;
-            Vector3Factory = vector3Factory;
-            ScenarioCreator = scenarioCreator;
+            Container = container;
         }
+
+        /// <summary>
+        /// Container IOC
+        /// </summary>
+        private IContainer Container { get; set; }
 
         /// <summary>
         /// Tamaño del plano de las paredes, techo y piso
@@ -34,29 +37,14 @@ namespace TGC.Group.Model
         private float PlaneSize { get; } = 10;
 
         /// <summary>
-        /// Creador de escenario
+        /// Indica si el techo y el piso deben renderizarse
         /// </summary>
-        private IScenarioCreator ScenarioCreator { get; set; }
+        private bool RenderFloorAndRoof { get; set; } = false;
 
         /// <summary>
         /// Lista de <see cref="IRenderObject"/> que contiene las paredes, pisos, techos y objetos del escenario
         /// </summary>
         private List<Tuple<string, List<IRenderObject>>> ScenarioElements { get; set; }
-
-        /// <summary>
-        /// Fabrica de <see cref="TgcPlane"/>
-        /// </summary>
-        private ITgcPlaneFactory TgcPlaneFactory { get; set; }
-
-        /// <summary>
-        /// Fabrica de <see cref="Vector3"/>
-        /// </summary>
-        private IVector3Factory Vector3Factory { get; set; }
-
-        /// <summary>
-        /// Indica si el techo y el piso deben renderizarse
-        /// </summary>
-        private bool RenderFloorAndRoof { get; set; } = false;
 
         /// <summary>
         ///     Se llama cuando termina la ejecución del ejemplo.
@@ -80,9 +68,9 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            Camara = new TgcFpsCamera(Vector3Factory.CreateVector3(5, 5, 5), 10, 50, Input);
+            Camara = new TgcFpsCamera(Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5), 10, 50, Input);
 
-            ScenarioElements = ScenarioCreator.CreateScenario(MediaDir, Vector3Factory, TgcPlaneFactory, PlaneSize);
+            ScenarioElements = Container.Resolve<ScenarioCreator>().CreateScenario(MediaDir, Container, PlaneSize);
         }
 
         /// <summary>

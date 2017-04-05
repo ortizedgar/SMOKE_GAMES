@@ -202,6 +202,7 @@ namespace TGC.Group.Model
             var meshSillon = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Sillon\Sillon-TgcScene.xml").Meshes[0];
             var meshLockerMetal = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"LockerMetal\LockerMetal-TgcScene.xml").Meshes[0];
             var meshPuerta = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
+            var meshPlacard = new TgcSceneLoader().loadSceneFromFile(MediaDir + @"Placard\Placard-TgcScene.xml").Meshes[0];
 
             // Puertas horizontales
             CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
@@ -242,6 +243,9 @@ namespace TGC.Group.Model
 
             // Mesas
             CreateObjectsLine(meshMesa, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 150 });
+
+            // Placard
+            CreateObjectsLine(meshPlacard, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 150 });
 
             return Objects;
         }

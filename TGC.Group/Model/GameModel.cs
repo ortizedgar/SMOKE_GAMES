@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using Autofac;
-using Microsoft.DirectX.DirectInput;
-using TGC.Core.Example;
-using TGC.Core.Geometry;
-using TGC.Core.SceneLoader;
-
 namespace TGC.Group.Model
 {
+    using System;
+    using System.Collections.Generic;
+    using Autofac;
+    using Microsoft.DirectX.DirectInput;
+    using TGC.Core.Example;
+    using TGC.Core.Geometry;
+    using TGC.Core.SceneLoader;
+
     /// <summary>
     ///     Survial horror game
     /// </summary>
@@ -62,7 +62,7 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            Camara = new TgcFpsCamera(Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5), 10, 50, Input);
+            Camara = new TgcFpsCamera(Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5), 50, 50, Input);
 
             ScenarioElements = Container.Resolve<ScenarioCreator>().CreateScenario(MediaDir, Container, PlaneSize);
         }

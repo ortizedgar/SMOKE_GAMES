@@ -1,12 +1,12 @@
-﻿using System.IO;
-using System.Windows.Forms;
-using Autofac;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TGC.Core.Direct3D;
-using TGC.Group.Model;
-
-namespace TGC.Group.Test
+﻿namespace TGC.Group.Test
 {
+    using System.IO;
+    using System.Windows.Forms;
+    using Autofac;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using TGC.Core.Direct3D;
+    using TGC.Group.Model;
+
     [TestClass]
     public class GameModelTest
     {

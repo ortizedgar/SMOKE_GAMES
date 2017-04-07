@@ -1,17 +1,18 @@
-﻿using System;
-using System.Threading;
-using System.Windows.Forms;
-using Autofac;
-using TGC.Core.Direct3D;
-using TGC.Core.Example;
-using TGC.Core.Input;
-using TGC.Core.Shaders;
-using TGC.Core.Sound;
-using TGC.Core.Textures;
-using TGC.Group.Model;
-
-namespace TGC.Group.Form
+﻿namespace TGC.Group.Form
 {
+    using System;
+    using System.Threading;
+    using System.Windows.Forms;
+    using Autofac;
+    using TGC.Core.Direct3D;
+    using TGC.Core.Example;
+    using TGC.Core.Input;
+    using TGC.Core.SceneLoader;
+    using TGC.Core.Shaders;
+    using TGC.Core.Sound;
+    using TGC.Core.Textures;
+    using TGC.Group.Model;
+
     /// <summary>
     ///     GameForm es el formulario de entrada, el mismo invocara a nuestro modelo  que extiende TgcExample, e inicia el
     ///     render loop.
@@ -118,6 +119,8 @@ namespace TGC.Group.Form
             var builder = new ContainerBuilder();
             builder.RegisterType<TgcPlaneFactory>().SingleInstance();
             builder.RegisterType<Vector3Factory>().SingleInstance();
+            builder.RegisterType<TgcFpsCamera>().SingleInstance();
+            builder.RegisterType<TgcSceneLoader>().SingleInstance();
             builder.RegisterType<ScenarioCreator>().SingleInstance();
 
             Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, builder.Build());

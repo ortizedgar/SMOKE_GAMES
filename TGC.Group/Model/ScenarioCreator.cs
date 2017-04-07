@@ -63,6 +63,16 @@
         private string Sur { get; } = "S";
 
         /// <summary>
+        /// Fabrica de <see cref="TgcPlane"/>
+        /// </summary>
+        private ITgcPlaneFactory TgcPlaneFactory { get; set; }
+
+        /// <summary>
+        /// Objeto <see cref="TgcSceneLoader"/>
+        /// </summary>
+        private TgcSceneLoader TgcSceneLoader { get; set; }
+
+        /// <summary>
         /// Fabrica de <see cref="Vector3"/>
         /// </summary>
         private IVector3Factory Vector3Factory { get; set; }
@@ -81,16 +91,6 @@
         /// Textura de las paredes
         /// </summary>
         private TgcTexture WallTexture { get; set; }
-
-        /// <summary>
-        /// Objeto <see cref="TgcSceneLoader"/>
-        /// </summary>
-        private TgcSceneLoader TgcSceneLoader { get; set; }
-
-        /// <summary>
-        /// Fabrica de <see cref="TgcPlane"/>
-        /// </summary>
-        private ITgcPlaneFactory TgcPlaneFactory { get; set; }
 
 
         /// <summary>

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
-using TGC.Group.Form;
-
-namespace TGC.Group
+﻿namespace TGC.Group
 {
+    using System;
+    using System.Windows.Forms;
+    using TGC.Group.Form;
+
     internal static class Program
     {
         /// <summary>

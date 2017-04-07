@@ -1,14 +1,14 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-using Microsoft.DirectX;
-using Microsoft.DirectX.DirectInput;
-using TGC.Core.Camara;
-using TGC.Core.Direct3D;
-using TGC.Core.Input;
-using TGC.Core.Utils;
-
-namespace TGC.Group.Model
+﻿namespace TGC.Group.Model
 {
+    using System.Drawing;
+    using System.Windows.Forms;
+    using Microsoft.DirectX;
+    using Microsoft.DirectX.DirectInput;
+    using TGC.Core.Camara;
+    using TGC.Core.Direct3D;
+    using TGC.Core.Input;
+    using TGC.Core.Utils;
+
     /// <summary>
     ///     Camara en primera persona que utiliza matrices de rotacion, solo almacena las rotaciones en updown y costados.
     ///     Ref: http://www.riemers.net/eng/Tutorials/XNA/Csharp/Series4/Mouse_camera.php

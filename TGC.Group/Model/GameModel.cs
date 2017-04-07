@@ -2,6 +2,7 @@ namespace TGC.Group.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Autofac;
     using Microsoft.DirectX.DirectInput;
     using TGC.Core.Example;
@@ -32,11 +33,6 @@ namespace TGC.Group.Model
         private IContainer Container { get; set; }
 
         /// <summary>
-        /// Tamaño del plano de las paredes, techo y piso
-        /// </summary>
-        private float PlaneSize { get; } = 10;
-
-        /// <summary>
         /// Indica si el techo y el piso deben renderizarse
         /// </summary>
         private bool RenderFloorAndRoof { get; set; } = false;
@@ -62,9 +58,9 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Init()
         {
-            Camara = new TgcFpsCamera(Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5), 50, 50, Input);
+            InitCamara();
 
-            ScenarioElements = Container.Resolve<ScenarioCreator>().CreateScenario(MediaDir, Container, PlaneSize);
+            InitScenario();
         }
 
         /// <summary>
@@ -93,6 +89,20 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
+        /// Renderiza un elemento y lo actualiza si es un <see cref="TgcPlane"/>
+        /// </summary>
+        /// <param name="element"></param>
+        private static void RenderElement(IRenderObject element)
+        {
+            if (element is TgcPlane)
+            {
+                ((TgcPlane)element).updateValues();
+            }
+
+            element.render();
+        }
+
+        /// <summary>
         /// Verifica si hay que dibujar el piso y el techo
         /// </summary>
         private void ActivateRoofAndFloor()
@@ -108,13 +118,72 @@ namespace TGC.Group.Model
         /// </summary>
         private void DisposeScenario()
         {
-            foreach (var scenarioElement in ScenarioElements)
-            {
-                foreach (var element in scenarioElement.Item2)
-                {
-                    element.dispose();
-                }
-            }
+            ScenarioElements
+                .SelectMany(
+                    element =>
+                        element.Item2)
+                .AsParallel()
+                .ToList()
+                .ForEach(
+                    element =>
+                        element.dispose());
+        }
+
+        /// <summary>
+        /// Inicializa el escenario
+        /// </summary>
+        private void InitCamara()
+        {
+            Camara = Container.Resolve<TgcFpsCamera>(
+                            new NamedParameter("positionEye", Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5)),
+                            new NamedParameter("moveSpeed", 50),
+                            new NamedParameter("jumpSpeed", 50),
+                            new NamedParameter("input", Input));
+        }
+
+        /// <summary>
+        /// Inicializa la camara
+        /// </summary>
+        private void InitScenario()
+        {
+            ScenarioElements = Container.Resolve<ScenarioCreator>().CreateScenario(MediaDir, Container);
+        }
+
+        /// <summary>
+        /// Renderiza el escenario con piso y techo
+        /// </summary>
+        private void RenderWithFloorAndRoof()
+        {
+            ScenarioElements
+                .SelectMany(
+                    element =>
+                        element.Item2)
+                .AsParallel()
+                .ToList()
+                .ForEach(
+                    element =>
+                    {
+                        RenderElement(element);
+                    });
+        }
+
+        /// <summary>
+        /// Renderiza el escenario sin piso y techo
+        /// </summary>
+        private void RenderWithoutFloorAndRoof()
+        {
+            ScenarioElements
+                .Where(
+                    element =>
+                        !element.Item1.Equals("Floor") && !element.Item1.Equals("Roof"))
+                .AsParallel()
+                .SelectMany(element => element.Item2)
+                .ToList()
+                .ForEach(
+                    element =>
+                    {
+                        RenderElement(element);
+                    });
         }
 
         /// <summary>
@@ -122,20 +191,13 @@ namespace TGC.Group.Model
         /// </summary>
         private void ScenarioRender()
         {
-            foreach (var scenarioElement in ScenarioElements)
+            if (RenderFloorAndRoof)
             {
-                foreach (var element in scenarioElement.Item2)
-                {
-                    if (element is TgcPlane)
-                    {
-                        ((TgcPlane)element).updateValues();
-                    }
-
-                    if (RenderFloorAndRoof || !(scenarioElement.Item1.Equals("Floor") || scenarioElement.Item1.Equals("Roof")))
-                    {
-                        element.render();
-                    }
-                }
+                RenderWithFloorAndRoof();
+            }
+            else
+            {
+                RenderWithoutFloorAndRoof();
             }
         }
     }

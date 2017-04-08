@@ -73,6 +73,11 @@
         private IVector3Factory Vector3Factory { get; set; }
 
         /// <summary>
+        /// Fabrica de <see cref="TgcTexture"/>
+        /// </summary>
+        private ITgcTextureFactory TgcTextureFactory { get; set; }
+
+        /// <summary>
         /// Lista de objetos que representan las paredes
         /// </summary>
         private List<IRenderObject> Walls { get; set; }
@@ -92,8 +97,9 @@
         {
             this.MediaDir = mediaDir;
             this.TgcSceneLoader = container.Resolve<TgcSceneLoader>();
-            this.TgcPlaneFactory = container.Resolve<TgcPlaneFactory>();
-            this.Vector3Factory = container.Resolve<Vector3Factory>();
+            this.TgcPlaneFactory = container.Resolve<ITgcPlaneFactory>();
+            this.Vector3Factory = container.Resolve<IVector3Factory>();
+            this.TgcTextureFactory = container.Resolve<ITgcTextureFactory>();
 
             return new List<Tuple<string, List<IRenderObject>>> {
                 Tuple.Create("Floor", CreateFloor()),
@@ -152,7 +158,7 @@
         /// Crea el piso
         /// </summary>
         /// <returns>La lista con todos los objetos que componen el piso</returns>
-        private List<IRenderObject> CreateFloor() => CreateHorizontalLayer(0, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\floor.bmp"));
+        private List<IRenderObject> CreateFloor() => CreateHorizontalLayer(0, this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\floor.bmp"));
 
         /// <summary>
         /// Crea una capa horizontal de planos que ocupan todo el escenario
@@ -749,7 +755,7 @@
         /// Crea el techo del escenario
         /// </summary>
         /// <returns>Lista con los objetos que componen el techo</returns>
-        private List<IRenderObject> CreateRoof() => CreateHorizontalLayer(this.PlaneSize, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\roof.bmp"));
+        private List<IRenderObject> CreateRoof() => CreateHorizontalLayer(this.PlaneSize, this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\roof.bmp"));
 
         /// <summary>
         /// Crea las paredes del escenario
@@ -758,7 +764,7 @@
         private List<IRenderObject> CreateWalls()
         {
             this.Walls = new List<IRenderObject>();
-            this.WallTexture = TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\wall.bmp");
+            this.WallTexture = this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\wall.bmp");
 
             // Paredes verticales
             CreateWallsLine(this.Este, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });

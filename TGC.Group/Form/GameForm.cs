@@ -112,17 +112,13 @@
             // Cargar shaders del framework
             TgcShaders.Instance.loadCommonShaders(currentDirectory + Game.Default.ShadersDirectory);
 
-            // Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase.
-            var builder = new ContainerBuilder();
-            builder.RegisterType<TgcPlaneFactory>().SingleInstance();
-            builder.RegisterType<Vector3Factory>().SingleInstance();
-            builder.RegisterType<TgcFpsCamera>().SingleInstance();
-            builder.RegisterType<TgcSceneLoader>().SingleInstance();
-            builder.RegisterType<ScenarioCreator>().SingleInstance();
+            // Juego a ejecutar, si quisiéramos tener diferentes modelos aquí podemos cambiar la instancia e invocar a otra clase
+            this.Modelo = new GameModel(
+                currentDirectory + Game.Default.MediaDirectory,
+                currentDirectory + Game.Default.ShadersDirectory,
+                new IocConfigurator().BuildAutofacContainer());
 
-            this.Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, builder.Build());
-
-            // Cargar juego.
+            // Cargar juego
             ExecuteModel();
         }
 

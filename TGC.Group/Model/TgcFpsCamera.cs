@@ -32,7 +32,9 @@
             this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
         }
 
+#pragma warning disable CC0057 // Unused parameters
         public TgcFpsCamera(Vector3 positionEye, TgcD3dInput input) : this(input) => PositionEye = positionEye;
+#pragma warning restore CC0057 // Unused parameters
 
         public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, TgcD3dInput input) : this(positionEye, input)
         {
@@ -40,7 +42,9 @@
             this.JumpSpeed = jumpSpeed;
         }
 
+#pragma warning disable CC0057 // Unused parameters
         public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, float rotationSpeed, TgcD3dInput input) : this(positionEye, moveSpeed, jumpSpeed, input) => RotationSpeed = rotationSpeed;
+#pragma warning restore CC0057 // Unused parameters
 
         /// <summary>
         ///     Cuando se elimina esto hay que desbloquear la camera.
@@ -109,7 +113,7 @@
         public override void UpdateCamera(float elapsedTime)
         {
             var moveVector = new Vector3(0, 0, 0);
-            
+
             // Forward
             if (this.Input.keyDown(Key.W))
             {

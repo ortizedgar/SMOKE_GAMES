@@ -9,6 +9,7 @@ namespace TGC.Group.Model
     using TGC.Core.Example;
     using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
+    using TGC.Group.Interfaces;
 
     /// <summary>
     ///     Survial horror game
@@ -94,7 +95,7 @@ namespace TGC.Group.Model
         {
             PreUpdate();
 
-            if (this.ElapsedTime >= 1 / 60)
+            if (this.ElapsedTime >= 1 / 30)
             {
                 ActivateRoofAndFloor();
             }
@@ -141,7 +142,7 @@ namespace TGC.Group.Model
         /// Inicializa el escenario
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
-                            new NamedParameter("positionEye", this.Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5)),
+                            new NamedParameter("positionEye", this.Container.Resolve<IVector3Factory>().CreateVector3(5, 5, 5)),
                             new NamedParameter("moveSpeed", 50),
                             new NamedParameter("jumpSpeed", 50),
                             new NamedParameter("input", this.Input));
@@ -149,7 +150,7 @@ namespace TGC.Group.Model
         /// <summary>
         /// Inicializa la camara
         /// </summary>
-        private void InitScenario() => this.ScenarioElements = this.Container.Resolve<ScenarioCreator>().CreateScenario(this.MediaDir, this.Container);
+        private void InitScenario() => this.ScenarioElements = this.Container.Resolve<IScenarioCreator>().CreateScenario(this.MediaDir, this.Container);
 
         /// <summary>
         /// Renderiza el escenario con piso y techo

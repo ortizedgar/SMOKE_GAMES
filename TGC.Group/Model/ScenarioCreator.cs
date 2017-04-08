@@ -140,7 +140,9 @@
             if (mesh.Name.Equals("Puerta", StringComparison.OrdinalIgnoreCase))
             {
                 var doorDisplacement = this.PlaneSize / 2;
-                return orientation == this.Este || orientation == this.Oeste ? this.Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate + doorDisplacement) : this.Vector3Factory.CreateVector3(xCoordinate + doorDisplacement, yCoordinate, zCoordinate);
+                return orientation == this.Este || orientation == this.Oeste ?
+                    this.Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate + doorDisplacement)
+                    : this.Vector3Factory.CreateVector3(xCoordinate + doorDisplacement, yCoordinate, zCoordinate);
             }
 
             return this.Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate);
@@ -162,7 +164,6 @@
         {
             var layer = new List<IRenderObject>();
             TgcPlane layerElement;
-
             for (var i = 0; i < this.ScenarioWide; i++)
             {
                 for (var j = 0; j < this.ScenarioDepth; j++)

@@ -156,32 +156,34 @@ namespace TGC.Group.Model
         /// Renderiza el escenario con piso y techo
         /// </summary>
         private void RenderWithFloorAndRoof() => this.ScenarioElements
-                .SelectMany(
-                    element =>
-                        element.Item2)
-                .AsParallel()
-                .ToList()
-                .ForEach(
-                    element =>
-                    {
-                        RenderElement(element);
-                    });
+            .AsParallel()
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ToList()
+            .ForEach(
+                element =>
+                {
+                    RenderElement(element);
+                });
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
         /// </summary>
         private void RenderWithoutFloorAndRoof() => this.ScenarioElements
-                .Where(
-                    element =>
-                        !element.Item1.Equals("Floor") && !element.Item1.Equals("Roof"))
-                .AsParallel()
-                .SelectMany(element => element.Item2)
-                .ToList()
-                .ForEach(
-                    element =>
-                    {
-                        RenderElement(element);
-                    });
+            .AsParallel()
+            .Where(
+                element =>
+                    !element.Item1.Equals("Floor") && !element.Item1.Equals("Roof"))
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ToList()
+            .ForEach(
+                element =>
+                {
+                    RenderElement(element);
+                });
 
         /// <summary>
         /// Renderiza el escenario

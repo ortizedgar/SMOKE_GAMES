@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Autofac;
     using Microsoft.DirectX;
+    using Microsoft.DirectX.Direct3D;
     using TGC.Core.Direct3D;
     using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
@@ -116,20 +117,20 @@
         /// <returns><see cref="Vector3"/> indicando la rotacion del objeto</returns>
         private Vector3 CalculateRotation(string orientation)
         {
+            if (orientation == this.Oeste)
+            {
+                return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(90), 0);
+            }
             if (orientation == this.Sur)
             {
-                return this.Vector3Factory.CreateVector3(0, 600, 0);
+                return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(180), 0);
             }
             if (orientation == this.Este)
             {
-                return this.Vector3Factory.CreateVector3(0, 300, 0);
-            }
-            if (orientation == this.Oeste)
-            {
-                return this.Vector3Factory.CreateVector3(0, 900, 0);
+                return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(270), 0);
             }
 
-            return this.Vector3Factory.CreateVector3(0, 0, 0);
+            return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(0), 0);
         }
 
         /// <summary>

@@ -129,14 +129,13 @@ namespace TGC.Group.Model
         /// Libera la memoria utilizada para el escenario
         /// </summary>
         private void DisposeScenario() => this.ScenarioElements
-                .SelectMany(
-                    element =>
-                        element.Item2)
-                .AsParallel()
-                .ToList()
-                .ForEach(
-                    element =>
-                        element.dispose());
+            .AsParallel()
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ForAll(
+                element =>
+                    element.dispose());
 
         /// <summary>
         /// Inicializa el escenario
@@ -163,9 +162,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                {
-                    RenderElement(element);
-                });
+                    RenderElement(element));
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
@@ -181,9 +178,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                {
-                    RenderElement(element);
-                });
+                    RenderElement(element));
 
         /// <summary>
         /// Renderiza el escenario

@@ -22,15 +22,11 @@
             builder.RegisterType<Vector3Factory>();
             builder.RegisterType<ScenarioCreator>();
 
-            GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", builder.Build());
+            this.GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", builder.Build());
         }
         private GameModel GameModel { get; set; }
 
         [TestMethod]
-        public void InitTestOk()
-        {
-            // Prueba de Tavis
-            Assert.IsTrue(true);
-        }
+        public void InitTestOk() => Assert.IsTrue(true);
     }
 }

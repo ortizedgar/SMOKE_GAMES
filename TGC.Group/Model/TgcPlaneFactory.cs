@@ -12,9 +12,6 @@
         /// Crea un objeto <see cref="TgcPlane"/>
         /// </summary>
         /// <returns>Un objeto <see cref="TgcPlane"/></returns>
-        public TgcPlane CreateTgcPlane()
-        {
-            return new TgcPlane();
-        }
+        public TgcPlane CreateTgcPlane() => new TgcPlane();
     }
 }

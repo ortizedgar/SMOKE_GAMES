@@ -5,9 +5,6 @@
 
     public class Vector3Factory : IVector3Factory
     {
-        public Vector3 CreateVector3(float x, float y, float z)
-        {
-            return new Vector3(x, y, z);
-        }
+        public Vector3 CreateVector3(float x, float y, float z) => new Vector3(x, y, z);
     }
 }

@@ -2,6 +2,7 @@ namespace TGC.Group.Model
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Linq;
     using Autofac;
     using Microsoft.DirectX.DirectInput;
@@ -21,10 +22,10 @@ namespace TGC.Group.Model
         /// <param name="shadersDir">Ruta donde esta la carpeta con los shaders</param>
         public GameModel(string mediaDir, string shadersDir, IContainer container) : base(mediaDir, shadersDir)
         {
-            Category = Game.Default.Category;
-            Name = Game.Default.Name;
-            Description = Game.Default.Description;
-            Container = container;
+            this.Category = Game.Default.Category;
+            this.Name = Game.Default.Name;
+            this.Description = Game.Default.Description;
+            this.Container = container;
         }
 
         /// <summary>
@@ -47,11 +48,7 @@ namespace TGC.Group.Model
         ///     Hacer Dispose() de todos los objetos creados.
         ///     Es muy importante liberar los recursos, sobretodo los gráficos ya que quedan bloqueados en el device de video.
         /// </summary>
-        public override void Dispose()
-        {
-            // Limpiar el escenario
-            DisposeScenario();
-        }
+        public override void Dispose() => DisposeScenario();
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -71,11 +68,23 @@ namespace TGC.Group.Model
             // Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
             PreRender();
 
+            RenderInstructions();
+
             // Renderizar el escenario
             ScenarioRender();
 
             // Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
+        }
+
+        /// <summary>
+        /// Dibujar las instrucciones del juego
+        /// </summary>
+        private void RenderInstructions()
+        {
+            this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
+            this.DrawText.drawText("Presione WSAD para moverse", 0, 40, Color.OrangeRed);
+            this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 60, Color.OrangeRed);
         }
 
         /// <summary>
@@ -85,7 +94,10 @@ namespace TGC.Group.Model
         {
             PreUpdate();
 
-            ActivateRoofAndFloor();
+            if (this.ElapsedTime >= 1 / 60)
+            {
+                ActivateRoofAndFloor();
+            }
         }
 
         /// <summary>
@@ -107,18 +119,16 @@ namespace TGC.Group.Model
         /// </summary>
         private void ActivateRoofAndFloor()
         {
-            if (Input.keyPressed(Key.F))
+            if (this.Input.keyPressed(Key.F))
             {
-                RenderFloorAndRoof = !RenderFloorAndRoof;
+                this.RenderFloorAndRoof = !this.RenderFloorAndRoof;
             }
         }
 
         /// <summary>
         /// Libera la memoria utilizada para el escenario
         /// </summary>
-        private void DisposeScenario()
-        {
-            ScenarioElements
+        private void DisposeScenario() => this.ScenarioElements
                 .SelectMany(
                     element =>
                         element.Item2)
@@ -127,34 +137,25 @@ namespace TGC.Group.Model
                 .ForEach(
                     element =>
                         element.dispose());
-        }
 
         /// <summary>
         /// Inicializa el escenario
         /// </summary>
-        private void InitCamara()
-        {
-            Camara = Container.Resolve<TgcFpsCamera>(
-                            new NamedParameter("positionEye", Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5)),
+        private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
+                            new NamedParameter("positionEye", this.Container.Resolve<Vector3Factory>().CreateVector3(5, 5, 5)),
                             new NamedParameter("moveSpeed", 50),
                             new NamedParameter("jumpSpeed", 50),
-                            new NamedParameter("input", Input));
-        }
+                            new NamedParameter("input", this.Input));
 
         /// <summary>
         /// Inicializa la camara
         /// </summary>
-        private void InitScenario()
-        {
-            ScenarioElements = Container.Resolve<ScenarioCreator>().CreateScenario(MediaDir, Container);
-        }
+        private void InitScenario() => this.ScenarioElements = this.Container.Resolve<ScenarioCreator>().CreateScenario(this.MediaDir, this.Container);
 
         /// <summary>
         /// Renderiza el escenario con piso y techo
         /// </summary>
-        private void RenderWithFloorAndRoof()
-        {
-            ScenarioElements
+        private void RenderWithFloorAndRoof() => this.ScenarioElements
                 .SelectMany(
                     element =>
                         element.Item2)
@@ -165,14 +166,11 @@ namespace TGC.Group.Model
                     {
                         RenderElement(element);
                     });
-        }
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
         /// </summary>
-        private void RenderWithoutFloorAndRoof()
-        {
-            ScenarioElements
+        private void RenderWithoutFloorAndRoof() => this.ScenarioElements
                 .Where(
                     element =>
                         !element.Item1.Equals("Floor") && !element.Item1.Equals("Roof"))
@@ -184,14 +182,13 @@ namespace TGC.Group.Model
                     {
                         RenderElement(element);
                     });
-        }
 
         /// <summary>
         /// Renderiza el escenario
         /// </summary>
         private void ScenarioRender()
         {
-            if (RenderFloorAndRoof)
+            if (this.RenderFloorAndRoof)
             {
                 RenderWithFloorAndRoof();
             }

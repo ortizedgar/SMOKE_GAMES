@@ -18,11 +18,6 @@
         private string Este { get; } = "E";
 
         /// <summary>
-        /// Representa la orientacion horizontal
-        /// </summary>
-        private string Horizontal { get; } = "H";
-
-        /// <summary>
         /// Directorio de texturas, etc.
         /// </summary>
         private string MediaDir { get; set; }
@@ -78,11 +73,6 @@
         private IVector3Factory Vector3Factory { get; set; }
 
         /// <summary>
-        /// Representa la orientacion vertical
-        /// </summary>
-        private string Vertical { get; } = "V";
-
-        /// <summary>
         /// Lista de objetos que representan las paredes
         /// </summary>
         private List<IRenderObject> Walls { get; set; }
@@ -92,7 +82,6 @@
         /// </summary>
         private TgcTexture WallTexture { get; set; }
 
-
         /// <summary>
         /// Crea la lista con todos los objetos que componen el escenario
         /// </summary>
@@ -101,10 +90,10 @@
         /// <returns></returns>
         public List<Tuple<string, List<IRenderObject>>> CreateScenario(string mediaDir, IContainer container)
         {
-            MediaDir = mediaDir;
-            TgcSceneLoader = container.Resolve<TgcSceneLoader>();
-            TgcPlaneFactory = container.Resolve<TgcPlaneFactory>();
-            Vector3Factory = container.Resolve<Vector3Factory>();
+            this.MediaDir = mediaDir;
+            this.TgcSceneLoader = container.Resolve<TgcSceneLoader>();
+            this.TgcPlaneFactory = container.Resolve<TgcPlaneFactory>();
+            this.Vector3Factory = container.Resolve<Vector3Factory>();
 
             return new List<Tuple<string, List<IRenderObject>>> {
                 Tuple.Create("Floor", CreateFloor()),
@@ -121,20 +110,20 @@
         /// <returns><see cref="Vector3"/> indicando la rotacion del objeto</returns>
         private Vector3 CalculateRotation(string orientation)
         {
-            if (orientation == Sur)
+            if (orientation == this.Sur)
             {
-                return Vector3Factory.CreateVector3(0, 600, 0);
+                return this.Vector3Factory.CreateVector3(0, 600, 0);
             }
-            if (orientation == Este)
+            if (orientation == this.Este)
             {
-                return Vector3Factory.CreateVector3(0, 300, 0);
+                return this.Vector3Factory.CreateVector3(0, 300, 0);
             }
-            if (orientation == Oeste)
+            if (orientation == this.Oeste)
             {
-                return Vector3Factory.CreateVector3(0, 900, 0);
+                return this.Vector3Factory.CreateVector3(0, 900, 0);
             }
 
-            return Vector3Factory.CreateVector3(0, 0, 0);
+            return this.Vector3Factory.CreateVector3(0, 0, 0);
         }
 
         /// <summary>
@@ -150,21 +139,18 @@
         {
             if (mesh.Name.Equals("Puerta", StringComparison.OrdinalIgnoreCase))
             {
-                var doorDisplacement = PlaneSize / 2;
-                return orientation == Este || orientation == Oeste ? Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate + doorDisplacement) : Vector3Factory.CreateVector3(xCoordinate + doorDisplacement, yCoordinate, zCoordinate);
+                var doorDisplacement = this.PlaneSize / 2;
+                return orientation == this.Este || orientation == this.Oeste ? this.Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate + doorDisplacement) : this.Vector3Factory.CreateVector3(xCoordinate + doorDisplacement, yCoordinate, zCoordinate);
             }
 
-            return Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate);
+            return this.Vector3Factory.CreateVector3(xCoordinate, yCoordinate, zCoordinate);
         }
 
         /// <summary>
         /// Crea el piso
         /// </summary>
         /// <returns>La lista con todos los objetos que componen el piso</returns>
-        private List<IRenderObject> CreateFloor()
-        {
-            return CreateHorizontalLayer(0, TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"\floor.bmp"));
-        }
+        private List<IRenderObject> CreateFloor() => CreateHorizontalLayer(0, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\floor.bmp"));
 
         /// <summary>
         /// Crea una capa horizontal de planos que ocupan todo el escenario
@@ -177,14 +163,14 @@
             var layer = new List<IRenderObject>();
             TgcPlane layerElement;
 
-            for (var i = 0; i < ScenarioWide; i++)
+            for (var i = 0; i < this.ScenarioWide; i++)
             {
-                for (var j = 0; j < ScenarioDepth; j++)
+                for (var j = 0; j < this.ScenarioDepth; j++)
                 {
-                    layerElement = TgcPlaneFactory.CreateTgcPlane();
+                    layerElement = this.TgcPlaneFactory.CreateTgcPlane();
                     layerElement.setTexture(texture);
-                    layerElement.Origin = Vector3Factory.CreateVector3(PlaneSize * i, yCoordinate, PlaneSize * j);
-                    layerElement.Size = Vector3Factory.CreateVector3(PlaneSize, PlaneSize, PlaneSize);
+                    layerElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * i, yCoordinate, this.PlaneSize * j);
+                    layerElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
                     layerElement.Orientation = TgcPlane.Orientations.XZplane;
                     layerElement.AutoAdjustUv = false;
                     layerElement.UTile = 1;
@@ -202,550 +188,550 @@
         /// <returns></returns>
         private List<IRenderObject> CreateObjects()
         {
-            Objects = new List<IRenderObject>();
+            this.Objects = new List<IRenderObject>();
 
-            var meshMesa = TgcSceneLoader.loadSceneFromFile(MediaDir + @"Mesa\Mesa-TgcScene.xml").Meshes[0];
-            var meshLamparaTecho = TgcSceneLoader.loadSceneFromFile(MediaDir + @"LamparaTecho\LamparaTecho-TgcScene.xml").Meshes[0];
-            var meshSillon = TgcSceneLoader.loadSceneFromFile(MediaDir + @"Sillon\Sillon-TgcScene.xml").Meshes[0];
-            var meshLockerMetal = TgcSceneLoader.loadSceneFromFile(MediaDir + @"LockerMetal\LockerMetal-TgcScene.xml").Meshes[0];
-            var meshPuerta = TgcSceneLoader.loadSceneFromFile(MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
-            var meshDispenserAgua = TgcSceneLoader.loadSceneFromFile(MediaDir + @"DispenserAgua\DispenserAgua-TgcScene.xml").Meshes[0];
-            var meshExpendedor = TgcSceneLoader.loadSceneFromFile(MediaDir + @"ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml").Meshes[0];
-            var meshMesaRedonda = TgcSceneLoader.loadSceneFromFile(MediaDir + @"MesaRedonda\MesaRedonda-TgcScene.xml").Meshes[0];
-            var meshCama = TgcSceneLoader.loadSceneFromFile(MediaDir + @"Cama\Cama-TgcScene.xml").Meshes[0];
-            var meshMesaDeLuz = TgcSceneLoader.loadSceneFromFile(MediaDir + @"MesaDeLuz\MesaDeLuz-TgcScene.xml").Meshes[0];
+            var meshMesa = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Mesa\Mesa-TgcScene.xml").Meshes[0];
+            var meshLamparaTecho = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"LamparaTecho\LamparaTecho-TgcScene.xml").Meshes[0];
+            var meshSillon = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Sillon\Sillon-TgcScene.xml").Meshes[0];
+            var meshLockerMetal = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"LockerMetal\LockerMetal-TgcScene.xml").Meshes[0];
+            var meshPuerta = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
+            var meshDispenserAgua = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"DispenserAgua\DispenserAgua-TgcScene.xml").Meshes[0];
+            var meshExpendedor = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml").Meshes[0];
+            var meshMesaRedonda = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaRedonda\MesaRedonda-TgcScene.xml").Meshes[0];
+            var meshCama = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Cama\Cama-TgcScene.xml").Meshes[0];
+            var meshMesaDeLuz = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaDeLuz\MesaDeLuz-TgcScene.xml").Meshes[0];
 
             // Puertas horizontales
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 25, 0, new float[] { 100, 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 45, 0, new float[] { 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 95, 0, new float[] { 0, 60, 160, 220 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 105, 0, new float[] { 0, 60, 160, 220 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 40 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 130, 0, new float[] { 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 40, 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 30, 40 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 175, 0, new float[] { 70 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 180, 0, new float[] { 200 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 20 });
-            CreateObjectsLine(meshPuerta, Norte, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 190 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 25, 0, new float[] { 100, 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 45, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 95, 0, new float[] { 0, 60, 160, 220 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 105, 0, new float[] { 0, 60, 160, 220 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 40 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 130, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 40, 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 30, 40 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 175, 0, new float[] { 70 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 180, 0, new float[] { 200 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 20 });
+            CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 190 });
 
             // Puertas verticales
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 20, 0, new float[] { 80, 100, 140 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, new float[] { 10, 30 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 50, 0, new float[] { 160 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 0, 20, 40, 80, 140, 205 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 170 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 140, 0, new float[] { 50, 160 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 0, 20, 70, 120, 200 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 0, 40, 130 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 40, 80, 200 });
-            CreateObjectsLine(meshPuerta, Este, Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 90, 140, 160 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 20, 0, new float[] { 80, 100, 140 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, new float[] { 10, 30 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 50, 0, new float[] { 160 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 0, 20, 40, 80, 140, 205 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, new float[] { 170 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 140, 0, new float[] { 50, 160 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 0, 20, 70, 120, 200 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 0, 40, 130 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 40, 80, 200 });
+            CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 90, 140, 160 });
 
             // Entarda
             // Lockers
-            CreateObjectsLine(meshLockerMetal, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 91.5f, 0, new float[] { 49, 51, 53, 55 });
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 118.5f, 0, new float[] { 49, 51, 53, 55 });
+            CreateObjectsLine(meshLockerMetal, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 91.5f, 0, new float[] { 49, 51, 53, 55 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 118.5f, 0, new float[] { 49, 51, 53, 55 });
 
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 105, PlaneSize, new float[] { 10, 30, 50 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 105, this.PlaneSize, new float[] { 10, 30, 50 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 44 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 5 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 15 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 44 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 5 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 92, 0, new float[] { 15 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Oeste, Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 118.5f, 0, new float[] { 44 });
+            CreateObjectsLine(meshMesa, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 118.5f, 0, new float[] { 44 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Oeste, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 118.5f, 0, new float[] { 15 });
+            CreateObjectsLine(meshDispenserAgua, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 118.5f, 0, new float[] { 15 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Oeste, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 118.5f, 0, new float[] { 10 });
+            CreateObjectsLine(meshExpendedor, this.Oeste, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 118.5f, 0, new float[] { 10 });
 
             // 1
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, PlaneSize, new float[] { 10 });
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 20, PlaneSize, new float[] { 10 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, this.PlaneSize, new float[] { 10 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 20, this.PlaneSize, new float[] { 10 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 20, 0, new float[] { 18 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 20, 0, new float[] { 2 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 20, 0, new float[] { 18 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 20, 0, new float[] { 2 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Oeste, Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 10, 0, new float[] { 5 });
+            CreateObjectsLine(meshMesa, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 10, 0, new float[] { 5 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Norte, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 5, 0, new float[] { 18 });
+            CreateObjectsLine(meshDispenserAgua, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 5, 0, new float[] { 18 });
 
             // 2
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 40, PlaneSize, new float[] { 10 });
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, PlaneSize, new float[] { 10 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 40, this.PlaneSize, new float[] { 10 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, this.PlaneSize, new float[] { 10 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 18 });
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 55, 0, new float[] { 18 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 2 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 55, 0, new float[] { 2 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 18 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 55, 0, new float[] { 18 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 2 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 55, 0, new float[] { 2 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Norte, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 45, 0, new float[] { 18 });
+            CreateObjectsLine(meshDispenserAgua, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 45, 0, new float[] { 18 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Sur, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 45, 0, new float[] { 2 });
+            CreateObjectsLine(meshExpendedor, this.Sur, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 45, 0, new float[] { 2 });
 
             // 3
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, PlaneSize, new float[] { 5 });
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, PlaneSize, new float[] { 5 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, PlaneSize, new float[] { 35 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, this.PlaneSize, new float[] { 5 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, this.PlaneSize, new float[] { 5 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, this.PlaneSize, new float[] { 35 });
 
             // 4
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 125, PlaneSize, new float[] { 5, 25 });
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, PlaneSize, new float[] { 5, 25 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 125, this.PlaneSize, new float[] { 5, 25 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, this.PlaneSize, new float[] { 5, 25 });
 
             // 5
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, PlaneSize, new float[] { 5, 25 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, this.PlaneSize, new float[] { 5, 25 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 158, 0, new float[] { 15 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 158, 0, new float[] { 15 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Oeste, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 158.5f, 0, new float[] { 25 });
+            CreateObjectsLine(meshDispenserAgua, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 158.5f, 0, new float[] { 25 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Oeste, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 158.5f, 0, new float[] { 5 });
+            CreateObjectsLine(meshExpendedor, this.Oeste, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 158.5f, 0, new float[] { 5 });
 
             // 6
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, PlaneSize, new float[] { 5, 25 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, this.PlaneSize, new float[] { 5, 25 });
 
             // 7
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, PlaneSize, new float[] { 5, 25 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, this.PlaneSize, new float[] { 5, 25 });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 15 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 15 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 175, 0, new float[] { 2 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 185, 0, new float[] { 2 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 175, 0, new float[] { 2 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 185, 0, new float[] { 2 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Este, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 171.5f, 0, new float[] { 27 });
-            CreateObjectsLine(meshDispenserAgua, Oeste, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 188.5f, 0, new float[] { 27 });
+            CreateObjectsLine(meshDispenserAgua, this.Este, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 171.5f, 0, new float[] { 27 });
+            CreateObjectsLine(meshDispenserAgua, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 188.5f, 0, new float[] { 27 });
 
             // 8
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, PlaneSize, new float[] { 10 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, this.PlaneSize, new float[] { 10 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 192, 0, new float[] { 15 });
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 208, 0, new float[] { 15 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 192, 0, new float[] { 15 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 208, 0, new float[] { 15 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Norte, Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 200, 0, new float[] { 5 });
+            CreateObjectsLine(meshMesa, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 200, 0, new float[] { 5 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Norte, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 203, 0, new float[] { 18.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 203, 0, new float[] { 18.5f });
 
             // 9
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, PlaneSize, new float[] { 30 });
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 20, PlaneSize, new float[] { 30 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, this.PlaneSize, new float[] { 30 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 20, this.PlaneSize, new float[] { 30 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 5, 0, new float[] { 22 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 25, 0, new float[] { 22 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 5, 0, new float[] { 22 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 25, 0, new float[] { 22 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 15, 0, new float[] { 22 });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 15, 0, new float[] { 22 });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 15, 0, new float[] { 30 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 15, 0, new float[] { 30 });
 
             // 10
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 35, PlaneSize, new float[] { 30 });
+            CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 35, this.PlaneSize, new float[] { 30 });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 38.5f, 0, new float[] { 22, 24, 26, 28, 30 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 38.5f, 0, new float[] { 22, 24, 26, 28, 30 });
 
             // 11
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, PlaneSize, new float[] { 50 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, PlaneSize, new float[] { 30 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, PlaneSize, new float[] { 35 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, this.PlaneSize, new float[] { 50 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, this.PlaneSize, new float[] { 30 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, this.PlaneSize, new float[] { 35 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 42, 0, new float[] { 30 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 42, 0, new float[] { 50 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 42, 0, new float[] { 30 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 42, 0, new float[] { 50 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Norte, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 50, 0, new float[] { 58 });
+            CreateObjectsLine(meshDispenserAgua, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 50, 0, new float[] { 58 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Sur, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 50, 0, new float[] { 21 });
+            CreateObjectsLine(meshExpendedor, this.Sur, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 50, 0, new float[] { 21 });
 
             // 12
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, PlaneSize, new float[] { 20 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, this.PlaneSize, new float[] { 20 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 65, 0, new float[] { 12 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 65, 0, new float[] { 12 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Norte, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 72, 0, new float[] { 28 });
+            CreateObjectsLine(meshDispenserAgua, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 72, 0, new float[] { 28 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 75, 0, new float[] { 15 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 75, 0, new float[] { 15 });
 
             // 13
             // Sillones
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 195, 0, new float[] { 38 });
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 205, 0, new float[] { 38 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 195, 0, new float[] { 38 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 205, 0, new float[] { 38 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Sur, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 205, 0, new float[] { 22 });
+            CreateObjectsLine(meshExpendedor, this.Sur, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 205, 0, new float[] { 22 });
 
             // 14
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, PlaneSize, new float[] { 50, 70, 90, 110, 130, 150, 170, 190 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, PlaneSize, new float[] { 60 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, this.PlaneSize, new float[] { 50, 70, 90, 110, 130, 150, 170, 190 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, this.PlaneSize, new float[] { 60 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 2, 0, new float[] { 85, 105, 125, 145, 165, 185 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 25, 0, new float[] { 45, 55 });
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 45, 55 });
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 17.5f, 0, new float[] { 160, 120 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 2, 0, new float[] { 85, 105, 125, 145, 165, 185 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 25, 0, new float[] { 45, 55 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 35, 0, new float[] { 45, 55 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 17.5f, 0, new float[] { 160, 120 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Este, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 2, 0, new float[] { 95, 135, 175 });
+            CreateObjectsLine(meshDispenserAgua, this.Este, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 2, 0, new float[] { 95, 135, 175 });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 48.5f, 0, new float[] { 61, 63, 65, 67, 69, 71, 73, 75, 77, 79 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 48.5f, 0, new float[] { 61, 63, 65, 67, 69, 71, 73, 75, 77, 79 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Oeste, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 18.5f, 0, new float[] { 90, 130, 150 });
+            CreateObjectsLine(meshExpendedor, this.Oeste, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 18.5f, 0, new float[] { 90, 130, 150 });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 30, 0, new float[] { 50 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 30, 0, new float[] { 50 });
 
             // 15
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, PlaneSize, new float[] { 50, });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, this.PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, this.PlaneSize, new float[] { 50, });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 83, 0, new float[] { 50 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 83, 0, new float[] { 50 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 70, 0, new float[] { 58 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 70, 0, new float[] { 58 });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 58 });
-            CreateObjectsLine(meshLockerMetal, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 77, 0, new float[] { 58 });
-            CreateObjectsLine(meshLockerMetal, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 79, 0, new float[] { 58 });
+            CreateObjectsLine(meshLockerMetal, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 58 });
+            CreateObjectsLine(meshLockerMetal, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 77, 0, new float[] { 58 });
+            CreateObjectsLine(meshLockerMetal, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 79, 0, new float[] { 58 });
 
             // 16
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, this.PlaneSize, new float[] { 50, });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 121.5f, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
-            CreateObjectsLine(meshLockerMetal, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55 });
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 138.5f, 0, new float[] { 41, 43, 45, 47, 49, });
+            CreateObjectsLine(meshLockerMetal, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 121.5f, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
+            CreateObjectsLine(meshLockerMetal, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 138.5f, 0, new float[] { 41, 43, 45, 47, 49, });
 
             // 17
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, this.PlaneSize, new float[] { 50, });
 
             // 18
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, this.PlaneSize, new float[] { 50, });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Norte, Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 155, 0, new float[] { 53 });
+            CreateObjectsLine(meshMesa, this.Norte, this.Vector3Factory.CreateVector3(0.080f, 0.090f, 0.050f), 155, 0, new float[] { 53 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 155, 0, new float[] { 56 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 155, 0, new float[] { 56 });
 
             // 19
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, this.PlaneSize, new float[] { 50, });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 161.5f, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
+            CreateObjectsLine(meshLockerMetal, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 161.5f, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
 
             // 20
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, this.PlaneSize, new float[] { 50, });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 50 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 50 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 172, 0, new float[] { 50 });
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 187, 0, new float[] { 50 });
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 180, 0, new float[] { 57.5f });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 172, 0, new float[] { 50 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 187, 0, new float[] { 50 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 180, 0, new float[] { 57.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 185, 0, new float[] { 41.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 185, 0, new float[] { 41.5f });
 
             // 21
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, PlaneSize, new float[] { 50, });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, this.PlaneSize, new float[] { 50, });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 208, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 208, 0, new float[] { 41, 43, 45, 47, 49, 51, 53, 55, 57, 59 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, 0, new float[] { 50 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, 0, new float[] { 50 });
 
             // 22
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, PlaneSize, new float[] { 90, 110 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, this.PlaneSize, new float[] { 90, 110 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, 0, new float[] { 90, 110 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, 0, new float[] { 90, 110 });
 
             // Sillones
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 38, 0, new float[] { 90 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 38, 0, new float[] { 90 });
 
             // 23
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 45, PlaneSize, new float[] { 90, 110, 130, 150, 170, 190 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 45, this.PlaneSize, new float[] { 90, 110, 130, 150, 170, 190 });
 
             // 24
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, PlaneSize, new float[] { 80, 90, 120, 140 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, this.PlaneSize, new float[] { 80, 90, 120, 140 });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 75, 0, new float[] { 85 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 75, 0, new float[] { 85 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 65, 0, new float[] { 71.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 65, 0, new float[] { 71.5f });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Sur, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 85, 0, new float[] { 71.5f });
+            CreateObjectsLine(meshExpendedor, this.Sur, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 85, 0, new float[] { 71.5f });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 80, 0, new float[] { 85 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 70, 0, new float[] { 85 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 80, 0, new float[] { 85 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 70, 0, new float[] { 85 });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 72, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 74, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 76, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 78, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 82, 0, new float[] { 98.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 84, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 72, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 74, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 76, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 78, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 82, 0, new float[] { 98.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 84, 0, new float[] { 98.5f });
 
             // 25
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, PlaneSize, new float[] { 80, 90, 120, 140 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, this.PlaneSize, new float[] { 80, 90, 120, 140 });
 
             // Expendedor
-            CreateObjectsLine(meshExpendedor, Este, Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 121.5f, 0, new float[] { 75, 85, 95 });
+            CreateObjectsLine(meshExpendedor, this.Este, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 121.5f, 0, new float[] { 75, 85, 95 });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Oeste, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 148.5f, 0, new float[] { 90, 95 });
+            CreateObjectsLine(meshDispenserAgua, this.Oeste, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 148.5f, 0, new float[] { 90, 95 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, 0, new float[] { 76, 93 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, 0, new float[] { 76, 93 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 130, 0, new float[] { 93, 76 });
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 140, 0, new float[] { 93, 76 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 130, 0, new float[] { 93, 76 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 140, 0, new float[] { 93, 76 });
 
             // 26
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, PlaneSize, new float[] { 70, 90, 110, 130, 150, 170, 190 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, this.PlaneSize, new float[] { 70, 90, 110, 130, 150, 170, 190 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 172, 0, new float[] { 95, 105, 115, 125 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 172, 0, new float[] { 95, 105, 115, 125 });
 
             // 27
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, PlaneSize, new float[] { 80, 110, 135, 145 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 195, PlaneSize, new float[] { 115 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, PlaneSize, new float[] { 80 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 205.5f, PlaneSize, new float[] { 100 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, this.PlaneSize, new float[] { 80, 110, 135, 145 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 195, this.PlaneSize, new float[] { 115 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, this.PlaneSize, new float[] { 80 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 205.5f, this.PlaneSize, new float[] { 100 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 208, 0, new float[] { 80 });
-            CreateObjectsLine(meshSillon, Este, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 195, 0, new float[] { 80 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 208, 0, new float[] { 80 });
+            CreateObjectsLine(meshSillon, this.Este, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 195, 0, new float[] { 80 });
 
             // Mesas
-            CreateObjectsLine(meshMesa, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 202, 0, new float[] { 80 });
+            CreateObjectsLine(meshMesa, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 202, 0, new float[] { 80 });
 
             // 28
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, PlaneSize, new float[] { 135, 165 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, this.PlaneSize, new float[] { 135, 165 });
 
             // Mesa redonda
-            CreateObjectsLine(meshMesaRedonda, Oeste, Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 30, 0, new float[] { 135, 165 });
+            CreateObjectsLine(meshMesaRedonda, this.Oeste, this.Vector3Factory.CreateVector3(0.2f, 0.1f, 0.1f), 30, 0, new float[] { 135, 165 });
 
             // Sillones
-            CreateObjectsLine(meshSillon, Oeste, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 38, 0, new float[] { 110 });
-            CreateObjectsLine(meshSillon, Norte, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 30, 0, new float[] { 145, 175 });
-            CreateObjectsLine(meshSillon, Sur, Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 30, 0, new float[] { 124, 155 });
+            CreateObjectsLine(meshSillon, this.Oeste, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 38, 0, new float[] { 110 });
+            CreateObjectsLine(meshSillon, this.Norte, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 30, 0, new float[] { 145, 175 });
+            CreateObjectsLine(meshSillon, this.Sur, this.Vector3Factory.CreateVector3(0.05f, 0.05f, 0.05f), 30, 0, new float[] { 124, 155 });
 
             // 29
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 60, PlaneSize, new float[] { 170 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, PlaneSize, new float[] { 170 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 60, this.PlaneSize, new float[] { 170 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, this.PlaneSize, new float[] { 170 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 60, 0, new float[] { 175.5f });
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 175.5f });
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 175.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 60, 0, new float[] { 175.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 175.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 175.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 55, 0, new float[] { 178.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, 0, new float[] { 178.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 178.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, 0, new float[] { 178.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 55, 0, new float[] { 178.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, 0, new float[] { 178.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 178.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, 0, new float[] { 178.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Oeste, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 88.5f, 0, new float[] { 163, 165, 167, 169 });
+            CreateObjectsLine(meshLockerMetal, this.Oeste, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 88.5f, 0, new float[] { 163, 165, 167, 169 });
 
             // 30
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, PlaneSize, new float[] { 170 });
-            CreateObjectsLine(meshLamparaTecho, Este, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, PlaneSize, new float[] { 165 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, this.PlaneSize, new float[] { 170 });
+            CreateObjectsLine(meshLamparaTecho, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, this.PlaneSize, new float[] { 165 });
 
             // 31
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 185, PlaneSize, new float[] { 170 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 205, PlaneSize, new float[] { 155 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 185, this.PlaneSize, new float[] { 170 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 205, this.PlaneSize, new float[] { 155 });
 
             // 32
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 10, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 15, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 5, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 15, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 19, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 19, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 16, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 16, 0, new float[] { 201.5f });
 
             // 33
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 30, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 25, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 35, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 25, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 35, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 39, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 39, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 36, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 36, 0, new float[] { 201.5f });
 
             // 34
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 50, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 45, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 55, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 45, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 55, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 59, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 59, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 56, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 56, 0, new float[] { 201.5f });
 
             // 35
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, PlaneSize, new float[] { 210 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, this.PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 215.5f });
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 70, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 65, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 75, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 85, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 89, 0, new float[] { 201.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 89, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 80, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 87, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 87, 0, new float[] { 201.5f });
 
             // 36
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, PlaneSize, new float[] { 210 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, this.PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, 0, new float[] { 215.5f });
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 130, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 125, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 125, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 135, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 145, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 149, 0, new float[] { 201.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 149, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 140, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 145, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 145, 0, new float[] { 201.5f });
 
             // 37
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 160, PlaneSize, new float[] { 210 });
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 160, this.PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, this.PlaneSize, new float[] { 210 });
 
             // Camas
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 160, 0, new float[] { 215.5f });
-            CreateObjectsLine(meshCama, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 160, 0, new float[] { 215.5f });
+            CreateObjectsLine(meshCama, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 180, 0, new float[] { 215.5f });
 
             // MesaDeLuz
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 175, 0, new float[] { 218.5f });
-            CreateObjectsLine(meshMesaDeLuz, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 185, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 155, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 165, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 175, 0, new float[] { 218.5f });
+            CreateObjectsLine(meshMesaDeLuz, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 185, 0, new float[] { 218.5f });
 
             // Locker
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 189, 0, new float[] { 201.5f });
-            CreateObjectsLine(meshLockerMetal, Sur, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 170, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 189, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshLockerMetal, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 170, 0, new float[] { 201.5f });
 
             // Dispenser
-            CreateObjectsLine(meshDispenserAgua, Sur, Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 175, 0, new float[] { 201.5f });
+            CreateObjectsLine(meshDispenserAgua, this.Sur, this.Vector3Factory.CreateVector3(0.080f, 0.080f, 0.080f), 175, 0, new float[] { 201.5f });
 
             // 38
             // Lamparas
-            CreateObjectsLine(meshLamparaTecho, Norte, Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, PlaneSize, new float[] { 210 });
+            CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, this.PlaneSize, new float[] { 210 });
 
-            return Objects;
+            return this.Objects;
         }
 
         /// <summary>
@@ -763,12 +749,12 @@
             foreach (var zCoordinate in zCoordinates)
             {
                 meshInstance = mesh.createMeshInstance(
-                    Objects.Count + "_" + mesh.Name,
+                    this.Objects.Count + "_" + mesh.Name,
                     CalculateTranslation(mesh, orientation, xCoordinate, yCoordinate, zCoordinate),
                     CalculateRotation(orientation),
                     scale);
                 meshInstance.AutoTransformEnable = true;
-                Objects.Add(meshInstance);
+                this.Objects.Add(meshInstance);
             }
         }
 
@@ -776,10 +762,7 @@
         /// Crea el techo del escenario
         /// </summary>
         /// <returns>Lista con los objetos que componen el techo</returns>
-        private List<IRenderObject> CreateRoof()
-        {
-            return CreateHorizontalLayer(PlaneSize, TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"\roof.bmp"));
-        }
+        private List<IRenderObject> CreateRoof() => CreateHorizontalLayer(this.PlaneSize, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\roof.bmp"));
 
         /// <summary>
         /// Crea las paredes del escenario
@@ -787,51 +770,51 @@
         /// <returns>Lista con los objetos que componen la pared del escenario</returns>
         private List<IRenderObject> CreateWalls()
         {
-            Walls = new List<IRenderObject>();
-            WallTexture = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"\wall.bmp");
+            this.Walls = new List<IRenderObject>();
+            this.WallTexture = TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"\wall.bmp");
 
             // Paredes verticales
-            CreateWallsLine(Vertical, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
-            CreateWallsLine(Vertical, 2, new float[] { 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
-            CreateWallsLine(Vertical, 3, new float[] { 0, 1, 2, 3 });
-            CreateWallsLine(Vertical, 4, new float[] { 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
-            CreateWallsLine(Vertical, 5, new float[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 });
-            CreateWallsLine(Vertical, 6, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 20, 21 });
-            CreateWallsLine(Vertical, 8, new float[] { 1, 2 });
-            CreateWallsLine(Vertical, 9, new float[] { 0, 1, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(Vertical, 12, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(Vertical, 14, new float[] { 4, 5, 16 });
-            CreateWallsLine(Vertical, 15, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(Vertical, 16, new float[] { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
-            CreateWallsLine(Vertical, 17, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21 });
-            CreateWallsLine(Vertical, 19, new float[] { 0, 1, 2, 4, 5, 7, 8, 13, 20, 21 });
-            CreateWallsLine(Vertical, 20, new float[] { 9, 10, 14, 15, 16, 19 });
-            CreateWallsLine(Vertical, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+            CreateWallsLine(this.Este, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+            CreateWallsLine(this.Este, 2, new float[] { 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
+            CreateWallsLine(this.Este, 3, new float[] { 0, 1, 2, 3 });
+            CreateWallsLine(this.Este, 4, new float[] { 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
+            CreateWallsLine(this.Este, 5, new float[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 });
+            CreateWallsLine(this.Este, 6, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 20, 21 });
+            CreateWallsLine(this.Este, 8, new float[] { 1, 2 });
+            CreateWallsLine(this.Este, 9, new float[] { 0, 1, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateWallsLine(this.Este, 12, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateWallsLine(this.Este, 14, new float[] { 4, 5, 16 });
+            CreateWallsLine(this.Este, 15, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateWallsLine(this.Este, 16, new float[] { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+            CreateWallsLine(this.Este, 17, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21 });
+            CreateWallsLine(this.Este, 19, new float[] { 0, 1, 2, 4, 5, 7, 8, 13, 20, 21 });
+            CreateWallsLine(this.Este, 20, new float[] { 9, 10, 14, 15, 16, 19 });
+            CreateWallsLine(this.Este, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
 
             // Paredes horizontales
-            CreateWallsLine(Horizontal, 0, new float[] { 0, 2, 4, 20, 22 });
-            CreateWallsLine(Horizontal, 1, new float[] { 0, 2, 4, 20, 22 });
-            CreateWallsLine(Horizontal, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 3, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 4, new float[] { 0, 2, 6, 8, 20, 22 });
-            CreateWallsLine(Horizontal, 5, new float[] { 0, 2, 6, 16, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 6, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 7, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 8, new float[] { 0, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 9, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(Horizontal, 10, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(Horizontal, 11, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(Horizontal, 12, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 13, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 14, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(Horizontal, 15, new float[] { 0, 4, 6, 16, 20, 22 });
-            CreateWallsLine(Horizontal, 16, new float[] { 0, 3, 4, 6, 20, 22 });
-            CreateWallsLine(Horizontal, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
-            CreateWallsLine(Horizontal, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
-            CreateWallsLine(Horizontal, 19, new float[] { 0, 2, 4, 6, 7, 9, 15, 20, 22 });
-            CreateWallsLine(Horizontal, 20, new float[] { 0, 2, 4, 6, 7, 9, 11, 14, 17, 19, 22 });
+            CreateWallsLine(this.Norte, 0, new float[] { 0, 2, 4, 20, 22 });
+            CreateWallsLine(this.Norte, 1, new float[] { 0, 2, 4, 20, 22 });
+            CreateWallsLine(this.Norte, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 3, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 4, new float[] { 0, 2, 6, 8, 20, 22 });
+            CreateWallsLine(this.Norte, 5, new float[] { 0, 2, 6, 16, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 6, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 7, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 8, new float[] { 0, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 9, new float[] { 0, 6, 16, 22 });
+            CreateWallsLine(this.Norte, 10, new float[] { 0, 6, 16, 22 });
+            CreateWallsLine(this.Norte, 11, new float[] { 0, 6, 16, 22 });
+            CreateWallsLine(this.Norte, 12, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 13, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 14, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateWallsLine(this.Norte, 15, new float[] { 0, 4, 6, 16, 20, 22 });
+            CreateWallsLine(this.Norte, 16, new float[] { 0, 3, 4, 6, 20, 22 });
+            CreateWallsLine(this.Norte, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateWallsLine(this.Norte, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateWallsLine(this.Norte, 19, new float[] { 0, 2, 4, 6, 7, 9, 15, 20, 22 });
+            CreateWallsLine(this.Norte, 20, new float[] { 0, 2, 4, 6, 7, 9, 11, 14, 17, 19, 22 });
 
-            return Walls;
+            return this.Walls;
         }
 
         /// <summary>
@@ -844,15 +827,15 @@
         {
             foreach (var zCoordinate in zCoordinates)
             {
-                var wallElement = TgcPlaneFactory.CreateTgcPlane();
-                wallElement.setTexture(WallTexture);
-                wallElement.Origin = Vector3Factory.CreateVector3(PlaneSize * xCoordinate, 0, PlaneSize * zCoordinate);
-                wallElement.Size = Vector3Factory.CreateVector3(PlaneSize, PlaneSize, PlaneSize);
-                wallElement.Orientation = orientation == Horizontal ? TgcPlane.Orientations.XYplane : TgcPlane.Orientations.YZplane;
+                var wallElement = this.TgcPlaneFactory.CreateTgcPlane();
+                wallElement.setTexture(this.WallTexture);
+                wallElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * xCoordinate, 0, this.PlaneSize * zCoordinate);
+                wallElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
+                wallElement.Orientation = orientation == this.Norte ? TgcPlane.Orientations.XYplane : TgcPlane.Orientations.YZplane;
                 wallElement.AutoAdjustUv = false;
                 wallElement.UTile = 1;
                 wallElement.VTile = 1;
-                Walls.Add(wallElement);
+                this.Walls.Add(wallElement);
             }
         }
     }

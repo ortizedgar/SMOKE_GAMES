@@ -22,10 +22,7 @@
         /// <summary>
         ///     Constructor de la ventana.
         /// </summary>
-        public GameForm()
-        {
-            InitializeComponent();
-        }
+        public GameForm() => InitializeComponent();
 
         /// <summary>
         ///     Obtener o parar el estado del RenderLoop.
@@ -53,12 +50,12 @@
         /// </summary>
         public bool ApplicationActive()
         {
-            if (ContainsFocus)
+            if (this.ContainsFocus)
             {
                 return true;
             }
 
-            foreach (var form in OwnedForms)
+            foreach (var form in this.OwnedForms)
             {
                 if (form.ContainsFocus)
                 {
@@ -78,11 +75,11 @@
             // Ejecutar Init
             try
             {
-                Modelo.ResetDefaultConfig();
-                Modelo.DirectSound = DirectSound;
-                Modelo.Input = Input;
-                Modelo.Init();
-                panel3D.Focus();
+                this.Modelo.ResetDefaultConfig();
+                this.Modelo.DirectSound = this.DirectSound;
+                this.Modelo.Input = this.Input;
+                this.Modelo.Init();
+                this.panel3D.Focus();
             }
             catch (Exception e)
             {
@@ -96,18 +93,18 @@
         public void InitGraphics()
         {
             // Se inicio la aplicación
-            ApplicationRunning = true;
+            this.ApplicationRunning = true;
 
             // Inicio Device
-            D3DDevice.Instance.InitializeD3DDevice(panel3D);
+            D3DDevice.Instance.InitializeD3DDevice(this.panel3D);
 
             // Inicio inputs
-            Input = new TgcD3dInput();
-            Input.Initialize(this, panel3D);
+            this.Input = new TgcD3dInput();
+            this.Input.Initialize(this, this.panel3D);
 
             // Inicio sonido
-            DirectSound = new TgcDirectSound();
-            DirectSound.InitializeD3DDevice(panel3D);
+            this.DirectSound = new TgcDirectSound();
+            this.DirectSound.InitializeD3DDevice(this.panel3D);
 
             // Directorio actual de ejecución
             var currentDirectory = Environment.CurrentDirectory + "\\";
@@ -123,7 +120,7 @@
             builder.RegisterType<TgcSceneLoader>().SingleInstance();
             builder.RegisterType<ScenarioCreator>().SingleInstance();
 
-            Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, builder.Build());
+            this.Modelo = new GameModel(currentDirectory + Game.Default.MediaDirectory, currentDirectory + Game.Default.ShadersDirectory, builder.Build());
 
             // Cargar juego.
             ExecuteModel();
@@ -134,16 +131,16 @@
         /// </summary>
         public void InitRenderLoop()
         {
-            while (ApplicationRunning)
+            while (this.ApplicationRunning)
             {
                 // Renderizo si es que hay un ejemplo activo.
-                if (Modelo != null)
+                if (this.Modelo != null)
                 {
                     // Solo renderizamos si la aplicacion tiene foco, para no consumir recursos innecesarios.
                     if (ApplicationActive())
                     {
-                        Modelo.Update();
-                        Modelo.Render();
+                        this.Modelo.Update();
+                        this.Modelo.Render();
                     }
                     else
                     {
@@ -162,7 +159,7 @@
         /// </summary>
         public void ShutDown()
         {
-            ApplicationRunning = false;
+            this.ApplicationRunning = false;
 
             StopCurrentExample();
 
@@ -176,16 +173,16 @@
         /// </summary>
         public void StopCurrentExample()
         {
-            if (Modelo != null)
+            if (this.Modelo != null)
             {
-                Modelo.Dispose();
-                Modelo = null;
+                this.Modelo.Dispose();
+                this.Modelo = null;
             }
         }
 
         private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (ApplicationRunning)
+            if (this.ApplicationRunning)
             {
                 ShutDown();
             }
@@ -197,10 +194,10 @@
             InitGraphics();
 
             // Titulo de la ventana principal.
-            Text = Modelo.Name + " - " + Modelo.Description;
+            this.Text = this.Modelo.Name + " - " + this.Modelo.Description;
 
             // Focus panel3D.
-            panel3D.Focus();
+            this.panel3D.Focus();
 
             // Inicio el ciclo de Render.
             InitRenderLoop();

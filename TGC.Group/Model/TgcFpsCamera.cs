@@ -16,72 +16,67 @@
     /// </summary>
     public class TgcFpsCamera : TgcCamera
     {
-
         public TgcFpsCamera(TgcD3dInput input)
         {
-            Input = input;
-            PositionEye = new Vector3();
-            MouseCenter = new Point(
+            this.Input = input;
+            this.PositionEye = new Vector3();
+            this.MouseCenter = new Point(
                 D3DDevice.Instance.Device.Viewport.Width / 2,
                 D3DDevice.Instance.Device.Viewport.Height / 2);
-            RotationSpeed = 0.1f;
-            MovementSpeed = 500f;
-            JumpSpeed = 500f;
-            DirectionView = new Vector3(0, 0, -1);
-            LeftrightRot = FastMath.PI_HALF;
-            UpdownRot = -FastMath.PI / 10.0f;
-            CameraRotation = Matrix.RotationX(UpdownRot) * Matrix.RotationY(LeftrightRot);
+            this.RotationSpeed = 0.1f;
+            this.MovementSpeed = 500f;
+            this.JumpSpeed = 500f;
+            this.DirectionView = new Vector3(0, 0, -1);
+            this.LeftrightRot = FastMath.PI_HALF;
+            this.UpdownRot = -FastMath.PI / 10.0f;
+            this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
         }
 
-        public TgcFpsCamera(Vector3 positionEye, TgcD3dInput input) : this(input)
+        public TgcFpsCamera(Vector3 positionEye, TgcD3dInput input) : this(input) => PositionEye = positionEye;
+
+        public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, TgcD3dInput input) : this(positionEye, input)
         {
-            PositionEye = positionEye;
+            this.MovementSpeed = moveSpeed;
+            this.JumpSpeed = jumpSpeed;
         }
 
-        public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, TgcD3dInput input)
-            : this(positionEye, input)
-        {
-            MovementSpeed = moveSpeed;
-            JumpSpeed = jumpSpeed;
-        }
-
-        public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, float rotationSpeed,
-            TgcD3dInput input)
-            : this(positionEye, moveSpeed, jumpSpeed, input)
-        {
-            RotationSpeed = rotationSpeed;
-        }
+        public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, float rotationSpeed, TgcD3dInput input) : this(positionEye, moveSpeed, jumpSpeed, input) => RotationSpeed = rotationSpeed;
 
         /// <summary>
         ///     Cuando se elimina esto hay que desbloquear la camera.
         /// </summary>
         ~TgcFpsCamera()
         {
-            LockCam = false;
+            this.LockCam = false;
         }
 
         public float JumpSpeed { get; set; }
 
         public bool LockCam
         {
-            get { return LockCamera; }
+            get => this.LockCamera;
             set
             {
-                if (!LockCamera && value)
+                if (!this.LockCamera && value)
                 {
-                    Cursor.Position = MouseCenter;
+                    Cursor.Position = this.MouseCenter;
 
                     Cursor.Hide();
                 }
-                if (LockCamera && !value)
+
+                if (this.LockCamera && !value)
+                {
                     Cursor.Show();
-                LockCamera = value;
+                }
+
+                this.LockCamera = value;
             }
         }
 
         public float MovementSpeed { get; set; }
 
         public float RotationSpeed { get; set; }
+
         // Se mantiene la matriz rotacion para no hacer este calculo cada vez.
         private Matrix CameraRotation { get; set; }
 
@@ -107,81 +102,82 @@
         /// <param name="directionView"> debe ser normalizado.</param>
         public override void SetCamera(Vector3 position, Vector3 directionView)
         {
-            PositionEye = position;
-            DirectionView = directionView;
+            this.PositionEye = position;
+            this.DirectionView = directionView;
         }
 
         public override void UpdateCamera(float elapsedTime)
         {
             var moveVector = new Vector3(0, 0, 0);
+            
             // Forward
-            if (Input.keyDown(Key.W))
+            if (this.Input.keyDown(Key.W))
             {
-                moveVector += new Vector3(0, 0, -1) * MovementSpeed;
+                moveVector += new Vector3(0, 0, -1) * this.MovementSpeed;
             }
 
             // Backward
-            if (Input.keyDown(Key.S))
+            if (this.Input.keyDown(Key.S))
             {
-                moveVector += new Vector3(0, 0, 1) * MovementSpeed;
+                moveVector += new Vector3(0, 0, 1) * this.MovementSpeed;
             }
 
             // Strafe right
-            if (Input.keyDown(Key.D))
+            if (this.Input.keyDown(Key.D))
             {
-                moveVector += new Vector3(-1, 0, 0) * MovementSpeed;
+                moveVector += new Vector3(-1, 0, 0) * this.MovementSpeed;
             }
 
             // Strafe left
-            if (Input.keyDown(Key.A))
+            if (this.Input.keyDown(Key.A))
             {
-                moveVector += new Vector3(1, 0, 0) * MovementSpeed;
+                moveVector += new Vector3(1, 0, 0) * this.MovementSpeed;
             }
 
             // Jump
-            if (Input.keyDown(Key.Space))
+            if (this.Input.keyDown(Key.Space))
             {
-                moveVector += new Vector3(0, 1, 0) * JumpSpeed;
+                moveVector += new Vector3(0, 1, 0) * this.JumpSpeed;
             }
 
             // Crouch
-            if (Input.keyDown(Key.LeftControl))
+            if (this.Input.keyDown(Key.LeftControl))
             {
-                moveVector += new Vector3(0, -1, 0) * JumpSpeed;
+                moveVector += new Vector3(0, -1, 0) * this.JumpSpeed;
             }
 
-            if (Input.keyPressed(Key.L) || Input.keyPressed(Key.Escape))
+            if (this.Input.keyPressed(Key.L) || this.Input.keyPressed(Key.Escape))
             {
-                LockCam = !LockCamera;
+                this.LockCam = !this.LockCamera;
             }
 
             // Solo rotar si se esta aprentando el boton izq del mouse
-            if (LockCamera || Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
+            if (this.LockCamera || this.Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
             {
-                LeftrightRot -= -Input.XposRelative * RotationSpeed;
-                UpdownRot -= Input.YposRelative * RotationSpeed;
+                this.LeftrightRot -= -this.Input.XposRelative * this.RotationSpeed;
+                this.UpdownRot -= this.Input.YposRelative * this.RotationSpeed;
 
                 // Se actualiza matrix de rotacion, para no hacer este calculo cada vez y solo cuando en verdad es necesario.
-                CameraRotation = Matrix.RotationX(UpdownRot) * Matrix.RotationY(LeftrightRot);
+                this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
             }
 
-            if (LockCamera)
+            if (this.LockCamera)
             {
-                Cursor.Position = MouseCenter;
+                Cursor.Position = this.MouseCenter;
             }
 
             // Calculamos la nueva posicion del ojo segun la rotacion actual de la camara.
-            var cameraRotatedPositionEye = Vector3.TransformNormal(moveVector * elapsedTime, CameraRotation);
-            PositionEye += cameraRotatedPositionEye;
+            var cameraRotatedPositionEye = Vector3.TransformNormal(moveVector * elapsedTime, this.CameraRotation);
+            this.PositionEye += cameraRotatedPositionEye;
 
             // Calculamos el target de la camara, segun su direccion inicial y las rotaciones en screen space x,y.
-            var cameraRotatedTarget = Vector3.TransformNormal(DirectionView, CameraRotation);
-            var cameraFinalTarget = PositionEye + cameraRotatedTarget;
+            var cameraRotatedTarget = Vector3.TransformNormal(this.DirectionView, this.CameraRotation);
+            var cameraFinalTarget = this.PositionEye + cameraRotatedTarget;
 
-            var cameraOriginalUpVector = DEFAULT_UP_VECTOR;
-            var cameraRotatedUpVector = Vector3.TransformNormal(cameraOriginalUpVector, CameraRotation);
+            var cameraOriginalUpVector = this.DEFAULT_UP_VECTOR;
+            var cameraRotatedUpVector = Vector3.TransformNormal(cameraOriginalUpVector, this.CameraRotation);
 
-            base.SetCamera(PositionEye, cameraFinalTarget, cameraRotatedUpVector);
+            base.SetCamera(this.PositionEye, cameraFinalTarget, cameraRotatedUpVector);
         }
     }
 }

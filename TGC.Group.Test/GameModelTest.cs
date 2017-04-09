@@ -21,12 +21,12 @@
             }
 
             var builder = new ContainerBuilder();
-            builder.RegisterType<TgcPlaneFactory>().As<ITgcPlaneFactory>().SingleInstance();
-            builder.RegisterType<Vector3Factory>().As<IVector3Factory>().SingleInstance();
             builder.RegisterType<TgcFpsCamera>().SingleInstance();
-            builder.RegisterType<TgcSceneLoader>().SingleInstance();
-            builder.RegisterType<ScenarioCreator>().As<IScenarioCreator>().SingleInstance();
-            builder.RegisterType<TgcTextureFactory>().As<ITgcTextureFactory>().SingleInstance();
+            builder.Register(element => new TgcSceneLoader()).SingleInstance();
+            builder.Register(element => new TgcPlaneFactory()).As<ITgcPlaneFactory>().SingleInstance();
+            builder.Register(element => new Vector3Factory()).As<IVector3Factory>().SingleInstance();
+            builder.Register(element => new ScenarioCreator()).As<IScenarioCreator>().SingleInstance();
+            builder.Register(element => new TgcTextureFactory()).As<ITgcTextureFactory>().SingleInstance();
 
             this.GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", builder.Build());
         }

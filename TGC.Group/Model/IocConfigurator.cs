@@ -18,12 +18,12 @@
         public IContainer BuildAutofacContainer()
         {
             this.Builder = new ContainerBuilder();
-            this.Builder.RegisterType<TgcPlaneFactory>().As<ITgcPlaneFactory>().SingleInstance();
-            this.Builder.RegisterType<Vector3Factory>().As<IVector3Factory>().SingleInstance();
             this.Builder.RegisterType<TgcFpsCamera>().SingleInstance();
-            this.Builder.RegisterType<TgcSceneLoader>().SingleInstance();
-            this.Builder.RegisterType<ScenarioCreator>().As<IScenarioCreator>().SingleInstance();
-            this.Builder.RegisterType<TgcTextureFactory>().As<ITgcTextureFactory>().SingleInstance();
+            this.Builder.Register(element => new TgcSceneLoader()).SingleInstance();
+            this.Builder.Register(element => new TgcPlaneFactory()).As<ITgcPlaneFactory>().SingleInstance();
+            this.Builder.Register(element => new Vector3Factory()).As<IVector3Factory>().SingleInstance();
+            this.Builder.Register(element => new ScenarioCreator()).As<IScenarioCreator>().SingleInstance();
+            this.Builder.Register(element => new TgcTextureFactory()).As<ITgcTextureFactory>().SingleInstance();
             return this.Builder.Build();
         }
     }

@@ -5,11 +5,14 @@
     using Autofac;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TGC.Core.Direct3D;
+    using TGC.Core.SceneLoader;
+    using TGC.Group.Interfaces;
     using TGC.Group.Model;
 
     [TestClass]
     public class GameModelTest
     {
+
         public GameModelTest()
         {
             using (var panel = new Panel())
@@ -18,12 +21,16 @@
             }
 
             var builder = new ContainerBuilder();
-            builder.RegisterType<TgcPlaneFactory>();
-            builder.RegisterType<Vector3Factory>();
-            builder.RegisterType<ScenarioCreator>();
+            builder.RegisterType<TgcPlaneFactory>().As<ITgcPlaneFactory>().SingleInstance();
+            builder.RegisterType<Vector3Factory>().As<IVector3Factory>().SingleInstance();
+            builder.RegisterType<TgcFpsCamera>().SingleInstance();
+            builder.RegisterType<TgcSceneLoader>().SingleInstance();
+            builder.RegisterType<ScenarioCreator>().As<IScenarioCreator>().SingleInstance();
+            builder.RegisterType<TgcTextureFactory>().As<ITgcTextureFactory>().SingleInstance();
 
             this.GameModel = new GameModel(Directory.GetCurrentDirectory() + @"\Media", Directory.GetCurrentDirectory() + @"\Shaders", builder.Build());
         }
+
         private GameModel GameModel { get; set; }
 
         [TestMethod]

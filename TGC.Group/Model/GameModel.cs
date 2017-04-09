@@ -79,16 +79,6 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
-        /// Dibujar las instrucciones del juego
-        /// </summary>
-        private void RenderInstructions()
-        {
-            this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
-            this.DrawText.drawText("Presione WSAD para moverse", 0, 40, Color.OrangeRed);
-            this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 60, Color.OrangeRed);
-        }
-
-        /// <summary>
         ///     Se llama en cada frame.
         /// </summary>
         public override void Update()
@@ -151,6 +141,16 @@ namespace TGC.Group.Model
         /// Inicializa la camara
         /// </summary>
         private void InitScenario() => this.ScenarioElements = this.Container.Resolve<IScenarioCreator>().CreateScenario(this.MediaDir, this.Container);
+
+        /// <summary>
+        /// Dibujar las instrucciones del juego
+        /// </summary>
+        private void RenderInstructions()
+        {
+            this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
+            this.DrawText.drawText("Presione WSAD para moverse", 0, 40, Color.OrangeRed);
+            this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 60, Color.OrangeRed);
+        }
 
         /// <summary>
         /// Renderiza el escenario con piso y techo

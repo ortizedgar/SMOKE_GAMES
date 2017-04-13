@@ -97,9 +97,9 @@ namespace TGC.Group.Model
         /// <param name="element"></param>
         private static void RenderElement(IRenderObject element)
         {
-            if (element is TgcPlane)
+            if (element is TgcPlane tgcPlane)
             {
-                ((TgcPlane)element).updateValues();
+                tgcPlane.updateValues();
             }
 
             element.render();

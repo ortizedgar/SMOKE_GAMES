@@ -3,21 +3,21 @@
     using System;
     using System.Threading;
     using System.Windows.Forms;
-    using Autofac;
     using TGC.Core.Direct3D;
     using TGC.Core.Example;
     using TGC.Core.Input;
-    using TGC.Core.SceneLoader;
     using TGC.Core.Shaders;
     using TGC.Core.Sound;
     using TGC.Core.Textures;
     using TGC.Group.Model;
 
+#pragma warning disable S110 // Inheritance tree of classes should not be too deep
     /// <summary>
     ///     GameForm es el formulario de entrada, el mismo invocara a nuestro modelo  que extiende TgcExample, e inicia el
     ///     render loop.
     /// </summary>
-    public partial class GameForm : System.Windows.Forms.Form
+    public partial class GameForm : Form
+#pragma warning restore S110 // Inheritance tree of classes should not be too deep
     {
         /// <summary>
         ///     Constructor de la ventana.

@@ -5,7 +5,6 @@ namespace TGC.Group.Model
     using System.Drawing;
     using System.Linq;
     using Autofac;
-    using Microsoft.DirectX;
     using Microsoft.DirectX.Direct3D;
     using TGC.Core.Example;
     using TGC.Core.Geometry;
@@ -20,6 +19,11 @@ namespace TGC.Group.Model
     public class GameModel : TgcExample
     {
         /// <summary>
+        /// Mesh para la linterna
+        /// </summary>
+        private TgcBox MeshLinterna;
+
+        /// <summary>
         ///     Constructor del juego.
         /// </summary>
         /// <param name="mediaDir">Ruta donde esta la carpeta con los assets</param>
@@ -30,6 +34,7 @@ namespace TGC.Group.Model
             this.Name = Game.Default.Name;
             this.Description = Game.Default.Description;
             this.Container = container;
+            this.Vector3Factory = container.Resolve<IVector3Factory>();
         }
 
         /// <summary>
@@ -48,6 +53,11 @@ namespace TGC.Group.Model
         private List<Tuple<string, List<IRenderObject>>> ScenarioElements { get; set; }
 
         /// <summary>
+        /// Fabrica de objetos <see cref="Vector3"/>
+        /// </summary>
+        private IVector3Factory Vector3Factory { get; set; }
+
+        /// <summary>
         ///     Se llama cuando termina la ejecución del ejemplo.
         ///     Hacer Dispose() de todos los objetos creados.
         ///     Es muy importante liberar los recursos, sobretodo los gráficos ya que quedan bloqueados en el device de video.
@@ -55,13 +65,8 @@ namespace TGC.Group.Model
         public override void Dispose()
         {
             DisposeScenario();
-            this.lightMesh.dispose();
+            this.MeshLinterna.dispose();
         }
-
-        /// <summary>
-        /// Mesh para la luz
-        /// </summary>
-        private TgcBox lightMesh;
 
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
@@ -71,19 +76,6 @@ namespace TGC.Group.Model
             InitCamara();
             InitScenario();
             InitLights();
-        }
-
-        /// <summary>
-        /// Inicializa las luces
-        /// </summary>
-        private void InitLights()
-        {
-            // Mesh para la luz
-            this.lightMesh = TgcBox.fromSize(new Vector3(1, 1, 1));
-            this.lightMesh.AutoTransformEnable = true;
-            this.lightMesh.Position = this.Camara.Position;
-            this.lightMesh.Color = Color.White;
-            this.lightMesh.Enabled = true;
         }
 
         /// <summary>
@@ -103,47 +95,6 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
-        /// Dibuja las luces
-        /// </summary>
-        private void RenderLights()
-        {
-            var currentShader = this.lightMesh.Enabled ? TgcShaders.Instance.TgcMeshPointLightShader : TgcShaders.Instance.TgcMeshShader;
-
-            // Renderizar meshes
-            this.ScenarioElements
-            .AsParallel()
-            .SelectMany(
-                element =>
-                    element.Item2)
-            .ToList()
-            .ForEach(
-                element =>
-                {
-                    if (element is TgcMesh mesh)
-                    {
-                        mesh.Effect = currentShader;
-                        mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
-                        if (this.lightMesh.Enabled)
-                        {
-                            // Cargar variables shader de la luz
-                            mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.lightMesh.Color));
-                            mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.lightMesh.Position));
-                            mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-                            mesh.Effect.SetValue("lightIntensity", 1f);
-                            mesh.Effect.SetValue("lightAttenuation", 0.5f);
-
-                            // Cargar variables de shader de Material
-                            mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
-                            mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
-                            mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
-                            mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-                            mesh.Effect.SetValue("materialSpecularExp", 1f);
-                        }
-                    }
-                });
-        }
-
-        /// <summary>
         ///     Se llama en cada frame.
         /// </summary>
         public override void Update()
@@ -155,20 +106,6 @@ namespace TGC.Group.Model
                 ActivateRoofAndFloor();
                 UpdateLights();
             }
-        }
-
-        /// <summary>
-        /// Actualiza las luces
-        /// </summary>
-        private void UpdateLights()
-        {
-            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
-            {
-                this.lightMesh.Enabled = !this.lightMesh.Enabled;
-            }
-
-            this.lightMesh.Position = this.Camara.Position;
-            this.lightMesh.updateValues();
         }
 
         /// <summary>
@@ -198,10 +135,23 @@ namespace TGC.Group.Model
         /// Inicializa el escenario
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
-                            new NamedParameter("positionEye", this.Container.Resolve<IVector3Factory>().CreateVector3(5, 5, 5)),
+                            new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(5, 5, 5)),
                             new NamedParameter("moveSpeed", 50),
                             new NamedParameter("jumpSpeed", 50),
                             new NamedParameter("input", this.Input));
+
+        /// <summary>
+        /// Inicializa las luces
+        /// </summary>
+        private void InitLights()
+        {
+            // Mesh para la luz
+            this.MeshLinterna = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
+            this.MeshLinterna.AutoTransformEnable = true;
+            this.MeshLinterna.Position = this.Camara.Position;
+            this.MeshLinterna.Color = Color.White;
+            this.MeshLinterna.Enabled = true;
+        }
 
         /// <summary>
         /// Inicializa la camara
@@ -217,6 +167,55 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione Shift izquierdo para prender/apagar la literna", 0, 40, Color.OrangeRed);
             this.DrawText.drawText("Presione WSAD para moverse", 0, 60, Color.OrangeRed);
             this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 80, Color.OrangeRed);
+        }
+
+        /// <summary>
+        /// Dibuja las luces
+        /// </summary>
+        private void RenderLights() => this.ScenarioElements
+            .AsParallel()
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ForAll(
+                element =>
+                {
+                    var mesh = element as TgcMesh;
+                    mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
+                    mesh.Effect = TgcShaders.Instance.TgcMeshShader;
+                    if (this.MeshLinterna.Enabled)
+                    {
+                        mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+
+                        // Cargar variables shader de la luz
+                        mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.MeshLinterna.Color));
+                        mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.MeshLinterna.Position));
+                        mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                        mesh.Effect.SetValue("lightIntensity", 1f);
+                        mesh.Effect.SetValue("lightAttenuation", 0.5f);
+
+                        // Cargar variables de shader de Material
+                        mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
+                        mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
+                        mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
+                        mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
+                        mesh.Effect.SetValue("materialSpecularExp", 1f);
+                    }
+                });
+
+        /// <summary>
+        /// Renderiza el escenario
+        /// </summary>
+        private void RenderScenario()
+        {
+            if (this.RenderFloorAndRoof)
+            {
+                RenderWithFloorAndRoof();
+            }
+            else
+            {
+                RenderWithoutFloorAndRoof();
+            }
         }
 
         /// <summary>
@@ -249,18 +248,17 @@ namespace TGC.Group.Model
                     element.render());
 
         /// <summary>
-        /// Renderiza el escenario
+        /// Actualiza las luces
         /// </summary>
-        private void RenderScenario()
+        private void UpdateLights()
         {
-            if (this.RenderFloorAndRoof)
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
             {
-                RenderWithFloorAndRoof();
+                this.MeshLinterna.Enabled = !this.MeshLinterna.Enabled;
             }
-            else
-            {
-                RenderWithoutFloorAndRoof();
-            }
+
+            this.MeshLinterna.Position = this.Camara.Position;
+            this.MeshLinterna.updateValues();
         }
     }
 }

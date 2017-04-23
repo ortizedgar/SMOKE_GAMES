@@ -21,9 +21,19 @@
         private List<IRenderObject> Floor { get; set; }
 
         /// <summary>
+        /// Representa la orientacion horizontal
+        /// </summary>
+        private string Horizontal { get; } = "H";
+
+        /// <summary>
         /// Directorio de texturas, etc.
         /// </summary>
         private string MediaDir { get; set; }
+
+        /// <summary>
+        /// Tamaño del plano de las paredes, techo y piso
+        /// </summary>
+        private Vector3 MeshPlaneSize { get; set; }
 
         /// <summary>
         /// Representa la direccion Norte
@@ -46,11 +56,6 @@
         private float PlaneSize { get; } = 10;
 
         /// <summary>
-        /// Tamaño del plano de las paredes, techo y piso
-        /// </summary>
-        private Vector3 MeshPlaneSize { get; set; }
-
-        /// <summary>
         /// Lista de objetos que representan el techo
         /// </summary>
         private List<IRenderObject> Roof { get; set; }
@@ -69,11 +74,6 @@
         /// Representa la direccion sur
         /// </summary>
         private string Sur { get; } = "S";
-
-        /// <summary>
-        /// Representa la horizontal
-        /// </summary>
-        private string Horizontal { get; } = "H";
 
         /// <summary>
         /// Fabrica de <see cref="TgcPlane"/>
@@ -96,14 +96,14 @@
         private IVector3Factory Vector3Factory { get; set; }
 
         /// <summary>
-        /// Lista de objetos que representan las paredes
-        /// </summary>
-        private List<IRenderObject> Walls { get; set; }
-
-        /// <summary>
         /// Mesh de las paredes
         /// </summary>
         private TgcMesh WallMesh { get; set; }
+
+        /// <summary>
+        /// Lista de objetos que representan las paredes
+        /// </summary>
+        private List<IRenderObject> Walls { get; set; }
 
         /// <summary>
         /// Crea la lista con todos los objetos que componen el escenario

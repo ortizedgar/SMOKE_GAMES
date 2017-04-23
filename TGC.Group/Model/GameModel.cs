@@ -5,10 +5,12 @@ namespace TGC.Group.Model
     using System.Drawing;
     using System.Linq;
     using Autofac;
-    using Microsoft.DirectX.DirectInput;
+    using Microsoft.DirectX;
     using TGC.Core.Example;
     using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
+    using TGC.Core.Shaders;
+    using TGC.Core.Utils;
     using TGC.Group.Interfaces;
 
     /// <summary>
@@ -51,6 +53,8 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Dispose() => DisposeScenario();
 
+        private TgcBox lightMesh;
+
         /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         /// </summary>
@@ -59,6 +63,18 @@ namespace TGC.Group.Model
             InitCamara();
 
             InitScenario();
+
+            InitLights();
+        }
+
+        private void InitLights()
+        {
+            //Mesh para la luz
+            lightMesh = TgcBox.fromSize(new Vector3(1, 1, 1));
+
+            //Pongo al mesh en posicion, activo e AutoTransform
+            lightMesh.AutoTransformEnable = true;
+            lightMesh.Position = new Vector3(0, 0, 0);
         }
 
         /// <summary>
@@ -74,8 +90,67 @@ namespace TGC.Group.Model
             // Renderizar el escenario
             ScenarioRender();
 
+            RenderLights();
+
             // Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
+        }
+
+        private void RenderLights()
+        {
+            Microsoft.DirectX.Direct3D.Effect currentShader;
+
+            if (lightMesh.Enabled)
+            {
+                //Con luz: Cambiar el shader actual por el shader default que trae el framework para iluminacion dinamica con PointLight
+                currentShader = TgcShaders.Instance.TgcMeshPointLightShader;
+            }
+            else
+            {
+                //Sin luz: Restaurar shader default
+                currentShader = TgcShaders.Instance.TgcMeshShader;
+            }
+
+            //Renderizar meshes
+            this.ScenarioElements
+            .AsParallel()
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ToList()
+            .ForEach(
+                element =>
+                {
+                    if (element is TgcMesh mesh)
+                    {
+                        mesh.Effect = currentShader;
+                        //El Technique depende del tipo RenderType del mesh
+                        mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
+
+                        if (lightMesh.Enabled)
+                        {
+                            //Cargar variables shader de la luz
+                            mesh.Effect.SetValue("lightColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(lightMesh.Color));
+                            mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(lightMesh.Position));
+                            mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(Camara.Position));
+                            mesh.Effect.SetValue("lightIantensity", 1f);
+                            mesh.Effect.SetValue("lightAttenuation", 0.5f);
+
+                            //Cargar variables de shader de Material. El Material en realidad deberia ser propio de cada mesh. Pero en este ejemplo se simplifica con uno comun para todos
+                            mesh.Effect.SetValue("materialEmissiveColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.Black));
+                            mesh.Effect.SetValue("materialAmbientColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                            mesh.Effect.SetValue("materialDiffuseColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                            mesh.Effect.SetValue("materialSpecularColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                            mesh.Effect.SetValue("materialSpecularExp", 1f);
+                        }
+
+                        //Renderizar modelo
+                        mesh.render();
+                    }
+                });
+
+            //Renderizar mesh de luz
+            //lightMesh.render();
         }
 
         /// <summary>
@@ -89,6 +164,17 @@ namespace TGC.Group.Model
             {
                 ActivateRoofAndFloor();
             }
+
+            UpdateLights();
+        }
+
+        private void UpdateLights()
+        {
+            //Actualizo los valores de la luz
+            lightMesh.Enabled = true;
+            lightMesh.Position = new Vector3(10, 10, 10);
+            lightMesh.Color = Color.White;
+            lightMesh.updateValues();
         }
 
         /// <summary>
@@ -102,6 +188,7 @@ namespace TGC.Group.Model
                 tgcPlane.updateValues();
             }
 
+            //((TgcMesh)element).BoundingBox.render();
             element.render();
         }
 
@@ -110,7 +197,7 @@ namespace TGC.Group.Model
         /// </summary>
         private void ActivateRoofAndFloor()
         {
-            if (this.Input.keyPressed(Key.F))
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F))
             {
                 this.RenderFloorAndRoof = !this.RenderFloorAndRoof;
             }

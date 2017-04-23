@@ -6,7 +6,6 @@
     using Microsoft.DirectX;
     using Microsoft.DirectX.Direct3D;
     using TGC.Core.Direct3D;
-    using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
     using TGC.Core.Textures;
     using TGC.Group.Interfaces;
@@ -69,6 +68,11 @@
         private string Sur { get; } = "S";
 
         /// <summary>
+        /// Representa la horizontal
+        /// </summary>
+        private string Horizontal { get; } = "H";
+
+        /// <summary>
         /// Fabrica de <see cref="TgcPlane"/>
         /// </summary>
         private ITgcPlaneFactory TgcPlaneFactory { get; set; }
@@ -92,6 +96,11 @@
         /// Lista de objetos que representan las paredes
         /// </summary>
         private List<IRenderObject> Walls { get; set; }
+
+        /// <summary>
+        /// Textura de las paredes
+        /// </summary>
+        private TgcMesh WallMesh { get; set; }
 
         /// <summary>
         /// Textura de las paredes
@@ -144,6 +153,10 @@
             {
                 return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(270), 0);
             }
+            if (orientation == this.Horizontal)
+            {
+                return this.Vector3Factory.CreateVector3(0, 0, Geometry.DegreeToRadian(90));
+            }
 
             return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(0), 0);
         }
@@ -176,33 +189,51 @@
         private void CreateFloor()
         {
             this.Floor = new List<IRenderObject>();
-            CreateHorizontalLayer(this.Floor, 0, this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\floor.bmp"));
+            CreateHorizontalLayer(this.Floor, 0, this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Piso\Piso-TgcScene.xml").Meshes[0]);
         }
 
         /// <summary>
         /// Crea una capa horizontal de planos que ocupan todo el escenario
         /// </summary>
         /// <param name="yCoordinate">Indica la altura sobre la cual debe crearse la capa</param>
-        /// <param name="texture">Indica la textura con la cual debe crearse cada elemento de la capa</param>
+        /// <param name="mesh">Indica la textura con la cual debe crearse cada elemento de la capa</param>
         /// <param name="layer">Capa que se quiere crear</param>
-        private void CreateHorizontalLayer(List<IRenderObject> layer, float yCoordinate, TgcTexture texture)
+        private void CreateHorizontalLayer(List<IRenderObject> layer, float yCoordinate, TgcMesh mesh)
         {
-            TgcPlane layerElement;
+            TgcMesh layerElement;
+            var large = 10;
             for (var i = 0; i < this.ScenarioWide; i++)
             {
                 for (var j = 0; j < this.ScenarioDepth; j++)
                 {
-                    layerElement = this.TgcPlaneFactory.CreateTgcPlane();
-                    layerElement.setTexture(texture);
-                    layerElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * i, yCoordinate, this.PlaneSize * j);
-                    layerElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
-                    layerElement.Orientation = TgcPlane.Orientations.XZplane;
-                    layerElement.AutoAdjustUv = false;
-                    layerElement.UTile = 1;
-                    layerElement.VTile = 1;
+                    layerElement = mesh.createMeshInstance(
+                        layer.Count + "_" + mesh.Name,
+                        CalculateTranslation(mesh, this.Horizontal, large * i + 10f, yCoordinate, large * j + 5f),
+                        CalculateRotation(this.Horizontal),
+                        this.Vector3Factory.CreateVector3(0.005f, 0.0757f, 0.0665f));
+                    layerElement.AutoTransformEnable = true;
                     layer.Add(layerElement);
                 }
             }
+
+            //layerElement = mesh.createMeshInstance(
+            //            layer.Count + "_" + mesh.Name,
+            //            CalculateTranslation(mesh, this.Horizontal, large * 0 + 10f, yCoordinate, large * 0 + 5f),
+            //            CalculateRotation(this.Horizontal),
+            //            this.Vector3Factory.CreateVector3(0.01f, 0.075f, 0.065f));
+            //layerElement.AutoTransformEnable = true;
+            //layer.Add(layerElement);
+
+            //TgcPlane x;
+            //x = this.TgcPlaneFactory.CreateTgcPlane();
+            //x.setTexture(this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\floor.bmp"));
+            //x.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * 0, yCoordinate + 0.1f, this.PlaneSize * 0);
+            //x.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
+            //x.Orientation = TgcPlane.Orientations.XZplane;
+            //x.AutoAdjustUv = false;
+            //x.UTile = 1;
+            //x.VTile = 1;
+            //layer.Add(x);
         }
 
         /// <summary>
@@ -772,7 +803,7 @@
         private void CreateRoof()
         {
             this.Roof = new List<IRenderObject>();
-            CreateHorizontalLayer(this.Roof, this.PlaneSize, this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\roof.bmp"));
+            CreateHorizontalLayer(this.Roof, this.PlaneSize, this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Techo\Techo-TgcScene.xml").Meshes[0]);
         }
 
         /// <summary>
@@ -781,48 +812,116 @@
         private void CreateWalls()
         {
             this.Walls = new List<IRenderObject>();
+            this.WallMesh = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Pared\ParedBlanca-TgcScene.xml").Meshes[0];
+
+            this.Walls = new List<IRenderObject>();
             this.WallTexture = this.TgcTextureFactory.CreateTexture(D3DDevice.Instance.Device, this.MediaDir + @"\wall.bmp");
+            //CreateWallsLine(this.Este, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+            //CreateWallsLine(this.Este, -0.1f, new float[] { 0 });
+            //CreateWallsLine(this.Este, -0.1f, new float[] { 21 });
+
+            var large = 10f;
 
             // Paredes verticales
-            CreateWallsLine(this.Este, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
-            CreateWallsLine(this.Este, 2, new float[] { 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
-            CreateWallsLine(this.Este, 3, new float[] { 0, 1, 2, 3 });
-            CreateWallsLine(this.Este, 4, new float[] { 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
-            CreateWallsLine(this.Este, 5, new float[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 });
-            CreateWallsLine(this.Este, 6, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 20, 21 });
-            CreateWallsLine(this.Este, 8, new float[] { 1, 2 });
-            CreateWallsLine(this.Este, 9, new float[] { 0, 1, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(this.Este, 12, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(this.Este, 14, new float[] { 4, 5, 16 });
-            CreateWallsLine(this.Este, 15, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
-            CreateWallsLine(this.Este, 16, new float[] { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
-            CreateWallsLine(this.Este, 17, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21 });
-            CreateWallsLine(this.Este, 19, new float[] { 0, 1, 2, 4, 5, 7, 8, 13, 20, 21 });
-            CreateWallsLine(this.Este, 20, new float[] { 9, 10, 14, 15, 16, 19 });
-            CreateWallsLine(this.Este, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+            //CreateWallsLine(this.Norte, this.Vector3Factory.CreateVector3(0.005f, 0.075f, 0.065f), new float[] { 0 }, 0, new float[] { 0 * large + 5f, 1 * large + 5f, 2 * large + 5f, 3 * large + 5f, 4 * large + 5f, 5 * large + 5f, 6 * large + 5f, 7 * large + 5f, 8 * large + 5f, 9 * large + 5f, 10 * large + 5f, 11 * large + 5f, 12 * large + 5f, 13 * large + 5f, 14 * large + 5f, 15 * large + 5f, 16 * large + 5f, 17 * large + 5f, 18 * large + 5f, 19 * large + 5f, 20 * large + 5f, 21 * large + 5f });
+            CreateNorthWallsLine(this.Norte, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
+            //* large + 7.5f, 1 * large + 7.5f, 2 * large + 7.5f, 3 * large + 7.5f, 4 * large + 7.5f, 5 * large + 7.5f, 6 * large + 7.5f, 7 * large + 7.5f, 8 * large + 7.5f, 9 * large + 7.5f, 10 * large + 7.5f, 11 * large + 7.5f, 12 * large + 7.5f, 13 * large + 7.5f, 14 * large + 7.5f, 15 * large + 7.5f, 16 * large + 7.5f, 17 * large + 7.5f, 18 * large + 7.5f, 19 * large + 7.5f, 20 * large + 7.5f, 21 * large + 7.5f
+            CreateNorthWallsLine(this.Norte, 2, new float[] { 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 3, new float[] { 0, 1, 2, 3 });
+            CreateNorthWallsLine(this.Norte, 4, new float[] { 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 5, new float[] { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17 });
+            CreateNorthWallsLine(this.Norte, 6, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 8, new float[] { 1, 2 });
+            CreateNorthWallsLine(this.Norte, 9, new float[] { 0, 1, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 12, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 14, new float[] { 4, 5, 16 });
+            CreateNorthWallsLine(this.Norte, 15, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 11, 12, 13, 14, 16, 17, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 16, new float[] { 0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+            CreateNorthWallsLine(this.Norte, 17, new float[] { 0, 1, 2, 4, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21 });
+            CreateNorthWallsLine(this.Norte, 19, new float[] { 0, 1, 2, 4, 5, 7, 8, 13, 20, 21 });
+            CreateNorthWallsLine(this.Norte, 20, new float[] { 9, 10, 14, 15, 16, 19 });
+            CreateNorthWallsLine(this.Norte, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
 
-            // Paredes horizontales
-            CreateWallsLine(this.Norte, 0, new float[] { 0, 2, 4, 20, 22 });
-            CreateWallsLine(this.Norte, 1, new float[] { 0, 2, 4, 20, 22 });
-            CreateWallsLine(this.Norte, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 3, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 4, new float[] { 0, 2, 6, 8, 20, 22 });
-            CreateWallsLine(this.Norte, 5, new float[] { 0, 2, 6, 16, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 6, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 7, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 8, new float[] { 0, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 9, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(this.Norte, 10, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(this.Norte, 11, new float[] { 0, 6, 16, 22 });
-            CreateWallsLine(this.Norte, 12, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 13, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 14, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
-            CreateWallsLine(this.Norte, 15, new float[] { 0, 4, 6, 16, 20, 22 });
-            CreateWallsLine(this.Norte, 16, new float[] { 0, 3, 4, 6, 20, 22 });
-            CreateWallsLine(this.Norte, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
-            CreateWallsLine(this.Norte, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
-            CreateWallsLine(this.Norte, 19, new float[] { 0, 2, 4, 6, 7, 9, 15, 20, 22 });
-            CreateWallsLine(this.Norte, 20, new float[] { 0, 2, 4, 6, 7, 9, 11, 14, 17, 19, 22 });
+            //// Paredes horizontales
+            CreateEastWallsLine(this.Este, 0, new float[] { 0, 2, 4, 20, 22 });
+            CreateEastWallsLine(this.Este, 1, new float[] { 0, 2, 4, 20, 22 });
+            CreateEastWallsLine(this.Este, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 3, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 4, new float[] { 0, 2, 6, 8, 20, 22 });
+            CreateEastWallsLine(this.Este, 5, new float[] { 0, 2, 6, 16, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 6, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 7, new float[] { 0, 1, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 8, new float[] { 0, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 9, new float[] { 0, 6, 16, 22 });
+            CreateEastWallsLine(this.Este, 10, new float[] { 0, 6, 16, 22 });
+            CreateEastWallsLine(this.Este, 11, new float[] { 0, 6, 16, 22 });
+            CreateEastWallsLine(this.Este, 12, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 13, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 17, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 14, new float[] { 0, 1.5f, 3, 4, 6, 7, 10, 11, 15, 16, 18, 20, 22 });
+            CreateEastWallsLine(this.Este, 15, new float[] { 0, 4, 6, 16, 20, 22 });
+            CreateEastWallsLine(this.Este, 16, new float[] { 0, 3, 4, 6, 20, 22 });
+            CreateEastWallsLine(this.Este, 17, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateEastWallsLine(this.Este, 18, new float[] { 0, 3, 4, 6, 7, 13, 14, 15, 19, 20, 22 });
+            CreateEastWallsLine(this.Este, 19, new float[] { 0, 2, 4, 6, 7, 9, 15, 20, 22 });
+            CreateEastWallsLine(this.Este, 20, new float[] { 0, 2, 4, 6, 7, 9, 11, 14, 17, 19, 22 });
+        }
+
+        ///// <summary>
+        ///// Crea una linea de paredes
+        ///// </summary>
+        ///// <param name="orientation">Orientacion de la pared</param>
+        ///// <param name="xCoordinate">Indica la ubicacion en la coordenada X de la linea de objetos</param>
+        ///// <param name="zCoordinates">Indica la ubicacion en la coordenada Z donde debe colocarse cada objeto</param>
+        //private void CreateWallsLine(string orientation, float xCoordinate, float[] zCoordinates)
+        //{
+        //    foreach (var zCoordinate in zCoordinates)
+        //    {
+        //        var wallElement = this.TgcPlaneFactory.CreateTgcPlane();
+        //        wallElement.setTexture(this.WallTexture);
+        //        wallElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * xCoordinate, 0, this.PlaneSize * zCoordinate);
+        //        wallElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
+        //        wallElement.Orientation = orientation == this.Norte ? TgcPlane.Orientations.XYplane : TgcPlane.Orientations.YZplane;
+        //        wallElement.AutoAdjustUv = false;
+        //        wallElement.UTile = 1;
+        //        wallElement.VTile = 1;
+        //        this.Walls.Add(wallElement);
+        //    }
+
+
+        //    //foreach (var zCoordinate in zCoordinates)
+        //    //{
+        //    //    var wallElement = this.TgcPlaneFactory.CreateTgcPlane();
+        //    //    wallElement.setTexture(this.WallTexture);
+        //    //    wallElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * xCoordinate, 0, this.PlaneSize * zCoordinate);
+        //    //    wallElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
+        //    //    wallElement.Orientation = orientation == this.Norte ? TgcPlane.Orientations.XYplane : TgcPlane.Orientations.YZplane;
+        //    //    wallElement.AutoAdjustUv = false;
+        //    //    wallElement.UTile = 1;
+        //    //    wallElement.VTile = 1;
+        //    //    this.Walls.Add(wallElement);
+        //    //}
+        //}
+
+
+        /// <summary>
+        /// Crea una linea de paredes
+        /// </summary>
+        /// <param name="orientation">Orientacion de la pared</param>
+        /// <param name="xCoordinate">Indica la ubicacion en la coordenada X de la linea de objetos</param>
+        /// <param name="zCoordinates">Indica la ubicacion en la coordenada Z donde debe colocarse cada objeto</param>
+        private void CreateNorthWallsLine(string orientation, float xCoordinate, float[] zCoordinates)
+        {
+            TgcMesh meshInstance;
+            foreach (var zCoordinate in zCoordinates)
+            {
+                meshInstance = this.WallMesh.createMeshInstance(
+                    this.Walls.Count + "_" + this.WallMesh.Name,
+                    CalculateTranslation(this.WallMesh, orientation, xCoordinate * 10, 0, zCoordinate * 10 + 5f),
+                    CalculateRotation(orientation),
+                    this.Vector3Factory.CreateVector3(0.005f, 0.075f, 0.0665f));
+                meshInstance.AutoTransformEnable = true;
+                this.Walls.Add(meshInstance);
+            }
         }
 
         /// <summary>
@@ -831,19 +930,26 @@
         /// <param name="orientation">Orientacion de la pared</param>
         /// <param name="xCoordinate">Indica la ubicacion en la coordenada X de la linea de objetos</param>
         /// <param name="zCoordinates">Indica la ubicacion en la coordenada Z donde debe colocarse cada objeto</param>
-        private void CreateWallsLine(string orientation, float xCoordinate, float[] zCoordinates)
+        private void CreateEastWallsLine(string orientation, float xCoordinate, float[] zCoordinates)
         {
+            TgcMesh meshInstance;
             foreach (var zCoordinate in zCoordinates)
             {
-                var wallElement = this.TgcPlaneFactory.CreateTgcPlane();
-                wallElement.setTexture(this.WallTexture);
-                wallElement.Origin = this.Vector3Factory.CreateVector3(this.PlaneSize * xCoordinate, 0, this.PlaneSize * zCoordinate);
-                wallElement.Size = this.Vector3Factory.CreateVector3(this.PlaneSize, this.PlaneSize, this.PlaneSize);
-                wallElement.Orientation = orientation == this.Norte ? TgcPlane.Orientations.XYplane : TgcPlane.Orientations.YZplane;
-                wallElement.AutoAdjustUv = false;
-                wallElement.UTile = 1;
-                wallElement.VTile = 1;
-                this.Walls.Add(wallElement);
+                meshInstance = this.WallMesh.createMeshInstance(
+                    this.Walls.Count + "_" + this.WallMesh.Name,
+                    CalculateTranslation(this.WallMesh, orientation, xCoordinate * 10 + 5f, 0, zCoordinate * 10),
+                    CalculateRotation(orientation),
+                    this.Vector3Factory.CreateVector3(0.005f, 0.075f, 0.0665f));
+                meshInstance.AutoTransformEnable = true;
+
+                //Cargar variables de shader de Material. El Material en realidad deberia ser propio de cada mesh. Pero en este ejemplo se simplifica con uno comun para todos
+                //meshInstance.Effect.SetValue("materialEmissiveColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.Black));
+                //meshInstance.Effect.SetValue("materialAmbientColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                //meshInstance.Effect.SetValue("materialDiffuseColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                //meshInstance.Effect.SetValue("materialSpecularColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(Color.White));
+                //meshInstance.Effect.SetValue("materialSpecularExp", 1f);
+
+                this.Walls.Add(meshInstance);
             }
         }
     }

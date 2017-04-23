@@ -119,9 +119,18 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Game.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Media\Cama\Cama.max" />
+    <None Include="Media\DispenserAgua\DispenserAgua.max" />
+    <None Include="Media\Esqueleto\Esqueleto.max" />
+    <None Include="Media\ExpendedorDeBebidas\ExpendedorDeBebidas.max" />
     <None Include="Media\LamparaTecho\Lampara-Techo.max" />
     <None Include="Media\LockerMetal\LockerMetal.max" />
+    <None Include="Media\Matafuego\Matafuego.max" />
+    <None Include="Media\MesaDeLuz\MesaDeLuz.max" />
+    <None Include="Media\MesaRedonda\MesaRedonda.max" />
     <None Include="Media\Mesa\Mesa.max" />
+    <None Include="Media\Placard\Placard.max" />
+    <None Include="Media\Puerta\Puerta.max" />
     <None Include="Media\Sillon\Sillon.max" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -180,22 +189,52 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Media\floor.bmp" />
+    <Content Include="Media\Cama\Cama-TgcScene.xml" />
+    <Content Include="Media\Cama\preview.jpg" />
+    <Content Include="Media\Cama\Textures\bed.jpg" />
+    <Content Include="Media\DispenserAgua\DispenserAgua-TgcScene.xml" />
+    <Content Include="Media\DispenserAgua\preview.jpg" />
+    <Content Include="Media\DispenserAgua\Textures\waterdisp..jpg" />
+    <Content Include="Media\Esqueleto\Esqueleto-TgcScene.xml" />
+    <Content Include="Media\Esqueleto\preview.jpg" />
+    <Content Include="Media\Esqueleto\Textures\skeleton.png" />
+    <Content Include="Media\ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml" />
+    <Content Include="Media\ExpendedorDeBebidas\preview.jpg" />
+    <Content Include="Media\ExpendedorDeBebidas\Textures\sodamachine.jpg" />
     <Content Include="Media\LamparaTecho\LamparaTecho-TgcScene.xml" />
     <Content Include="Media\LamparaTecho\preview.jpg" />
     <Content Include="Media\LamparaTecho\Textures\tl.jpg" />
     <Content Include="Media\LockerMetal\LockerMetal-TgcScene.xml" />
     <Content Include="Media\LockerMetal\preview.jpg" />
     <Content Include="Media\LockerMetal\Textures\kast.jpg" />
+    <Content Include="Media\Matafuego\Matafuego-TgcScene.xml" />
+    <Content Include="Media\Matafuego\preview.jpg" />
+    <Content Include="Media\Matafuego\Textures\blusser.png" />
+    <Content Include="Media\MesaDeLuz\MesaDeLuz-TgcScene.xml" />
+    <Content Include="Media\MesaDeLuz\preview.jpg" />
+    <Content Include="Media\MesaDeLuz\Textures\mesaDeLuz.jpg" />
+    <Content Include="Media\MesaRedonda\MesaRedonda-TgcScene.xml" />
+    <Content Include="Media\MesaRedonda\preview.jpg" />
+    <Content Include="Media\MesaRedonda\Textures\table.jpg" />
     <Content Include="Media\Mesa\Mesa-TgcScene.xml" />
     <Content Include="Media\Mesa\preview.jpg" />
     <Content Include="Media\Mesa\Textures\table.bmp" />
     <Content Include="Media\Mesa\Textures\table.jpg" />
-    <Content Include="Media\roof.bmp" />
+    <Content Include="Media\Pared\ParedBlanca-TgcScene.xml" />
+    <Content Include="Media\Pared\Textures\techua.jpg" />
+    <Content Include="Media\Piso\Piso-TgcScene.xml" />
+    <Content Include="Media\Piso\Textures\techua.jpg" />
+    <Content Include="Media\Placard\Placard-TgcScene.xml" />
+    <Content Include="Media\Placard\preview.jpg" />
+    <Content Include="Media\Placard\Textures\closet.jpg" />
+    <Content Include="Media\Puerta\preview.jpg" />
+    <Content Include="Media\Puerta\Puerta-TgcScene.xml" />
+    <Content Include="Media\Puerta\Textures\Puerta.jpg" />
     <Content Include="Media\Sillon\preview.jpg" />
     <Content Include="Media\Sillon\Sillon-TgcScene.xml" />
     <Content Include="Media\Sillon\Textures\bench.jpg" />
-    <Content Include="Media\wall.bmp" />
+    <Content Include="Media\Techo\Techo-TgcScene.xml" />
+    <Content Include="Media\Techo\Textures\techua.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

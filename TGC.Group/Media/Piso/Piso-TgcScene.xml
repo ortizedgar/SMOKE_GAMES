@@ -12,7 +12,7 @@
 		</m>
 	</materials>
 	<meshes count='1' >
-		<mesh name='Box01' pos='[0,0,0]' matId='0' color='[88.0,199.0,225.0]' visibility='1.0' lightmap=''>
+		<mesh name='Piso' pos='[0,0,0]' matId='0' color='[88.0,199.0,225.0]' visibility='1.0' lightmap=''>
 			<coordinatesIdx count='36'>0 2 3 3 1 0 4 5 7 7 6 4 0 1 5 5 4 0 1 3 7 7 5 1 3 2 6 6 7 3 2 0 4 4 6 2 </coordinatesIdx>
 			<textCoordsIdx count='36'>9 11 10 10 8 9 8 9 11 11 10 8 4 5 7 7 6 4 0 1 3 3 2 0 4 5 7 7 6 4 0 1 3 3 2 0 </textCoordsIdx>
 			<colorsIdx count='36'>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </colorsIdx>

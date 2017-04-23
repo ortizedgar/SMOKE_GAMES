@@ -62,21 +62,18 @@ namespace TGC.Group.Model
         public override void Init()
         {
             InitCamara();
-
             InitScenario();
-
             InitLights();
         }
 
         private void InitLights()
         {
-            //Mesh para la luz
+            // Mesh para la luz
             this.lightMesh = TgcBox.fromSize(new Vector3(1, 1, 1));
-
-            //Pongo al mesh en posicion, activo e AutoTransform
             this.lightMesh.AutoTransformEnable = true;
             this.lightMesh.Position = new Vector3(10, 10, 10);
             this.lightMesh.Color = Color.White;
+            this.lightMesh.Enabled = false;
         }
 
         /// <summary>
@@ -161,20 +158,6 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
-        /// Renderiza un elemento y lo actualiza si es un <see cref="TgcPlane"/>
-        /// </summary>
-        /// <param name="element"></param>
-        private static void RenderElement(IRenderObject element)
-        {
-            if (element is TgcPlane tgcPlane)
-            {
-                tgcPlane.updateValues();
-            }
-
-            element.render();
-        }
-
-        /// <summary>
         /// Verifica si hay que dibujar el piso y el techo
         /// </summary>
         private void ActivateRoofAndFloor()
@@ -217,8 +200,9 @@ namespace TGC.Group.Model
         private void RenderInstructions()
         {
             this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
-            this.DrawText.drawText("Presione WSAD para moverse", 0, 40, Color.OrangeRed);
-            this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 60, Color.OrangeRed);
+            this.DrawText.drawText("Presione Shift izquierdo para dibujar/eliminar las luces", 0, 40, Color.OrangeRed);
+            this.DrawText.drawText("Presione WSAD para moverse", 0, 60, Color.OrangeRed);
+            this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 80, Color.OrangeRed);
         }
 
         /// <summary>
@@ -232,7 +216,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    RenderElement(element));
+                    element.render());
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
@@ -248,7 +232,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    RenderElement(element));
+                    element.render());
 
         /// <summary>
         /// Renderiza el escenario

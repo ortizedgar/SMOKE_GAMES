@@ -24,6 +24,16 @@ namespace TGC.Group.Model
         private TgcBox MeshLinterna;
 
         /// <summary>
+        /// Mesh para la linterna
+        /// </summary>
+        private TgcBox MeshLampara;
+
+        /// <summary>
+        /// Mesh para la linterna
+        /// </summary>
+        private TgcBox MeshVela;
+
+        /// <summary>
         ///     Constructor del juego.
         /// </summary>
         /// <param name="mediaDir">Ruta donde esta la carpeta con los assets</param>
@@ -76,6 +86,18 @@ namespace TGC.Group.Model
             InitCamara();
             InitScenario();
             InitLights();
+
+            ////Se crea una caja de tamaño 20 con rotaciones y origien en 10,100,10 y 1kg de masa.
+            //var boxShape = new BoxShape(10, 10, 10);
+            //var boxTransform = Matrix.RotationYawPitchRoll(MathUtil.SIMD_HALF_PI, MathUtil.SIMD_QUARTER_PI, MathUtil.SIMD_2_PI).ToBsMatrix;
+            //boxTransform.Origin = new Vector(10, 100, 10).ToBsVector;
+            //DefaultMotionState boxMotionState = new DefaultMotionState(boxTransform);
+
+            ////Es importante calcular la inercia caso contrario el objeto no rotara.
+            //var boxLocalInertia = boxShape.CalculateLocalInertia(1f);
+            //var boxInfo = new RigidBodyConstructionInfo(1f, boxMotionState, boxShape, boxLocalInertia);
+            //boxBody = new RigidBody(boxInfo);
+            //dynamicsWorld.AddRigidBody(boxBody);
         }
 
         /// <summary>
@@ -105,6 +127,11 @@ namespace TGC.Group.Model
             {
                 ActivateRoofAndFloor();
                 UpdateLights();
+
+                if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.B))
+                {
+                    this.RenderBoundingBox = !this.RenderBoundingBox;
+                }
             }
         }
 
@@ -113,7 +140,7 @@ namespace TGC.Group.Model
         /// </summary>
         private void ActivateRoofAndFloor()
         {
-            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F))
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.R))
             {
                 this.RenderFloorAndRoof = !this.RenderFloorAndRoof;
             }
@@ -145,12 +172,36 @@ namespace TGC.Group.Model
         /// </summary>
         private void InitLights()
         {
-            // Mesh para la luz
+            InitLinterna();
+            InitLampara();
+            InitVela();
+        }
+
+        private void InitLinterna()
+        {
             this.MeshLinterna = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
             this.MeshLinterna.AutoTransformEnable = true;
             this.MeshLinterna.Position = this.Camara.Position;
             this.MeshLinterna.Color = Color.White;
             this.MeshLinterna.Enabled = true;
+        }
+
+        private void InitLampara()
+        {
+            this.MeshLampara = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
+            this.MeshLampara.AutoTransformEnable = true;
+            this.MeshLampara.Position = this.Camara.Position;
+            this.MeshLampara.Color = Color.Blue;
+            this.MeshLampara.Enabled = false;
+        }
+
+        private void InitVela()
+        {
+            this.MeshVela = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
+            this.MeshVela.AutoTransformEnable = true;
+            this.MeshVela.Position = this.Camara.Position;
+            this.MeshVela.Color = Color.Red;
+            this.MeshVela.Enabled = false;
         }
 
         /// <summary>
@@ -163,11 +214,13 @@ namespace TGC.Group.Model
         /// </summary>
         private void RenderInstructions()
         {
-            this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
+            this.DrawText.drawText("Presione R para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
             this.DrawText.drawText("Presione Shift izquierdo para prender/apagar la literna", 0, 40, Color.OrangeRed);
             this.DrawText.drawText("Presione WSAD para moverse", 0, 60, Color.OrangeRed);
             this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 80, Color.OrangeRed);
         }
+
+        private float lightIntensity { get; set; } = 1;
 
         /// <summary>
         /// Dibuja las luces
@@ -177,31 +230,67 @@ namespace TGC.Group.Model
             .SelectMany(
                 element =>
                     element.Item2)
-            .ForAll(
+            .ToList()
+            .ForEach(
                 element =>
                 {
+                    this.lightIntensity = this.lightIntensity > 0.25f ? this.lightIntensity - 0.000001f : 0.25f;
                     var mesh = element as TgcMesh;
                     mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
                     mesh.Effect = TgcShaders.Instance.TgcMeshShader;
+
                     if (this.MeshLinterna.Enabled)
                     {
-                        mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
-
-                        // Cargar variables shader de la luz
-                        mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.MeshLinterna.Color));
-                        mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.MeshLinterna.Position));
-                        mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-                        mesh.Effect.SetValue("lightIntensity", 1f);
-                        mesh.Effect.SetValue("lightAttenuation", 0.5f);
-
-                        // Cargar variables de shader de Material
-                        mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
-                        mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
-                        mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
-                        mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-                        mesh.Effect.SetValue("materialSpecularExp", 1f);
+                        SetLinterna(mesh);
                     }
+                    if (this.MeshLampara.Enabled)
+                    {
+                        SetLampara(mesh);
+                    }
+                    if (this.MeshVela.Enabled)
+                    {
+                        SetVela(mesh);
+                    }
+
+                    // Cargar variables de shader de Material
+                    mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
+                    mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
+                    mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
+                    mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
+                    mesh.Effect.SetValue("materialSpecularExp", 1f);
+                    mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                    mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
                 });
+
+        private void SetLinterna(TgcMesh mesh)
+        {
+            mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+
+            // Cargar variables shader de la luz
+            mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.MeshLinterna.Color));
+            mesh.Effect.SetValue(nameof(lightIntensity), this.lightIntensity);
+            mesh.Effect.SetValue("lightAttenuation", 0.5f);
+        }
+
+        private void SetLampara(TgcMesh mesh)
+        {
+            mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+
+            // Cargar variables shader de la luz
+            mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.MeshLampara.Color));
+            mesh.Effect.SetValue(nameof(lightIntensity), this.lightIntensity);
+            mesh.Effect.SetValue("lightAttenuation", 0.5f);
+        }
+
+        private void SetVela(TgcMesh mesh)
+        {
+            mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+
+            // Cargar variables shader de la luz
+            mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.MeshVela.Color));
+            mesh.Effect.SetValue(nameof(lightIntensity), this.lightIntensity);
+            mesh.Effect.SetValue("lightAttenuation", 0.5f);
+        }
 
         /// <summary>
         /// Renderiza el escenario
@@ -229,7 +318,19 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    element.render());
+                    RenderElements(element as TgcMesh));
+
+        private bool RenderBoundingBox { get; set; } = false;
+
+        private void RenderElements(TgcMesh element)
+        {
+            if (this.RenderBoundingBox)
+            {
+                element.BoundingBox.render();
+            }
+
+            element.render();
+        }
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
@@ -245,20 +346,40 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    element.render());
+                    RenderElements(element as TgcMesh));
 
         /// <summary>
         /// Actualiza las luces
         /// </summary>
         private void UpdateLights()
         {
-            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F1))
             {
-                this.MeshLinterna.Enabled = !this.MeshLinterna.Enabled;
+                this.lightIntensity = 1;
+                this.MeshLinterna.Enabled = true;
+                this.MeshLampara.Enabled = false;
+                this.MeshVela.Enabled = false;
             }
 
-            this.MeshLinterna.Position = this.Camara.Position;
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F2))
+            {
+                this.lightIntensity = 1;
+                this.MeshLinterna.Enabled = false;
+                this.MeshLampara.Enabled = true;
+                this.MeshVela.Enabled = false;
+            }
+
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F3))
+            {
+                this.lightIntensity = 1;
+                this.MeshLinterna.Enabled = false;
+                this.MeshLampara.Enabled = false;
+                this.MeshVela.Enabled = true;
+            }
+
             this.MeshLinterna.updateValues();
+            this.MeshLampara.updateValues();
+            this.MeshVela.updateValues();
         }
     }
 }

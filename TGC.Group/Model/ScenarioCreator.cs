@@ -233,6 +233,11 @@
             var meshMesaRedonda = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaRedonda\MesaRedonda-TgcScene.xml").Meshes[0];
             var meshCama = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Cama\Cama-TgcScene.xml").Meshes[0];
             var meshMesaDeLuz = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaDeLuz\MesaDeLuz-TgcScene.xml").Meshes[0];
+            var meshEsqueleto = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Esqueleto\Esqueleto-TgcScene.xml").Meshes[0];
+
+            //var meshMesaCarnicero= this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Workbench\Workbench-TgcScene.xml").Meshes[0];
+
+            //CreateObjectsLine(meshMesaCarnicero, this.Este, this.Vector3Factory.CreateVector3(0.007f, 0.007f, 0.007f), 62, 0, new float[] { 120 });
 
             // Puertas horizontales
             CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
@@ -283,6 +288,9 @@
             CreateObjectsLine(meshExpendedor, this.Oeste, this.Vector3Factory.CreateVector3(0.070f, 0.070f, 0.070f), 118.5f, 0, 10);
 
             // 1
+            //Esqueleto
+            CreateObjectsLine(meshEsqueleto, this.Este, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 2, 0, new float[] { 5 });
+
             // Lamparas
             CreateObjectsLine(meshLamparaTecho, this.Sur, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), new float[] { 10, 20 }, this.PlaneSize * 0.98f, 10);
 

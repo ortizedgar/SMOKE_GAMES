@@ -90,7 +90,7 @@ namespace TGC.Group.Model
             // Renderizar el escenario
             ScenarioRender();
 
-            RenderLights();
+            //RenderLights();
 
             // Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -133,7 +133,7 @@ namespace TGC.Group.Model
                             mesh.Effect.SetValue("lightColor", Microsoft.DirectX.Direct3D.ColorValue.FromColor(lightMesh.Color));
                             mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(lightMesh.Position));
                             mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(Camara.Position));
-                            mesh.Effect.SetValue("lightIantensity", 1f);
+                            mesh.Effect.SetValue("lightIntensity", 1f);
                             mesh.Effect.SetValue("lightAttenuation", 0.5f);
 
                             //Cargar variables de shader de Material. El Material en realidad deberia ser propio de cada mesh. Pero en este ejemplo se simplifica con uno comun para todos

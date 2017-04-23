@@ -52,8 +52,15 @@ namespace TGC.Group.Model
         ///     Hacer Dispose() de todos los objetos creados.
         ///     Es muy importante liberar los recursos, sobretodo los gráficos ya que quedan bloqueados en el device de video.
         /// </summary>
-        public override void Dispose() => DisposeScenario();
+        public override void Dispose()
+        {
+            DisposeScenario();
+            this.lightMesh.dispose();
+        }
 
+        /// <summary>
+        /// Mesh para la luz
+        /// </summary>
         private TgcBox lightMesh;
 
         /// <summary>
@@ -66,14 +73,17 @@ namespace TGC.Group.Model
             InitLights();
         }
 
+        /// <summary>
+        /// Inicializa las luces
+        /// </summary>
         private void InitLights()
         {
             // Mesh para la luz
             this.lightMesh = TgcBox.fromSize(new Vector3(1, 1, 1));
             this.lightMesh.AutoTransformEnable = true;
-            this.lightMesh.Position = new Vector3(10, 10, 10);
+            this.lightMesh.Position = this.Camara.Position;
             this.lightMesh.Color = Color.White;
-            this.lightMesh.Enabled = false;
+            this.lightMesh.Enabled = true;
         }
 
         /// <summary>
@@ -92,6 +102,9 @@ namespace TGC.Group.Model
             PostRender();
         }
 
+        /// <summary>
+        /// Dibuja las luces
+        /// </summary>
         private void RenderLights()
         {
             var currentShader = this.lightMesh.Enabled ? TgcShaders.Instance.TgcMeshPointLightShader : TgcShaders.Instance.TgcMeshShader;
@@ -109,10 +122,7 @@ namespace TGC.Group.Model
                     if (element is TgcMesh mesh)
                     {
                         mesh.Effect = currentShader;
-
-                        // El Technique depende del tipo RenderType del mesh
                         mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
-
                         if (this.lightMesh.Enabled)
                         {
                             // Cargar variables shader de la luz
@@ -122,7 +132,7 @@ namespace TGC.Group.Model
                             mesh.Effect.SetValue("lightIntensity", 1f);
                             mesh.Effect.SetValue("lightAttenuation", 0.5f);
 
-                            // Cargar variables de shader de Material. El Material en realidad deberia ser propio de cada mesh. Pero en este ejemplo se simplifica con uno comun para todos
+                            // Cargar variables de shader de Material
                             mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
                             mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
                             mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
@@ -147,6 +157,9 @@ namespace TGC.Group.Model
             }
         }
 
+        /// <summary>
+        /// Actualiza las luces
+        /// </summary>
         private void UpdateLights()
         {
             if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
@@ -154,6 +167,7 @@ namespace TGC.Group.Model
                 this.lightMesh.Enabled = !this.lightMesh.Enabled;
             }
 
+            this.lightMesh.Position = this.Camara.Position;
             this.lightMesh.updateValues();
         }
 
@@ -200,7 +214,7 @@ namespace TGC.Group.Model
         private void RenderInstructions()
         {
             this.DrawText.drawText("Presione F para dibujar/eliminar el techo y el piso", 0, 20, Color.OrangeRed);
-            this.DrawText.drawText("Presione Shift izquierdo para dibujar/eliminar las luces", 0, 40, Color.OrangeRed);
+            this.DrawText.drawText("Presione Shift izquierdo para prender/apagar la literna", 0, 40, Color.OrangeRed);
             this.DrawText.drawText("Presione WSAD para moverse", 0, 60, Color.OrangeRed);
             this.DrawText.drawText("Mantenga presionado el boton izquierdo del mouse para mover la camara", 0, 80, Color.OrangeRed);
         }

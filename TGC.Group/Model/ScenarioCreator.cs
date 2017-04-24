@@ -248,11 +248,6 @@
             var meshMesaDeLuz = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaDeLuz\MesaDeLuz-TgcScene.xml").Meshes[0];
             var meshEsqueleto = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Esqueleto\Esqueleto-TgcScene.xml").Meshes[0];
 
-
-            //var meshMesaCarnicero = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Hunter\Hunter-TgcSkeletalMesh.xml").Meshes[0];
-
-            //CreateObjectsLine(meshMesaCarnicero, this.Este, this.Vector3Factory.CreateVector3(0.007f, 0.007f, 0.007f), 62, 0, new float[] { 120 });
-
             // Puertas horizontales
             CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
             CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 25, 0, new float[] { 100, 200 });
@@ -867,6 +862,8 @@
         {
             TgcMesh meshInstance;
             Vector3 translation;
+            Vector3 pMin;
+            Vector3 pMax;
             foreach (var zCoordinate in zCoordinates)
             {
                 translation = orientation.Equals(this.Norte, StringComparison.OrdinalIgnoreCase) ? this.Vector3Factory.CreateVector3(xCoordinate * 10, 0, zCoordinate * 10 + 5f) : this.Vector3Factory.CreateVector3(xCoordinate * 10 + 5f, 0, zCoordinate * 10);
@@ -879,13 +876,9 @@
 
                 if (orientation == this.Este || orientation == this.Oeste)
                 {
-                    //meshInstance.BoundingBox.setExtremes(
-                    //meshInstance.Position,
-                    //this.Vector3Factory.CreateVector3(meshInstance.Position.X + this.PlaneSize / 2, 10, meshInstance.Position.Z));
-
-                    meshInstance.BoundingBox.setExtremes(
-                    this.Vector3Factory.CreateVector3(meshInstance.Position.X - meshInstance.BoundingBox.calculateSize().Z / 2, meshInstance.Position.Y, meshInstance.Position.Z - meshInstance.BoundingBox.calculateSize().X / 2),
-                    this.Vector3Factory.CreateVector3(meshInstance.Position.X + meshInstance.BoundingBox.calculateSize().Z / 2, 10, meshInstance.Position.Z + meshInstance.BoundingBox.calculateSize().X / 2));
+                    pMin = this.Vector3Factory.CreateVector3(meshInstance.Position.X - meshInstance.BoundingBox.calculateSize().Z / 2, meshInstance.Position.Y, meshInstance.Position.Z - meshInstance.BoundingBox.calculateSize().X / 2);
+                    pMax = this.Vector3Factory.CreateVector3(meshInstance.Position.X + meshInstance.BoundingBox.calculateSize().Z / 2, 10, meshInstance.Position.Z + meshInstance.BoundingBox.calculateSize().X / 2);
+                    meshInstance.BoundingBox.setExtremes(pMin, pMax);
                 }
 
                 this.Walls.Add(meshInstance);

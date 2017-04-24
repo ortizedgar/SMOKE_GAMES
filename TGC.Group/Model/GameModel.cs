@@ -43,6 +43,11 @@ namespace TGC.Group.Model
         private float LightIntensity { get; set; } = 1;
 
         /// <summary>
+        /// Variacion de la intensidad de la luz
+        /// </summary>
+        private float LightIntensityVariation { get; set; } = 0.000001f;
+
+        /// <summary>
         /// Mesh para la linterna
         /// </summary>
         private TgcBox LightMesh { get; set; }
@@ -169,7 +174,7 @@ namespace TGC.Group.Model
             this.LightMesh = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
             this.LightMesh.AutoTransformEnable = true;
             this.LightMesh.Position = this.Camara.Position;
-            this.LightMesh.Color = Color.White;
+            this.LightMesh.Color = Color.Red;
             this.LightMesh.Enabled = true;
         }
 
@@ -204,6 +209,7 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione R para dibujar/eliminar el techo y el piso", 0, 60, Color.OrangeRed);
             this.DrawText.drawText("Presione F1, F2 o F3 para seleccionar distintas liternas", 0, 80, Color.OrangeRed);
             this.DrawText.drawText("Presione B para dibujar/eliminar los Bounding Box", 0, 100, Color.OrangeRed);
+            this.DrawText.drawText("Presione LShift para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
         }
 
         /// <summary>
@@ -248,6 +254,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
+
                     RenderElements(element as TgcMesh));
 
         /// <summary>
@@ -256,18 +263,23 @@ namespace TGC.Group.Model
         /// <param name="mesh"></param>
         private void SetMeshEffect(TgcMesh mesh)
         {
-            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - 0.000001f : 0.25f;
+            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
             mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
             mesh.Effect = TgcShaders.Instance.TgcMeshShader;
-            mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
-            mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
-            mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
-            mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-            mesh.Effect.SetValue("materialSpecularExp", 1f);
-            mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-            mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-            mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
-            mesh.Effect.SetValue("lightAttenuation", 0.5f);
+            if (this.LightMesh.Enabled)
+            {
+                mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+                mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
+                mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialSpecularExp", 1f);
+                mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
+                mesh.Effect.SetValue("lightIntensity", this.LightIntensity);
+                mesh.Effect.SetValue("lightAttenuation", 0.5f);
+            }
         }
 
         /// <summary>
@@ -278,19 +290,27 @@ namespace TGC.Group.Model
             if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F1))
             {
                 this.LightIntensity = 1;
+                this.LightIntensityVariation = 0.000001f;
                 this.LightMesh.Color = Color.Red;
             }
 
             if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F2))
             {
                 this.LightIntensity = 1;
+                this.LightIntensityVariation = 0.000001f * 2.5f;
                 this.LightMesh.Color = Color.Green;
             }
 
             if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F3))
             {
                 this.LightIntensity = 1;
+                this.LightIntensityVariation = 0.000001f * 5;
                 this.LightMesh.Color = Color.Blue;
+            }
+
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
+            {
+                this.LightMesh.Enabled = !this.LightMesh.Enabled;
             }
 
             this.LightMesh.updateValues();

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Autofac;
+    using BulletSharp;
     using TGC.Core.SceneLoader;
 
     /// <summary>
@@ -13,9 +14,10 @@
         /// <summary>
         /// Crea el escenario
         /// </summary>
-        /// <param name="mediaDir">Directorio de Media</param>
-        /// <param name="container">Container de IOC</param>
-        /// <returns>La lista de objetos que componen el escenario</returns>
-        List<Tuple<string, List<IRenderObject>>> CreateScenario(string mediaDir, IContainer container);
+        /// <param name="container">Container IOC</param>
+        /// <param name="mediaDir">Directorio de medios</param>
+        /// <param name="dynamicsWorld">Mundo fisico</param>
+        /// <returns>Una lista con todos los elementos del escenario</returns>
+        List<Tuple<string, List<Tuple<IRenderObject, RigidBody>>>> CreateScenario(IContainer container, string mediaDir, DiscreteDynamicsWorld dynamicsWorld);
     }
 }

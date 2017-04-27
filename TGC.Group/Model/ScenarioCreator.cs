@@ -3,9 +3,13 @@
     using System;
     using System.Collections.Generic;
     using Autofac;
+    using BulletSharp;
     using Microsoft.DirectX;
     using Microsoft.DirectX.Direct3D;
+    using TGC.Core.Direct3D;
+    using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
+    using TGC.Core.Textures;
     using TGC.Group.Interfaces;
 
     public class ScenarioCreator : IScenarioCreator
@@ -18,7 +22,7 @@
         /// <summary>
         /// Lista de objetos que representan el piso
         /// </summary>
-        private List<IRenderObject> Floor { get; set; }
+        private List<Tuple<IRenderObject, RigidBody>> Floor { get; set; }
 
         /// <summary>
         /// Representa la orientacion horizontal
@@ -33,7 +37,7 @@
         /// <summary>
         /// Tamaño del plano de las paredes, techo y piso
         /// </summary>
-        private Vector3 MeshPlaneSize { get; set; }
+        private Vector3 Vector3PlaneSize { get; set; }
 
         /// <summary>
         /// Representa la direccion Norte
@@ -43,7 +47,7 @@
         /// <summary>
         /// Lista con todos los objetos del escenario
         /// </summary>
-        private List<IRenderObject> Objects { get; set; }
+        private List<Tuple<IRenderObject, RigidBody>> Objects { get; set; }
 
         /// <summary>
         /// Representa la direccion Oeste
@@ -58,7 +62,7 @@
         /// <summary>
         /// Lista de objetos que representan el techo
         /// </summary>
-        private List<IRenderObject> Roof { get; set; }
+        private List<Tuple<IRenderObject, RigidBody>> Roof { get; set; }
 
         /// <summary>
         /// Largo total del escenario (eje Z)
@@ -96,36 +100,33 @@
         private IVector3Factory Vector3Factory { get; set; }
 
         /// <summary>
-        /// Mesh de las paredes
-        /// </summary>
-        private TgcMesh WallMesh { get; set; }
-
-        /// <summary>
         /// Lista de objetos que representan las paredes
         /// </summary>
-        private List<IRenderObject> Walls { get; set; }
+        private List<Tuple<IRenderObject, RigidBody>> Walls { get; set; }
 
         /// <summary>
         /// Crea la lista con todos los objetos que componen el escenario
         /// </summary>
-        /// <param name="mediaDir">Directorio de medios</param>
         /// <param name="container">Container IOC</param>
-        /// <returns></returns>
-        public List<Tuple<string, List<IRenderObject>>> CreateScenario(string mediaDir, IContainer container)
+        /// <param name="mediaDir">Directorio de medios</param>
+        /// <param name="dynamicsWorld">Mundo fisico</param>
+        /// <returns>Una lista con todos los elementos del escenario</returns>
+        public List<Tuple<string, List<Tuple<IRenderObject, RigidBody>>>> CreateScenario(IContainer container, string mediaDir, DiscreteDynamicsWorld dynamicsWorld)
         {
-            this.MediaDir = mediaDir;
             this.TgcSceneLoader = container.Resolve<TgcSceneLoader>();
             this.TgcPlaneFactory = container.Resolve<ITgcPlaneFactory>();
             this.Vector3Factory = container.Resolve<IVector3Factory>();
             this.TgcTextureFactory = container.Resolve<ITgcTextureFactory>();
-            this.MeshPlaneSize = this.Vector3Factory.CreateVector3(0.005f, 0.0757f, 0.0665f);
+            this.Vector3PlaneSize = this.Vector3Factory.CreateVector3(0.5f, this.PlaneSize, this.PlaneSize);
+            this.MediaDir = mediaDir;
+            this.DynamicsWorld = dynamicsWorld;
 
             CreateFloor();
             CreateRoof();
             CreateWalls();
             CreateObjects();
 
-            return new List<Tuple<string, List<IRenderObject>>> {
+            return new List<Tuple<string, List<Tuple<IRenderObject, RigidBody>>>> {
                 Tuple.Create(nameof(Floor), Floor),
                 Tuple.Create(nameof(Roof), Roof),
                 Tuple.Create(nameof(Walls), Walls),
@@ -161,6 +162,11 @@
         }
 
         /// <summary>
+        /// Mundo dinamico
+        /// </summary>
+        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
+
+        /// <summary>
         /// Calcula la transalacion del objeto, diferenciando las puertas
         /// </summary>
         /// <param name="mesh">Mesh a transladar</param>
@@ -187,43 +193,55 @@
         /// </summary>
         private void CreateFloor()
         {
-            this.Floor = new List<IRenderObject>();
-            CreateHorizontalLayer(this.Floor, 0, this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Piso\Piso-TgcScene.xml").Meshes[0]);
+            // El piso es un plano estatico, masa 0.
+            this.DynamicsWorld.AddRigidBody(new RigidBody(new RigidBodyConstructionInfo(0, new DefaultMotionState(), new StaticPlaneShape(new BulletSharp.Math.Vector3(0, 1, 0), 0))));
+
+            this.Floor = new List<Tuple<IRenderObject, RigidBody>>();
+            CreateHorizontalLayer(this.Floor, -0.5f, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Piso\Textures\techua.jpg"));
         }
 
         /// <summary>
         /// Crea una capa horizontal de planos que ocupan todo el escenario
         /// </summary>
-        /// <param name="yCoordinate">Indica la altura sobre la cual debe crearse la capa</param>
-        /// <param name="mesh">Indica la textura con la cual debe crearse cada elemento de la capa</param>
         /// <param name="layer">Capa que se quiere crear</param>
-        private void CreateHorizontalLayer(List<IRenderObject> layer, float yCoordinate, TgcMesh mesh)
+        /// <param name="yCoordinate">Indica la altura sobre la cual debe crearse la capa</param>
+        /// <param name="texture">Textura que se utilizara en los elementos de la capa</param>
+        private void CreateHorizontalLayer(List<Tuple<IRenderObject, RigidBody>> layer, float yCoordinate, TgcTexture texture)
         {
-            TgcMesh layerElement;
+            TgcBox tgcBox;
+            Vector3 translation;
+            var rotation = CalculateRotation(this.Horizontal);
             for (var i = 0; i < this.ScenarioWide; i++)
             {
                 for (var j = 0; j < this.ScenarioDepth; j++)
                 {
-                    layerElement = mesh.createMeshInstance(
-                        layer.Count + "_" + mesh.Name,
-                        CalculateTranslation(mesh, this.Horizontal, this.PlaneSize * i + 10f, yCoordinate, this.PlaneSize * j + 5f),
-                        CalculateRotation(this.Horizontal),
-                        this.MeshPlaneSize);
-                    layerElement.AutoTransformEnable = true;
-                    layer.Add(layerElement);
 
-                    if (mesh.Name == "Piso")
-                    {
-                        layerElement.BoundingBox.setExtremes(
-                            layerElement.Position,
-                            this.Vector3Factory.CreateVector3(layerElement.Position.X, 0, layerElement.Position.Z + this.PlaneSize / 2));
-                    }
-                    else
-                    {
-                        layerElement.BoundingBox.setExtremes(
-                            layerElement.Position,
-                            this.Vector3Factory.CreateVector3(layerElement.Position.X, this.PlaneSize, layerElement.Position.Z + this.PlaneSize / 2));
-                    }
+                    //tgcBox = box.createMeshInstance(
+                    //    layer.Count + "_" + box.Name,
+                    //    CalculateTranslation(box, this.Horizontal, this.PlaneSize * i + 10f, yCoordinate, this.PlaneSize * j + 5f),
+                    //    CalculateRotation(this.Horizontal),
+                    //    this.Vector3PlaneSize);
+
+                    tgcBox = TgcBox.fromSize(this.Vector3PlaneSize, texture);
+                    tgcBox.Rotation = rotation;
+                    translation = this.Vector3Factory.CreateVector3(this.PlaneSize * i + 5f, yCoordinate, this.PlaneSize * j + 5f);
+                    tgcBox.move(translation.X, translation.Y, translation.Z);
+                    tgcBox.AutoTransformEnable = true;
+
+                    layer.Add(Tuple.Create<IRenderObject, RigidBody>(tgcBox, null));
+
+                    //if (box.Name == "Piso")
+                    //{
+                    //    tgcBox.BoundingBox.setExtremes(
+                    //        tgcBox.Position,
+                    //        this.Vector3Factory.CreateVector3(tgcBox.Position.X, 0, tgcBox.Position.Z + this.PlaneSize / 2));
+                    //}
+                    //else
+                    //{
+                    //    tgcBox.BoundingBox.setExtremes(
+                    //        tgcBox.Position,
+                    //        this.Vector3Factory.CreateVector3(tgcBox.Position.X, this.PlaneSize, tgcBox.Position.Z + this.PlaneSize / 2));
+                    //}
                 }
             }
         }
@@ -234,7 +252,7 @@
         /// <returns></returns>
         private void CreateObjects()
         {
-            this.Objects = new List<IRenderObject>();
+            this.Objects = new List<Tuple<IRenderObject, RigidBody>>();
 
             var meshMesa = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Mesa\Mesa-TgcScene.xml").Meshes[0];
             var meshLamparaTecho = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"LamparaTecho\LamparaTecho-TgcScene.xml").Meshes[0];
@@ -778,6 +796,7 @@
         private void CreateObjectsLine(TgcMesh mesh, string orientation, Vector3 scale, float[] xCoordinates, float yCoordinate, float[] zCoordinates)
         {
             TgcMesh meshInstance;
+            var rotation = CalculateRotation(orientation);
             foreach (var xCoordinate in xCoordinates)
             {
                 foreach (var zCoordinate in zCoordinates)
@@ -785,10 +804,10 @@
                     meshInstance = mesh.createMeshInstance(
                         this.Objects.Count + "_" + mesh.Name,
                         CalculateTranslation(mesh, orientation, xCoordinate, yCoordinate, zCoordinate),
-                        CalculateRotation(orientation),
+                        rotation,
                         scale);
                     meshInstance.AutoTransformEnable = true;
-                    this.Objects.Add(meshInstance);
+                    this.Objects.Add(Tuple.Create<IRenderObject, RigidBody>(meshInstance, this.CreateRigidBody(meshInstance, rotation, false)));
                 }
             }
         }
@@ -798,8 +817,11 @@
         /// </summary>
         private void CreateRoof()
         {
-            this.Roof = new List<IRenderObject>();
-            CreateHorizontalLayer(this.Roof, this.PlaneSize, this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Techo\Techo-TgcScene.xml").Meshes[0]);
+            // El techo es un plano estatico, masa 0
+            //this.DynamicsWorld.AddRigidBody(new RigidBody(new RigidBodyConstructionInfo(0, new DefaultMotionState(), new StaticPlaneShape(new BulletSharp.Math.Vector3(0, 1, 0), this.PlaneSize))));
+
+            this.Roof = new List<Tuple<IRenderObject, RigidBody>>();
+            CreateHorizontalLayer(this.Roof, this.PlaneSize + 0.5f, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Techo\Textures\techua.jpg"));
         }
 
         /// <summary>
@@ -807,8 +829,7 @@
         /// </summary>
         private void CreateWalls()
         {
-            this.Walls = new List<IRenderObject>();
-            this.WallMesh = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Pared\ParedBlanca-TgcScene.xml").Meshes[0];
+            this.Walls = new List<Tuple<IRenderObject, RigidBody>>();
 
             // Paredes verticales
             CreateWallsLine(this.Norte, 0, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
@@ -828,7 +849,7 @@
             CreateWallsLine(this.Norte, 20, new float[] { 9, 10, 14, 15, 16, 19 });
             CreateWallsLine(this.Norte, 21, new float[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 });
 
-            // Paredes horizontales
+            //Paredes horizontales
             CreateWallsLine(this.Este, 0, new float[] { 0, 2, 4, 20, 22 });
             CreateWallsLine(this.Este, 1, new float[] { 0, 2, 4, 20, 22 });
             CreateWallsLine(this.Este, 2, new float[] { 0, 2, 4, 8, 10, 12, 18, 20, 22 });
@@ -860,29 +881,58 @@
         /// <param name="zCoordinates">Indica la ubicacion en la coordenada Z donde debe colocarse cada objeto</param>
         private void CreateWallsLine(string orientation, float xCoordinate, float[] zCoordinates)
         {
-            TgcMesh meshInstance;
+            TgcBox tgcBox;
             Vector3 translation;
-            Vector3 pMin;
-            Vector3 pMax;
+            Vector3 rotation;
+            Vector3 size;
+            var texture = TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Pared\Textures\techua.jpg");
             foreach (var zCoordinate in zCoordinates)
             {
-                translation = orientation.Equals(this.Norte, StringComparison.OrdinalIgnoreCase) ? this.Vector3Factory.CreateVector3(xCoordinate * 10, 0, zCoordinate * 10 + 5f) : this.Vector3Factory.CreateVector3(xCoordinate * 10 + 5f, 0, zCoordinate * 10);
-                meshInstance = this.WallMesh.createMeshInstance(
-                    this.Walls.Count + "_" + this.WallMesh.Name,
-                    translation,
-                    CalculateRotation(orientation),
-                    this.MeshPlaneSize);
-                meshInstance.AutoTransformEnable = true;
-
-                if (orientation == this.Este || orientation == this.Oeste)
-                {
-                    pMin = this.Vector3Factory.CreateVector3(meshInstance.Position.X - meshInstance.BoundingBox.calculateSize().Z / 2, meshInstance.Position.Y, meshInstance.Position.Z - meshInstance.BoundingBox.calculateSize().X / 2);
-                    pMax = this.Vector3Factory.CreateVector3(meshInstance.Position.X + meshInstance.BoundingBox.calculateSize().Z / 2, 10, meshInstance.Position.Z + meshInstance.BoundingBox.calculateSize().X / 2);
-                    meshInstance.BoundingBox.setExtremes(pMin, pMax);
-                }
-
-                this.Walls.Add(meshInstance);
+                translation = orientation.Equals(this.Norte, StringComparison.OrdinalIgnoreCase) || orientation.Equals(this.Sur, StringComparison.OrdinalIgnoreCase) ?
+                    this.Vector3Factory.CreateVector3(xCoordinate * 10, 0, zCoordinate * 10)
+                    : this.Vector3Factory.CreateVector3(xCoordinate * 10 + this.PlaneSize / 2, 0, zCoordinate * 10 - this.PlaneSize / 2);
+                rotation = CalculateRotation(orientation);
+                size = this.Vector3Factory.CreateVector3(this.Vector3PlaneSize.X, this.Vector3PlaneSize.Y + 1, this.Vector3PlaneSize.Z);
+                tgcBox = TgcBox.fromSize(size, texture);
+                tgcBox.Rotation = rotation;
+                tgcBox.move(translation.X, translation.Y - 0.5f, translation.Z);
+                this.Walls.Add(Tuple.Create<IRenderObject, RigidBody>(tgcBox, this.CreateRigidBody(tgcBox, rotation, true)));
             }
+        }
+
+        private RigidBody CreateRigidBody(IRenderObject renderObject, Vector3 rotation, bool isWall)
+        {
+            BoxShape boxshape;
+            BulletSharp.Math.Matrix transform;
+            float mass;
+            if (isWall)
+            {
+                mass = 0f;
+                var box = renderObject as TgcBox;
+                var position = box.Position;
+                var size = box.Size;
+                boxshape = new BoxShape(
+                        size.X / 2,
+                        size.Y / 2 + 0.5f,
+                        size.Z / 2);
+                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * BulletSharp.Math.Matrix.Translation(position.X + size.X / 2, position.Y + size.Y / 2, position.Z + size.Z / 2);
+            }
+            else
+            {
+                mass = 1f;
+                var mesh = renderObject as TgcMesh;
+                var position = mesh.Position;
+                var boundingBoxSize = mesh.BoundingBox.calculateSize();
+                boxshape = new BoxShape(
+                        boundingBoxSize.X / 2,
+                        boundingBoxSize.Y / 2,
+                        boundingBoxSize.Z / 2);
+                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * BulletSharp.Math.Matrix.Translation(position.X + boundingBoxSize.X / 2, position.Y + boundingBoxSize.Y / 2, position.Z + boundingBoxSize.Z / 2);
+            }
+
+            var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(mass)));
+            this.DynamicsWorld.AddRigidBody(boxBody);
+            return boxBody;
         }
     }
 }

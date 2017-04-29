@@ -8,12 +8,10 @@ namespace TGC.Group.Model
     using BulletSharp;
     using BulletSharp.Math;
     using Microsoft.DirectX.Direct3D;
-    using TGC.Core.Direct3D;
     using TGC.Core.Example;
     using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
     using TGC.Core.Shaders;
-    using TGC.Core.Textures;
     using TGC.Core.Utils;
     using TGC.Group.Interfaces;
 
@@ -46,9 +44,24 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
+        /// Configuracion de colisiones
+        /// </summary>
+        private DefaultCollisionConfiguration CollisionConfiguration { get; set; }
+
+        /// <summary>
         /// Container IOC
         /// </summary>
         private IContainer Container { get; set; }
+
+        /// <summary>
+        /// Manejador de colisiones
+        /// </summary>
+        private CollisionDispatcher Dispatcher { get; set; }
+
+        /// <summary>
+        /// Mundo dinamico
+        /// </summary>
+        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
 
         /// <summary>
         /// Intensidad de la luz
@@ -97,13 +110,6 @@ namespace TGC.Group.Model
         }
 
         /// <summary>
-        /// Mundo dinamico
-        /// </summary>
-        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
-        private CollisionDispatcher Dispatcher { get; set; }
-        private DefaultCollisionConfiguration CollisionConfiguration { get; set; }
-
-        /// <summary>
         ///     Se llama una sola vez, al principio cuando se ejecuta el ejemplo.
         /// </summary>
         public override void Init()
@@ -111,26 +117,7 @@ namespace TGC.Group.Model
             InitCamara();
             InitScenario();
             InitLights();
-
-            //Se crea una caja de tamaño 20 con rotaciones y origien en 10,100,10 y 1kg de masa.
-            var boxShape = new BoxShape(2, 2, 2);
-            var boxTransform = BulletSharp.Math.Matrix.RotationYawPitchRoll(MathUtil.SIMD_HALF_PI, MathUtil.SIMD_QUARTER_PI, MathUtil.SIMD_2_PI);
-            boxTransform.Origin = new BulletSharp.Math.Vector3(40, 55, 20);
-
-            var boxMotionState = new DefaultMotionState(boxTransform);
-            //Es importante calcular la inercia caso contrario el objeto no rotara.
-            var boxLocalInertia = boxShape.CalculateLocalInertia(1f);
-            var boxInfo = new RigidBodyConstructionInfo(1f, boxMotionState, boxShape, boxLocalInertia);
-            boxBody = new RigidBody(boxInfo);
-            DynamicsWorld.AddRigidBody(boxBody);
-
-            var texture = TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + "\\table.jpg");
-            //Es importante crear todos los mesh con centro en el 0,0,0 y que este coincida con el centro de masa definido caso contrario rotaria de otra forma diferente a la dada por el motor de fisica.
-            boxMesh = TgcBox.fromSize(new Microsoft.DirectX.Vector3(4, 4, 4), texture);
         }
-
-        RigidBody boxBody;
-        TgcBox boxMesh;
 
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
@@ -139,29 +126,6 @@ namespace TGC.Group.Model
         {
             // Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
             PreRender();
-
-            //Obtenemos la matrix de directx con la transformacion que corresponde a la caja.
-            boxMesh.Transform = new Microsoft.DirectX.Matrix
-            {
-                M11 = boxBody.InterpolationWorldTransform.M11,
-                M12 = boxBody.InterpolationWorldTransform.M12,
-                M13 = boxBody.InterpolationWorldTransform.M13,
-                M14 = boxBody.InterpolationWorldTransform.M14,
-                M21 = boxBody.InterpolationWorldTransform.M21,
-                M22 = boxBody.InterpolationWorldTransform.M22,
-                M23 = boxBody.InterpolationWorldTransform.M23,
-                M24 = boxBody.InterpolationWorldTransform.M24,
-                M31 = boxBody.InterpolationWorldTransform.M31,
-                M32 = boxBody.InterpolationWorldTransform.M32,
-                M33 = boxBody.InterpolationWorldTransform.M33,
-                M34 = boxBody.InterpolationWorldTransform.M34,
-                M41 = boxBody.InterpolationWorldTransform.M41,
-                M42 = boxBody.InterpolationWorldTransform.M42,
-                M43 = boxBody.InterpolationWorldTransform.M43,
-                M44 = boxBody.InterpolationWorldTransform.M44
-            };
-            //Dibujar las cajas en pantalla
-            boxMesh.render();
 
             RenderInstructions();
             RenderScenario();
@@ -177,9 +141,9 @@ namespace TGC.Group.Model
         {
             PreUpdate();
 
+            this.DynamicsWorld.StepSimulation(1 / 30f, 30);
             if (this.ElapsedTime >= 1 / 30)
             {
-                this.DynamicsWorld.StepSimulation(1 / 60f, 10);
                 ActivateRoofAndFloor();
                 ActivateBoundingBox();
                 UpdateLights();
@@ -265,7 +229,8 @@ namespace TGC.Group.Model
                 // Obtener la matrix de DirectX con la transformacion que corresponde a la caja
                 if (element.Item2 is RigidBody rigidBody)
                 {
-                    mesh.Transform = new Microsoft.DirectX.Matrix
+                    mesh.Transform = Microsoft.DirectX.Matrix.Scaling(mesh.Scale.X, mesh.Scale.Y, mesh.Scale.Z);
+                    mesh.Transform *= new Microsoft.DirectX.Matrix
                     {
                         M11 = rigidBody.InterpolationWorldTransform.M11,
                         M12 = rigidBody.InterpolationWorldTransform.M12,
@@ -284,6 +249,18 @@ namespace TGC.Group.Model
                         M43 = rigidBody.InterpolationWorldTransform.M43,
                         M44 = rigidBody.InterpolationWorldTransform.M44
                     };
+
+                    var axisRadius = mesh.BoundingBox.calculateAxisRadius();
+                    mesh.Transform *= Microsoft.DirectX.Matrix.Translation(0, -axisRadius.Y, 0);
+                    var pmin = this.Vector3Factory.CreateVector3(
+                        rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                        rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                        rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+                    var pmax = this.Vector3Factory.CreateVector3(
+                        rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                        rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                        rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+                    mesh.BoundingBox.setExtremes(pmin, pmax);
                 }
 
                 this.SetMeshEffect(mesh);
@@ -318,6 +295,17 @@ namespace TGC.Group.Model
                         M43 = rigidBody.InterpolationWorldTransform.M43,
                         M44 = rigidBody.InterpolationWorldTransform.M44
                     };
+
+                    var axisRadius = box.BoundingBox.calculateAxisRadius();
+                    var pmin = this.Vector3Factory.CreateVector3(
+                        rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                        rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                        rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+                    var pmax = this.Vector3Factory.CreateVector3(
+                        rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                        rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                        rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+                    box.BoundingBox.setExtremes(pmin, pmax);
                 }
 
                 this.SetBoxEffect(box);
@@ -390,31 +378,6 @@ namespace TGC.Group.Model
                     RenderElements(element));
 
         /// <summary>
-        /// Configura el efecto del mesh
-        /// </summary>
-        /// <param name="mesh"></param>
-        private void SetMeshEffect(TgcMesh mesh)
-        {
-            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
-            mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
-            mesh.Effect = TgcShaders.Instance.TgcMeshShader;
-            if (this.LightMesh.Enabled)
-            {
-                mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
-                mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
-                mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
-                mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
-                mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-                mesh.Effect.SetValue("materialSpecularExp", 1f);
-                mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-                mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
-                mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
-                mesh.Effect.SetValue("lightIntensity", this.LightIntensity);
-                mesh.Effect.SetValue("lightAttenuation", 0.5f);
-            }
-        }
-
-        /// <summary>
         /// Configura el efecto del box
         /// </summary>
         /// <param name="box"></param>
@@ -436,6 +399,31 @@ namespace TGC.Group.Model
                 box.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
                 box.Effect.SetValue("lightIntensity", this.LightIntensity);
                 box.Effect.SetValue("lightAttenuation", 0.5f);
+            }
+        }
+
+        /// <summary>
+        /// Configura el efecto del mesh
+        /// </summary>
+        /// <param name="mesh"></param>
+        private void SetMeshEffect(TgcMesh mesh)
+        {
+            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
+            mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
+            mesh.Effect = TgcShaders.Instance.TgcMeshShader;
+            if (this.LightMesh.Enabled)
+            {
+                mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+                mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
+                mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
+                mesh.Effect.SetValue("materialSpecularExp", 1f);
+                mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
+                mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
+                mesh.Effect.SetValue("lightIntensity", this.LightIntensity);
+                mesh.Effect.SetValue("lightAttenuation", 0.5f);
             }
         }
 

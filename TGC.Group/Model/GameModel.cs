@@ -105,7 +105,10 @@ namespace TGC.Group.Model
         /// </summary>
         public override void Dispose()
         {
-            DisposeScenario();
+            this.DynamicsWorld.Dispose();
+            this.Dispatcher.Dispose();
+            this.CollisionConfiguration.Dispose();
+            this.DisposeScenario();
             this.LightMesh.dispose();
         }
 
@@ -118,6 +121,8 @@ namespace TGC.Group.Model
             InitScenario();
             InitLights();
         }
+
+
 
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
@@ -141,12 +146,46 @@ namespace TGC.Group.Model
         {
             PreUpdate();
 
-            this.DynamicsWorld.StepSimulation(1 / 30f, 30);
+            this.DynamicsWorld.StepSimulation(1 / 60f, 10);
+
             if (this.ElapsedTime >= 1 / 30)
             {
                 ActivateRoofAndFloor();
                 ActivateBoundingBox();
                 UpdateLights();
+                UpdateScenario();
+
+                var character = ((TgcFpsCamera)this.Camara).Character;
+                character.Item1.Transform = new Microsoft.DirectX.Matrix
+                {
+                    M11 = character.Item2.InterpolationWorldTransform.M11,
+                    M12 = character.Item2.InterpolationWorldTransform.M12,
+                    M13 = character.Item2.InterpolationWorldTransform.M13,
+                    M14 = character.Item2.InterpolationWorldTransform.M14,
+                    M21 = character.Item2.InterpolationWorldTransform.M21,
+                    M22 = character.Item2.InterpolationWorldTransform.M22,
+                    M23 = character.Item2.InterpolationWorldTransform.M23,
+                    M24 = character.Item2.InterpolationWorldTransform.M24,
+                    M31 = character.Item2.InterpolationWorldTransform.M31,
+                    M32 = character.Item2.InterpolationWorldTransform.M32,
+                    M33 = character.Item2.InterpolationWorldTransform.M33,
+                    M34 = character.Item2.InterpolationWorldTransform.M34,
+                    M41 = character.Item2.InterpolationWorldTransform.M41,
+                    M42 = character.Item2.InterpolationWorldTransform.M42,
+                    M43 = character.Item2.InterpolationWorldTransform.M43,
+                    M44 = character.Item2.InterpolationWorldTransform.M44
+                };
+
+                var axisRadius = character.Item1.BoundingBox.calculateAxisRadius();
+                var pmin = new Microsoft.DirectX.Vector3(
+                    character.Item2.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                    character.Item2.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                    character.Item2.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+                var pmax = new Microsoft.DirectX.Vector3(
+                    character.Item2.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                    character.Item2.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                    character.Item2.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+                character.Item1.BoundingBox.setExtremes(pmin, pmax);
             }
         }
 
@@ -175,12 +214,7 @@ namespace TGC.Group.Model
         /// <summary>
         /// Libera la memoria utilizada para el escenario
         /// </summary>
-        private void DisposeScenario()
-        {
-            this.DynamicsWorld.Dispose();
-            this.Dispatcher.Dispose();
-            this.CollisionConfiguration.Dispose();
-            this.ScenarioElements
+        private void DisposeScenario() => this.ScenarioElements
                 .AsParallel()
                 .SelectMany(
                     element =>
@@ -190,23 +224,23 @@ namespace TGC.Group.Model
                     {
                         element.Item1.dispose();
                     });
-        }
 
         /// <summary>
         /// Inicializa la camara
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
-                            new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(5, 5, 5)),
-                            new NamedParameter("moveSpeed", 50),
-                            new NamedParameter("jumpSpeed", 50),
-                            new NamedParameter("input", this.Input));
+                            new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(0, 0, 0)),
+                            new NamedParameter("moveSpeed", 1),
+                            new NamedParameter("jumpSpeed", 1),
+                            new NamedParameter("input", this.Input),
+                            new NamedParameter("dynamicsWorld", this.DynamicsWorld));
 
         /// <summary>
         /// Inicializa las luces
         /// </summary>
         private void InitLights()
         {
-            this.LightMesh = TgcBox.fromSize(this.Vector3Factory.CreateVector3(1, 1, 1));
+            this.LightMesh = TgcBox.fromSize(this.Vector3Factory.CreateVector3(100, 100, 100), this.Vector3Factory.CreateVector3(0, 0, 0));
             this.LightMesh.AutoTransformEnable = true;
             this.LightMesh.Position = this.Camara.Position;
             this.LightMesh.Color = Color.Red;
@@ -222,102 +256,22 @@ namespace TGC.Group.Model
         /// Dibuja los elementos
         /// </summary>
         /// <param name="element"></param>
-        private void RenderElements(Tuple<IRenderObject, RigidBody> element)
+        private void RenderElement(Tuple<IRenderObject, RigidBody> element)
         {
-            if (element.Item1 is TgcMesh mesh)
+            if (this.RenderBoundingBox)
             {
-                // Obtener la matrix de DirectX con la transformacion que corresponde a la caja
-                if (element.Item2 is RigidBody rigidBody)
-                {
-                    mesh.Transform = Microsoft.DirectX.Matrix.Scaling(mesh.Scale.X, mesh.Scale.Y, mesh.Scale.Z);
-                    mesh.Transform *= new Microsoft.DirectX.Matrix
-                    {
-                        M11 = rigidBody.InterpolationWorldTransform.M11,
-                        M12 = rigidBody.InterpolationWorldTransform.M12,
-                        M13 = rigidBody.InterpolationWorldTransform.M13,
-                        M14 = rigidBody.InterpolationWorldTransform.M14,
-                        M21 = rigidBody.InterpolationWorldTransform.M21,
-                        M22 = rigidBody.InterpolationWorldTransform.M22,
-                        M23 = rigidBody.InterpolationWorldTransform.M23,
-                        M24 = rigidBody.InterpolationWorldTransform.M24,
-                        M31 = rigidBody.InterpolationWorldTransform.M31,
-                        M32 = rigidBody.InterpolationWorldTransform.M32,
-                        M33 = rigidBody.InterpolationWorldTransform.M33,
-                        M34 = rigidBody.InterpolationWorldTransform.M34,
-                        M41 = rigidBody.InterpolationWorldTransform.M41,
-                        M42 = rigidBody.InterpolationWorldTransform.M42,
-                        M43 = rigidBody.InterpolationWorldTransform.M43,
-                        M44 = rigidBody.InterpolationWorldTransform.M44
-                    };
-
-                    var axisRadius = mesh.BoundingBox.calculateAxisRadius();
-                    mesh.Transform *= Microsoft.DirectX.Matrix.Translation(0, -axisRadius.Y, 0);
-                    var pmin = this.Vector3Factory.CreateVector3(
-                        rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
-                        rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
-                        rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
-                    var pmax = this.Vector3Factory.CreateVector3(
-                        rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
-                        rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
-                        rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
-                    mesh.BoundingBox.setExtremes(pmin, pmax);
-                }
-
-                this.SetMeshEffect(mesh);
-
-                if (this.RenderBoundingBox)
+                if (element.Item1 is TgcMesh mesh)
                 {
                     mesh.BoundingBox.render();
                 }
-            }
 
-            if (element.Item1 is TgcBox box)
-            {
-                // Obtener la matrix de DirectX con la transformacion que corresponde a la caja
-                if (element.Item2 is RigidBody rigidBody)
-                {
-                    box.Transform = new Microsoft.DirectX.Matrix
-                    {
-                        M11 = rigidBody.InterpolationWorldTransform.M11,
-                        M12 = rigidBody.InterpolationWorldTransform.M12,
-                        M13 = rigidBody.InterpolationWorldTransform.M13,
-                        M14 = rigidBody.InterpolationWorldTransform.M14,
-                        M21 = rigidBody.InterpolationWorldTransform.M21,
-                        M22 = rigidBody.InterpolationWorldTransform.M22,
-                        M23 = rigidBody.InterpolationWorldTransform.M23,
-                        M24 = rigidBody.InterpolationWorldTransform.M24,
-                        M31 = rigidBody.InterpolationWorldTransform.M31,
-                        M32 = rigidBody.InterpolationWorldTransform.M32,
-                        M33 = rigidBody.InterpolationWorldTransform.M33,
-                        M34 = rigidBody.InterpolationWorldTransform.M34,
-                        M41 = rigidBody.InterpolationWorldTransform.M41,
-                        M42 = rigidBody.InterpolationWorldTransform.M42,
-                        M43 = rigidBody.InterpolationWorldTransform.M43,
-                        M44 = rigidBody.InterpolationWorldTransform.M44
-                    };
-
-                    var axisRadius = box.BoundingBox.calculateAxisRadius();
-                    var pmin = this.Vector3Factory.CreateVector3(
-                        rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
-                        rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
-                        rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
-                    var pmax = this.Vector3Factory.CreateVector3(
-                        rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
-                        rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
-                        rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
-                    box.BoundingBox.setExtremes(pmin, pmax);
-                }
-
-                this.SetBoxEffect(box);
-
-                if (this.RenderBoundingBox)
+                if (element.Item1 is TgcBox box)
                 {
                     box.BoundingBox.render();
                 }
             }
 
             element.Item1?.render();
-
         }
 
         /// <summary>
@@ -331,6 +285,7 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione F1, F2 o F3 para seleccionar distintas liternas", 0, 80, Color.OrangeRed);
             this.DrawText.drawText("Presione B para dibujar/eliminar los Bounding Box", 0, 100, Color.OrangeRed);
             this.DrawText.drawText("Presione LShift para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
+            this.DrawText.drawText($"Velocidad: {((TgcFpsCamera)this.Camara).Character.Item2.LinearVelocity}", 0, 140, Color.OrangeRed);
         }
 
         /// <summary>
@@ -359,7 +314,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    RenderElements(element));
+                    RenderElement(element));
 
         /// <summary>
         /// Renderiza el escenario sin piso y techo
@@ -375,7 +330,7 @@ namespace TGC.Group.Model
             .ToList()
             .ForEach(
                 element =>
-                    RenderElements(element));
+                    RenderElement(element));
 
         /// <summary>
         /// Configura el efecto del box
@@ -460,5 +415,94 @@ namespace TGC.Group.Model
 
             this.LightMesh.updateValues();
         }
+
+        private void UpdateScenario() => this.ScenarioElements
+            .AsParallel()
+            .SelectMany(
+                element =>
+                    element.Item2)
+            .ForAll(
+                element =>
+                {
+                    if (element.Item1 is TgcMesh mesh)
+                    {
+                        if (element.Item2 is RigidBody rigidBody)
+                        {
+                            mesh.Transform = Microsoft.DirectX.Matrix.Scaling(mesh.Scale.X, mesh.Scale.Y, mesh.Scale.Z);
+                            mesh.Transform *= new Microsoft.DirectX.Matrix
+                            {
+                                M11 = rigidBody.InterpolationWorldTransform.M11,
+                                M12 = rigidBody.InterpolationWorldTransform.M12,
+                                M13 = rigidBody.InterpolationWorldTransform.M13,
+                                M14 = rigidBody.InterpolationWorldTransform.M14,
+                                M21 = rigidBody.InterpolationWorldTransform.M21,
+                                M22 = rigidBody.InterpolationWorldTransform.M22,
+                                M23 = rigidBody.InterpolationWorldTransform.M23,
+                                M24 = rigidBody.InterpolationWorldTransform.M24,
+                                M31 = rigidBody.InterpolationWorldTransform.M31,
+                                M32 = rigidBody.InterpolationWorldTransform.M32,
+                                M33 = rigidBody.InterpolationWorldTransform.M33,
+                                M34 = rigidBody.InterpolationWorldTransform.M34,
+                                M41 = rigidBody.InterpolationWorldTransform.M41,
+                                M42 = rigidBody.InterpolationWorldTransform.M42,
+                                M43 = rigidBody.InterpolationWorldTransform.M43,
+                                M44 = rigidBody.InterpolationWorldTransform.M44
+                            };
+
+                            var axisRadius = mesh.BoundingBox.calculateAxisRadius();
+                            mesh.Transform *= Microsoft.DirectX.Matrix.Translation(0, -axisRadius.Y, 0);
+                            var pmin = this.Vector3Factory.CreateVector3(
+                                rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                                rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                                rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+                            var pmax = this.Vector3Factory.CreateVector3(
+                                rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                                rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                                rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+                            mesh.BoundingBox.setExtremes(pmin, pmax);
+                        }
+
+                        this.SetMeshEffect(mesh);
+                    }
+
+                    if (element.Item1 is TgcBox box)
+                    {
+                        if (element.Item2 is RigidBody rigidBody)
+                        {
+                            box.Transform = new Microsoft.DirectX.Matrix
+                            {
+                                M11 = rigidBody.InterpolationWorldTransform.M11,
+                                M12 = rigidBody.InterpolationWorldTransform.M12,
+                                M13 = rigidBody.InterpolationWorldTransform.M13,
+                                M14 = rigidBody.InterpolationWorldTransform.M14,
+                                M21 = rigidBody.InterpolationWorldTransform.M21,
+                                M22 = rigidBody.InterpolationWorldTransform.M22,
+                                M23 = rigidBody.InterpolationWorldTransform.M23,
+                                M24 = rigidBody.InterpolationWorldTransform.M24,
+                                M31 = rigidBody.InterpolationWorldTransform.M31,
+                                M32 = rigidBody.InterpolationWorldTransform.M32,
+                                M33 = rigidBody.InterpolationWorldTransform.M33,
+                                M34 = rigidBody.InterpolationWorldTransform.M34,
+                                M41 = rigidBody.InterpolationWorldTransform.M41,
+                                M42 = rigidBody.InterpolationWorldTransform.M42,
+                                M43 = rigidBody.InterpolationWorldTransform.M43,
+                                M44 = rigidBody.InterpolationWorldTransform.M44
+                            };
+
+                            var axisRadius = box.BoundingBox.calculateAxisRadius();
+                            var pmin = this.Vector3Factory.CreateVector3(
+                                rigidBody.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                                rigidBody.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                                rigidBody.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+                            var pmax = this.Vector3Factory.CreateVector3(
+                                rigidBody.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                                rigidBody.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                                rigidBody.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+                            box.BoundingBox.setExtremes(pmin, pmax);
+                        }
+
+                        this.SetBoxEffect(box);
+                    }
+                });
     }
 }

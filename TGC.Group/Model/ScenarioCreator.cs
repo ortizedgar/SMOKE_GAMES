@@ -15,6 +15,11 @@
     public class ScenarioCreator : IScenarioCreator
     {
         /// <summary>
+        /// Mundo dinamico
+        /// </summary>
+        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
+
+        /// <summary>
         /// Representa la direccion Este
         /// </summary>
         private string Este { get; } = "E";
@@ -33,11 +38,6 @@
         /// Directorio de texturas, etc.
         /// </summary>
         private string MediaDir { get; set; }
-
-        /// <summary>
-        /// Tamaño del plano de las paredes, techo y piso
-        /// </summary>
-        private Vector3 Vector3PlaneSize { get; set; }
 
         /// <summary>
         /// Representa la direccion Norte
@@ -100,9 +100,31 @@
         private IVector3Factory Vector3Factory { get; set; }
 
         /// <summary>
+        /// Tamaño del plano de las paredes, techo y piso
+        /// </summary>
+        private Vector3 Vector3PlaneSize { get; set; }
+
+        /// <summary>
         /// Lista de objetos que representan las paredes
         /// </summary>
         private List<Tuple<IRenderObject, RigidBody>> Walls { get; set; }
+
+        /// <summary>
+        /// Crea una caja de prueba
+        /// </summary>
+        /// <param name="x">Coordenada X inicial</param>
+        /// <param name="y">Coordenada Y inicial</param>
+        /// <param name="z">Coordenada Z inicial</param>
+        /// <param name="mass">Masa de la caja</param>
+        public void CreateDebugBox(float x, float y, float z, float mass)
+        {
+            var boxShape = new BoxShape(2, 2, 2);
+            var boxTransform = BulletSharp.Math.Matrix.RotationYawPitchRoll(MathUtil.SIMD_HALF_PI, MathUtil.SIMD_QUARTER_PI, MathUtil.SIMD_2_PI);
+            boxTransform.Origin = new BulletSharp.Math.Vector3(x, y, z);
+            var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(boxTransform), boxShape, boxShape.CalculateLocalInertia(mass)));
+            this.DynamicsWorld.AddRigidBody(boxBody);
+            this.Objects.Add(Tuple.Create<IRenderObject, RigidBody>(TgcBox.fromSize(new Vector3(4, 4, 4), TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + "\\table.jpg")), boxBody));
+        }
 
         /// <summary>
         /// Crea la lista con todos los objetos que componen el escenario
@@ -160,11 +182,6 @@
 
             return this.Vector3Factory.CreateVector3(0, Geometry.DegreeToRadian(0), 0);
         }
-
-        /// <summary>
-        /// Mundo dinamico
-        /// </summary>
-        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
 
         /// <summary>
         /// Calcula la transalacion del objeto, diferenciando las puertas
@@ -734,17 +751,6 @@
             CreateObjectsLine(meshLamparaTecho, this.Norte, this.Vector3Factory.CreateVector3(0.1f, 0.1f, 0.1f), 200, this.PlaneSize * 0.98f, 210);
         }
 
-
-        public void CreateDebugBox(float x, float y, float z, float mass)
-        {
-            var boxShape = new BoxShape(2, 2, 2);
-            var boxTransform = BulletSharp.Math.Matrix.RotationYawPitchRoll(MathUtil.SIMD_HALF_PI, MathUtil.SIMD_QUARTER_PI, MathUtil.SIMD_2_PI);
-            boxTransform.Origin = new BulletSharp.Math.Vector3(x, y, z);
-            var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(boxTransform), boxShape, boxShape.CalculateLocalInertia(mass)));
-            this.DynamicsWorld.AddRigidBody(boxBody);
-            this.Objects.Add(Tuple.Create<IRenderObject, RigidBody>(TgcBox.fromSize(new Vector3(4, 4, 4), TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + "\\table.jpg")), boxBody));
-        }
-
         /// <summary>
         /// Crea una linea de objetos que componen el escenario
         /// </summary>
@@ -803,6 +809,50 @@
                     this.Objects.Add(Tuple.Create<IRenderObject, RigidBody>(meshInstance, this.CreateRigidBody(meshInstance, rotation, false)));
                 }
             }
+        }
+
+        /// <summary>
+        /// Crea el <see cref="RigidBody"/> para calcular la fisica del objeto />
+        /// </summary>
+        /// <param name="renderObject">Objeto renderizable</param>
+        /// <param name="rotation">Rotacion del objeto</param>
+        /// <param name="isWall">Indica si el objeto es una pared para hacerlo estatico</param>
+        /// <returns>El objeto que contiene la fisica del objeto renderizable</returns>
+        private RigidBody CreateRigidBody(IRenderObject renderObject, Vector3 rotation, bool isWall)
+        {
+            BoxShape boxshape;
+            BulletSharp.Math.Matrix transform;
+            float mass;
+            if (isWall)
+            {
+                mass = 0f;
+                var box = renderObject as TgcBox;
+                var position = box.Position;
+                var size = box.Size;
+                boxshape = new BoxShape(
+                        size.X / 2,
+                        size.Y / 2 + 0.5f,
+                        size.Z / 2);
+                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
+                    * BulletSharp.Math.Matrix.Translation(position.X + size.X / 2, position.Y + size.Y / 2, position.Z + size.Z / 2);
+            }
+            else
+            {
+                mass = 1f;
+                var mesh = renderObject as TgcMesh;
+                var position = mesh.Position;
+                var boundingBoxAxisRadius = mesh.BoundingBox.calculateAxisRadius();
+                boxshape = new BoxShape(
+                         boundingBoxAxisRadius.X,
+                         boundingBoxAxisRadius.Y,
+                         boundingBoxAxisRadius.Z);
+                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
+                    * BulletSharp.Math.Matrix.Translation(position.X + boundingBoxAxisRadius.X, position.Y + boundingBoxAxisRadius.Y, position.Z + boundingBoxAxisRadius.Z);
+            }
+
+            var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(mass)));
+            this.DynamicsWorld.AddRigidBody(boxBody);
+            return boxBody;
         }
 
         /// <summary>
@@ -888,43 +938,6 @@
                 tgcBox.move(translation.X, translation.Y - 0.5f, translation.Z);
                 this.Walls.Add(Tuple.Create<IRenderObject, RigidBody>(tgcBox, this.CreateRigidBody(tgcBox, rotation, true)));
             }
-        }
-
-        private RigidBody CreateRigidBody(IRenderObject renderObject, Vector3 rotation, bool isWall)
-        {
-            BoxShape boxshape;
-            BulletSharp.Math.Matrix transform;
-            float mass;
-            if (isWall)
-            {
-                mass = 0f;
-                var box = renderObject as TgcBox;
-                var position = box.Position;
-                var size = box.Size;
-                boxshape = new BoxShape(
-                        size.X / 2,
-                        size.Y / 2 + 0.5f,
-                        size.Z / 2);
-                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
-                    * BulletSharp.Math.Matrix.Translation(position.X + size.X / 2, position.Y + size.Y / 2, position.Z + size.Z / 2);
-            }
-            else
-            {
-                mass = 1f;
-                var mesh = renderObject as TgcMesh;
-                var position = mesh.Position;
-                var boundingBoxAxisRadius = mesh.BoundingBox.calculateAxisRadius();
-                boxshape = new BoxShape(
-                         boundingBoxAxisRadius.X,
-                         boundingBoxAxisRadius.Y,
-                         boundingBoxAxisRadius.Z);
-                transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
-                * BulletSharp.Math.Matrix.Translation(position.X + boundingBoxAxisRadius.X, position.Y + boundingBoxAxisRadius.Y, position.Z + boundingBoxAxisRadius.Z);
-            }
-
-            var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(mass)));
-            this.DynamicsWorld.AddRigidBody(boxBody);
-            return boxBody;
         }
     }
 }

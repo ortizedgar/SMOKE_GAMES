@@ -1,11 +1,15 @@
 ﻿namespace TGC.Group.Model
 {
+    using System;
     using System.Drawing;
     using System.Windows.Forms;
+    using BulletSharp;
     using Microsoft.DirectX;
+    using Microsoft.DirectX.Direct3D;
     using Microsoft.DirectX.DirectInput;
     using TGC.Core.Camara;
     using TGC.Core.Direct3D;
+    using TGC.Core.Geometry;
     using TGC.Core.Input;
     using TGC.Core.Utils;
 
@@ -32,6 +36,11 @@
             this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
         }
 
+        /// <summary>
+        /// Mundo dinamico
+        /// </summary>
+        private DiscreteDynamicsWorld DynamicsWorld { get; set; }
+
 #pragma warning disable CC0057 // Unused parameters
         public TgcFpsCamera(Vector3 positionEye, TgcD3dInput input) : this(input) => PositionEye = positionEye;
 #pragma warning restore CC0057 // Unused parameters
@@ -40,6 +49,14 @@
         {
             this.MovementSpeed = moveSpeed;
             this.JumpSpeed = jumpSpeed;
+        }
+
+        public TgcFpsCamera(Vector3 positionEye, float moveSpeed, float jumpSpeed, TgcD3dInput input, DiscreteDynamicsWorld dynamicsWorld) : this(positionEye, input)
+        {
+            this.MovementSpeed = moveSpeed;
+            this.JumpSpeed = jumpSpeed;
+            this.DynamicsWorld = dynamicsWorld;
+            this.InitCharacter();
         }
 
 #pragma warning disable CC0057 // Unused parameters
@@ -53,6 +70,27 @@
         {
             this.LockCam = false;
         }
+
+        /// <summary>
+        /// Inicializa el personaje
+        /// </summary>
+        private void InitCharacter()
+        {
+            var characterMesh = TgcBox.fromSize(this.PositionEye, new Vector3(5, 10, 5));
+            var boundingBoxAxisRadius = characterMesh.BoundingBox.calculateAxisRadius();
+            var boxshape = new BoxShape(boundingBoxAxisRadius.X, boundingBoxAxisRadius.Y, boundingBoxAxisRadius.Z);
+            var position = characterMesh.Position;
+            var transform = BulletSharp.Math.Matrix.Translation(position.X + boundingBoxAxisRadius.X, position.Y + boundingBoxAxisRadius.Y, position.Z + boundingBoxAxisRadius.Z);
+            const float Mass = 6f;
+            var rigidBody = new RigidBody(new RigidBodyConstructionInfo(Mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(Mass)));
+            this.DynamicsWorld.AddRigidBody(rigidBody);
+            this.Character = Tuple.Create(characterMesh, rigidBody);
+        }
+
+        /// <summary>
+        /// Mesh del personaje
+        /// </summary>
+        public Tuple<TgcBox, RigidBody> Character { get; set; }
 
         public float JumpSpeed { get; set; }
 
@@ -112,49 +150,6 @@
 
         public override void UpdateCamera(float elapsedTime)
         {
-            var moveVector = new Vector3(0, 0, 0);
-
-            // Forward
-            if (this.Input.keyDown(Key.W))
-            {
-                moveVector += new Vector3(0, 0, -1) * this.MovementSpeed;
-            }
-
-            // Backward
-            if (this.Input.keyDown(Key.S))
-            {
-                moveVector += new Vector3(0, 0, 1) * this.MovementSpeed;
-            }
-
-            // Strafe right
-            if (this.Input.keyDown(Key.D))
-            {
-                moveVector += new Vector3(-1, 0, 0) * this.MovementSpeed;
-            }
-
-            // Strafe left
-            if (this.Input.keyDown(Key.A))
-            {
-                moveVector += new Vector3(1, 0, 0) * this.MovementSpeed;
-            }
-
-            // Jump
-            if (this.Input.keyDown(Key.Space))
-            {
-                moveVector += new Vector3(0, 1, 0) * this.JumpSpeed;
-            }
-
-            // Crouch
-            if (this.Input.keyDown(Key.LeftControl))
-            {
-                moveVector += new Vector3(0, -1, 0) * this.JumpSpeed;
-            }
-
-            if (this.Input.keyPressed(Key.L) || this.Input.keyPressed(Key.Escape))
-            {
-                this.LockCam = !this.LockCamera;
-            }
-
             // Solo rotar si se esta aprentando el boton izq del mouse
             if (this.LockCamera || this.Input.buttonDown(TgcD3dInput.MouseButtons.BUTTON_LEFT))
             {
@@ -165,14 +160,53 @@
                 this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
             }
 
-            if (this.LockCamera)
+            var lookVector = new Vector3(this.PositionEye.X - this.LookAt.X, 0, this.PositionEye.Z - this.LookAt.Z) * this.MovementSpeed;
+            var moveVector = new Vector3(0, 0, 0);
+            var moving = false;
+
+            // Forward
+            if (this.Input.keyDown(Key.W))
             {
-                Cursor.Position = this.MouseCenter;
+                moveVector -= lookVector;
+                moving = true;
             }
 
-            // Calculamos la nueva posicion del ojo segun la rotacion actual de la camara.
-            var cameraRotatedPositionEye = Vector3.TransformNormal(moveVector * elapsedTime, this.CameraRotation);
-            this.PositionEye += cameraRotatedPositionEye;
+            // Backward
+            if (this.Input.keyDown(Key.S))
+            {
+                moveVector += lookVector;
+                moving = true;
+            }
+
+            // Strafe right
+            if (this.Input.keyDown(Key.D))
+            {
+                moveVector += lookVector;
+                moveVector.TransformCoordinate(Matrix.RotationYawPitchRoll(Geometry.DegreeToRadian(-90), 0, 0));
+                moving = true;
+            }
+
+            // Strafe left
+            if (this.Input.keyDown(Key.A))
+            {
+                moveVector += lookVector;
+                moveVector.TransformCoordinate(Matrix.RotationYawPitchRoll(Geometry.DegreeToRadian(90), 0, 0));
+                moving = true;
+            }
+
+            if (moving)
+            {
+                this.Character.Item2.ApplyCentralImpulse(new BulletSharp.Math.Vector3(moveVector.X, moveVector.Y, moveVector.Z));
+            }
+            else
+            {
+                this.Character.Item2.LinearVelocity = new BulletSharp.Math.Vector3(0, 0, 0);
+            }
+
+            this.PositionEye = new Vector3(
+               this.Character.Item2.InterpolationWorldTransform.Origin.X,
+               this.Character.Item2.InterpolationWorldTransform.Origin.Y + 2.5f,
+               this.Character.Item2.InterpolationWorldTransform.Origin.Z);
 
             // Calculamos el target de la camara, segun su direccion inicial y las rotaciones en screen space x,y.
             var cameraRotatedTarget = Vector3.TransformNormal(this.DirectionView, this.CameraRotation);

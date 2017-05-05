@@ -252,17 +252,17 @@
         {
             this.Objects = new List<Tuple<IRenderObject, RigidBody>>();
 
-            var meshMesa = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Mesa\Mesa-TgcScene.xml").Meshes[0];
-            var meshLamparaTecho = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"LamparaTecho\LamparaTecho-TgcScene.xml").Meshes[0];
-            var meshSillon = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Sillon\Sillon-TgcScene.xml").Meshes[0];
-            var meshLockerMetal = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"LockerMetal\LockerMetal-TgcScene.xml").Meshes[0];
-            var meshPuerta = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Puerta\Puerta-TgcScene.xml").Meshes[0];
-            var meshDispenserAgua = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"DispenserAgua\DispenserAgua-TgcScene.xml").Meshes[0];
-            var meshExpendedor = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml").Meshes[0];
-            var meshMesaRedonda = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaRedonda\MesaRedonda-TgcScene.xml").Meshes[0];
-            var meshCama = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Cama\Cama-TgcScene.xml").Meshes[0];
-            var meshMesaDeLuz = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"MesaDeLuz\MesaDeLuz-TgcScene.xml").Meshes[0];
-            var meshEsqueleto = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + @"Esqueleto\Esqueleto-TgcScene.xml").Meshes[0];
+            var meshMesa = this.LoadMesh(@"Mesa\Mesa-TgcScene.xml");
+            var meshLamparaTecho = this.LoadMesh(@"LamparaTecho\LamparaTecho-TgcScene.xml");
+            var meshSillon = this.LoadMesh(@"Sillon\Sillon-TgcScene.xml");
+            var meshLockerMetal = this.LoadMesh(@"LockerMetal\LockerMetal-TgcScene.xml");
+            var meshPuerta = this.LoadMesh(@"Puerta\Puerta-TgcScene.xml");
+            var meshDispenserAgua = this.LoadMesh(@"DispenserAgua\DispenserAgua-TgcScene.xml");
+            var meshExpendedor = this.LoadMesh(@"ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml");
+            var meshMesaRedonda = this.LoadMesh(@"MesaRedonda\MesaRedonda-TgcScene.xml");
+            var meshCama = this.LoadMesh(@"Cama\Cama-TgcScene.xml");
+            var meshMesaDeLuz = this.LoadMesh(@"MesaDeLuz\MesaDeLuz-TgcScene.xml");
+            var meshEsqueleto = this.LoadMesh(@"Esqueleto\Esqueleto-TgcScene.xml");
 
             this.CreateDebugBox(133, 100, 50, 10);
 
@@ -752,6 +752,19 @@
         }
 
         /// <summary>
+        /// Carga el mesh
+        /// </summary>
+        /// <param name="xmlPath">Path del XML del mesh</param>
+        private TgcMesh LoadMesh(string xmlPath)
+        {
+            var mesh = this.TgcSceneLoader.loadSceneFromFile(this.MediaDir + xmlPath).Meshes[0];
+            var adj = new int[mesh.D3dMesh.NumberFaces * 3];
+            mesh.D3dMesh.GenerateAdjacency(0, adj);
+            mesh.D3dMesh.ComputeNormals(adj);
+            return mesh;
+        }
+
+        /// <summary>
         /// Crea una linea de objetos que componen el escenario
         /// </summary>
         /// <param name="mesh">Objeto con el cual crear la linea</param>
@@ -861,7 +874,7 @@
         private void CreateRoof()
         {
             this.Roof = new List<Tuple<IRenderObject, RigidBody>>();
-            CreateHorizontalLayer(this.Roof, this.PlaneSize + 0.5f, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Techo\Textures\techua.jpg"));
+            this.CreateHorizontalLayer(this.Roof, this.PlaneSize + 0.5f, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Techo\Textures\techua.jpg"));
         }
 
         /// <summary>

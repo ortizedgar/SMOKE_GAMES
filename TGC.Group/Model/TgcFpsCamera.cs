@@ -102,7 +102,6 @@
                 if (!this.LockCamera && value)
                 {
                     Cursor.Position = this.MouseCenter;
-
                     Cursor.Hide();
                 }
 
@@ -160,6 +159,9 @@
                 this.CameraRotation = Matrix.RotationX(this.UpdownRot) * Matrix.RotationY(this.LeftrightRot);
             }
 
+            // Correr
+            this.MovementSpeed = this.Input.keyDown(Key.LeftShift) ? 4 : 2;
+
             var lookVector = new Vector3(this.PositionEye.X - this.LookAt.X, 0, this.PositionEye.Z - this.LookAt.Z) * this.MovementSpeed;
             var moveVector = new Vector3(0, 0, 0);
             var moving = false;
@@ -205,7 +207,7 @@
 
             this.PositionEye = new Vector3(
                this.Character.Item2.InterpolationWorldTransform.Origin.X,
-               this.Character.Item2.InterpolationWorldTransform.Origin.Y + 2.5f,
+               this.Character.Item2.InterpolationWorldTransform.Origin.Y + 1,
                this.Character.Item2.InterpolationWorldTransform.Origin.Z);
 
             // Calculamos el target de la camara, segun su direccion inicial y las rotaciones en screen space x,y.

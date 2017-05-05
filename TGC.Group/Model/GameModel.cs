@@ -230,8 +230,8 @@ namespace TGC.Group.Model
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
                             new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(0, 0, 0)),
-                            new NamedParameter("moveSpeed", 1),
-                            new NamedParameter("jumpSpeed", 1),
+                            new NamedParameter("moveSpeed", 5),
+                            new NamedParameter("jumpSpeed", 5),
                             new NamedParameter("input", this.Input),
                             new NamedParameter("dynamicsWorld", this.DynamicsWorld));
 
@@ -284,8 +284,9 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione R para dibujar/eliminar el techo y el piso", 0, 60, Color.OrangeRed);
             this.DrawText.drawText("Presione F1, F2 o F3 para seleccionar distintas liternas", 0, 80, Color.OrangeRed);
             this.DrawText.drawText("Presione B para dibujar/eliminar los Bounding Box", 0, 100, Color.OrangeRed);
-            this.DrawText.drawText("Presione LShift para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
-            this.DrawText.drawText($"Velocidad: {((TgcFpsCamera)this.Camara).Character.Item2.LinearVelocity}", 0, 140, Color.OrangeRed);
+            this.DrawText.drawText("Presione F para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
+            this.DrawText.drawText("Presione LShift para correr", 0, 140, Color.OrangeRed);
+            this.DrawText.drawText($"Velocidad: {((TgcFpsCamera)this.Camara).Character.Item2.LinearVelocity}", 0, 160, Color.OrangeRed);
         }
 
         /// <summary>
@@ -338,11 +339,11 @@ namespace TGC.Group.Model
         /// <param name="box"></param>
         private void SetBoxEffect(TgcBox box)
         {
-            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
-            box.Technique = TgcShaders.Instance.getTgcMeshTechnique(TgcMesh.MeshRenderType.DIFFUSE_MAP);
             box.Effect = TgcShaders.Instance.TgcMeshShader;
             if (this.LightMesh.Enabled)
             {
+                this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
+                box.Technique = TgcShaders.Instance.getTgcMeshTechnique(TgcMesh.MeshRenderType.DIFFUSE_MAP);
                 box.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
                 box.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
                 box.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
@@ -363,11 +364,11 @@ namespace TGC.Group.Model
         /// <param name="mesh"></param>
         private void SetMeshEffect(TgcMesh mesh)
         {
-            this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
-            mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
             mesh.Effect = TgcShaders.Instance.TgcMeshShader;
             if (this.LightMesh.Enabled)
             {
+                this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
+                mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
                 mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
                 mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
                 mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
@@ -408,7 +409,7 @@ namespace TGC.Group.Model
                 this.LightMesh.Color = Color.Blue;
             }
 
-            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.LeftShift))
+            if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F))
             {
                 this.LightMesh.Enabled = !this.LightMesh.Enabled;
             }

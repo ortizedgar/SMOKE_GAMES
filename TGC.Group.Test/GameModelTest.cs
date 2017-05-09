@@ -6,6 +6,7 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using TGC.Core.Direct3D;
     using TGC.Core.SceneLoader;
+    using TGC.Examples.Camara;
     using TGC.Group.Interfaces;
     using TGC.Group.Model;
 

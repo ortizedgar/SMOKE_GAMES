@@ -2,7 +2,6 @@
 {
     using Autofac;
     using TGC.Core.SceneLoader;
-    using TGC.Examples.Camara;
     using TGC.Group.Interfaces;
 
     public class IocConfigurator

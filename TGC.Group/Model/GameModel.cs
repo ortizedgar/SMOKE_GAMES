@@ -13,7 +13,6 @@ namespace TGC.Group.Model
     using TGC.Core.SceneLoader;
     using TGC.Core.Shaders;
     using TGC.Core.Utils;
-    using TGC.Examples.Camara;
     using TGC.Group.Interfaces;
 
     /// <summary>
@@ -123,8 +122,6 @@ namespace TGC.Group.Model
             InitLights();
         }
 
-
-
         /// <summary>
         ///     Se llama cada vez que hay que refrescar la pantalla.
         /// </summary>
@@ -155,39 +152,46 @@ namespace TGC.Group.Model
                 ActivateBoundingBox();
                 UpdateLights();
                 UpdateScenario();
-
-                //var character = ((TgcFpsCamera)this.Camara).Character;
-                //character.Item1.Transform = new Microsoft.DirectX.Matrix
-                //{
-                //    M11 = character.Item2.InterpolationWorldTransform.M11,
-                //    M12 = character.Item2.InterpolationWorldTransform.M12,
-                //    M13 = character.Item2.InterpolationWorldTransform.M13,
-                //    M14 = character.Item2.InterpolationWorldTransform.M14,
-                //    M21 = character.Item2.InterpolationWorldTransform.M21,
-                //    M22 = character.Item2.InterpolationWorldTransform.M22,
-                //    M23 = character.Item2.InterpolationWorldTransform.M23,
-                //    M24 = character.Item2.InterpolationWorldTransform.M24,
-                //    M31 = character.Item2.InterpolationWorldTransform.M31,
-                //    M32 = character.Item2.InterpolationWorldTransform.M32,
-                //    M33 = character.Item2.InterpolationWorldTransform.M33,
-                //    M34 = character.Item2.InterpolationWorldTransform.M34,
-                //    M41 = character.Item2.InterpolationWorldTransform.M41,
-                //    M42 = character.Item2.InterpolationWorldTransform.M42,
-                //    M43 = character.Item2.InterpolationWorldTransform.M43,
-                //    M44 = character.Item2.InterpolationWorldTransform.M44
-                //};
-
-                //var axisRadius = character.Item1.BoundingBox.calculateAxisRadius();
-                //var pmin = new Microsoft.DirectX.Vector3(
-                //    character.Item2.InterpolationWorldTransform.Origin.X - axisRadius.X,
-                //    character.Item2.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
-                //    character.Item2.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
-                //var pmax = new Microsoft.DirectX.Vector3(
-                //    character.Item2.InterpolationWorldTransform.Origin.X + axisRadius.X,
-                //    character.Item2.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
-                //    character.Item2.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
-                //character.Item1.BoundingBox.setExtremes(pmin, pmax);
+                UpdateCharacter();
             }
+        }
+
+        /// <summary>
+        /// Actualiza el personaje
+        /// </summary>
+        private void UpdateCharacter()
+        {
+            var character = ((TgcFpsCamera)this.Camara).Character;
+            character.Item1.Transform = new Microsoft.DirectX.Matrix
+            {
+                M11 = character.Item2.InterpolationWorldTransform.M11,
+                M12 = character.Item2.InterpolationWorldTransform.M12,
+                M13 = character.Item2.InterpolationWorldTransform.M13,
+                M14 = character.Item2.InterpolationWorldTransform.M14,
+                M21 = character.Item2.InterpolationWorldTransform.M21,
+                M22 = character.Item2.InterpolationWorldTransform.M22,
+                M23 = character.Item2.InterpolationWorldTransform.M23,
+                M24 = character.Item2.InterpolationWorldTransform.M24,
+                M31 = character.Item2.InterpolationWorldTransform.M31,
+                M32 = character.Item2.InterpolationWorldTransform.M32,
+                M33 = character.Item2.InterpolationWorldTransform.M33,
+                M34 = character.Item2.InterpolationWorldTransform.M34,
+                M41 = character.Item2.InterpolationWorldTransform.M41,
+                M42 = character.Item2.InterpolationWorldTransform.M42,
+                M43 = character.Item2.InterpolationWorldTransform.M43,
+                M44 = character.Item2.InterpolationWorldTransform.M44
+            };
+
+            var axisRadius = character.Item1.BoundingBox.calculateAxisRadius();
+            var pmin = new Microsoft.DirectX.Vector3(
+                character.Item2.InterpolationWorldTransform.Origin.X - axisRadius.X,
+                character.Item2.InterpolationWorldTransform.Origin.Y - axisRadius.Y,
+                character.Item2.InterpolationWorldTransform.Origin.Z - axisRadius.Z);
+            var pmax = new Microsoft.DirectX.Vector3(
+                character.Item2.InterpolationWorldTransform.Origin.X + axisRadius.X,
+                character.Item2.InterpolationWorldTransform.Origin.Y + axisRadius.Y,
+                character.Item2.InterpolationWorldTransform.Origin.Z + axisRadius.Z);
+            character.Item1.BoundingBox.setExtremes(pmin, pmax);
         }
 
         /// <summary>
@@ -231,8 +235,8 @@ namespace TGC.Group.Model
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
                             new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(0, 0, 0)),
-                            new NamedParameter("moveSpeed", 50),
-                            new NamedParameter("jumpSpeed", 50),
+                            new NamedParameter("moveSpeed", 5),
+                            new NamedParameter("jumpSpeed", 5),
                             new NamedParameter("input", this.Input),
                             new NamedParameter("dynamicsWorld", this.DynamicsWorld));
 
@@ -287,7 +291,6 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione B para dibujar/eliminar los Bounding Box", 0, 100, Color.OrangeRed);
             this.DrawText.drawText("Presione F para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
             this.DrawText.drawText("Presione LShift para correr", 0, 140, Color.OrangeRed);
-            //this.DrawText.drawText($"Velocidad: {((TgcFpsCamera)this.Camara).Character.Item2.LinearVelocity}", 0, 160, Color.OrangeRed);
         }
 
         /// <summary>

@@ -212,11 +212,11 @@
         {
             // El piso es un plano estatico, masa 0.
 #pragma warning disable CC0022 // Should dispose object
-            this.DynamicsWorld.AddRigidBody(new RigidBody(new RigidBodyConstructionInfo(0, new DefaultMotionState(), new StaticPlaneShape(new BulletSharp.Math.Vector3(0, 1, 0), -0f))));
+            this.DynamicsWorld.AddRigidBody(new RigidBody(new RigidBodyConstructionInfo(0, new DefaultMotionState(), new StaticPlaneShape(new BulletSharp.Math.Vector3(0, 1, 0), 0f))));
 #pragma warning restore CC0022 // Should dispose object
 
             this.Floor = new List<Tuple<IRenderObject, RigidBody>>();
-            CreateHorizontalLayer(this.Floor, 0, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Piso\Textures\techua.jpg"));
+            CreateHorizontalLayer(this.Floor, -0.5f, TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Piso\Textures\techua.jpg"));
         }
 
         /// <summary>
@@ -836,31 +836,33 @@
             BoxShape boxshape;
             BulletSharp.Math.Matrix transform;
             float mass;
+            Vector3 position;
+            Vector3 boundingBoxAxisRadius;
             if (isWall)
             {
-                mass = 0f;
                 var box = renderObject as TgcBox;
-                var position = box.Position;
-                var size = box.Size;
+                position = box.Position;
+                boundingBoxAxisRadius = box.BoundingBox.calculateAxisRadius();
                 boxshape = new BoxShape(
-                        size.X / 2,
-                        size.Y / 2 + 0.5f,
-                        size.Z / 2);
+                        boundingBoxAxisRadius.X,
+                        boundingBoxAxisRadius.Y + 0.5f,
+                        boundingBoxAxisRadius.Z);
                 transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
-                    * BulletSharp.Math.Matrix.Translation(position.X + size.X / 2, position.Y + size.Y / 2, position.Z + size.Z / 2);
+                    * BulletSharp.Math.Matrix.Translation(position.X + boundingBoxAxisRadius.X, position.Y + boundingBoxAxisRadius.Y, position.Z + boundingBoxAxisRadius.Z);
+                mass = 0f;
             }
             else
             {
-                mass = 1f;
                 var mesh = renderObject as TgcMesh;
-                var position = mesh.Position;
-                var boundingBoxAxisRadius = mesh.BoundingBox.calculateAxisRadius();
+                position = mesh.Position;
+                boundingBoxAxisRadius = mesh.BoundingBox.calculateAxisRadius();
                 boxshape = new BoxShape(
                          boundingBoxAxisRadius.X,
                          boundingBoxAxisRadius.Y,
                          boundingBoxAxisRadius.Z);
                 transform = BulletSharp.Math.Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z)
                     * BulletSharp.Math.Matrix.Translation(position.X + boundingBoxAxisRadius.X, position.Y + boundingBoxAxisRadius.Y, position.Z + boundingBoxAxisRadius.Z);
+                mass = mesh.Name.Contains("LamparaTecho") ? 0f : 1f;
             }
 
             var boxBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(mass)));

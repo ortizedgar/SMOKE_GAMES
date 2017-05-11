@@ -128,6 +128,7 @@
     <None Include="Media\DispenserAgua\DispenserAgua.max" />
     <None Include="Media\Esqueleto\Esqueleto.max" />
     <None Include="Media\ExpendedorDeBebidas\ExpendedorDeBebidas.max" />
+    <None Include="Media\Hunter\Hunter.max" />
     <None Include="Media\LamparaTecho\Lampara-Techo.max" />
     <None Include="Media\LockerMetal\LockerMetal.max" />
     <None Include="Media\Matafuego\Matafuego.max" />
@@ -137,6 +138,8 @@
     <None Include="Media\Placard\Placard.max" />
     <None Include="Media\Puerta\Puerta.max" />
     <None Include="Media\Sillon\Sillon.max" />
+    <None Include="Media\Tripode\Tripode.max" />
+    <None Include="Media\Workbench\Workbench.max" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -206,6 +209,19 @@
     <Content Include="Media\ExpendedorDeBebidas\ExpendedorDeBebidas-TgcScene.xml" />
     <Content Include="Media\ExpendedorDeBebidas\preview.jpg" />
     <Content Include="Media\ExpendedorDeBebidas\Textures\sodamachine.jpg" />
+    <Content Include="Media\Hunter\ComboPunch-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\HighKick-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\Hunter-TgcSkeletalMesh.xml" />
+    <Content Include="Media\Hunter\Jump-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\MatrixJump-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\Push-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\Run-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\StandBy-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\Talk-TgcSkeletalAnim.xml" />
+    <Content Include="Media\Hunter\Textures\hunter2.jpg" />
+    <Content Include="Media\Hunter\Textures\hunter_f.jpg" />
+    <Content Include="Media\Hunter\Textures\hunter_h.jpg" />
+    <Content Include="Media\Hunter\Walk-TgcSkeletalAnim.xml" />
     <Content Include="Media\LamparaTecho\LamparaTecho-TgcScene.xml" />
     <Content Include="Media\LamparaTecho\preview.jpg" />
     <Content Include="Media\LamparaTecho\Textures\tl.jpg" />
@@ -238,8 +254,14 @@
     <Content Include="Media\Sillon\preview.jpg" />
     <Content Include="Media\Sillon\Sillon-TgcScene.xml" />
     <Content Include="Media\Sillon\Textures\bench.jpg" />
+    <Content Include="Media\table.bmp" />
+    <Content Include="Media\table.jpg" />
     <Content Include="Media\Techo\Techo-TgcScene.xml" />
     <Content Include="Media\Techo\Textures\techua.jpg" />
+    <Content Include="Media\Tripode\Textures\tripod.bmp" />
+    <Content Include="Media\Tripode\Tripode-TgcScene.xml" />
+    <Content Include="Media\Workbench\Textures\bank.bmp" />
+    <Content Include="Media\Workbench\Workbench-TgcScene.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

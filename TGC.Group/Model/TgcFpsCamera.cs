@@ -136,12 +136,16 @@
             this.DirectionView = directionView;
         }
 
+        public Vector3 LightDir { get; set; }
+
         /// <summary>
         /// Actualiza la camara
         /// </summary>
         /// <param name="elapsedTime">Tiempo transcurrido desde el frame anterior</param>
         public override void UpdateCamera(float elapsedTime)
         {
+            this.LightDir = new Vector3(-(this.PositionEye.X - this.LookAt.X), -(this.PositionEye.Y - this.LookAt.Y), -(this.PositionEye.Z - this.LookAt.Z));
+            this.LightDir.Normalize();
             if (!this.FreeCamera)
             {
                 Cursor.Hide();
@@ -153,7 +157,7 @@
                 Cursor.Position = this.MouseCenter;
 
                 // Correr
-                this.MovementSpeed = this.Input.keyDown(Key.LeftShift) ? 20 : 10;
+                this.MovementSpeed = this.Input.keyDown(Key.LeftShift) ? 40 : 20;
 
                 var lookVector = new Vector3(this.PositionEye.X - this.LookAt.X, 0, this.PositionEye.Z - this.LookAt.Z) * this.MovementSpeed;
                 var moveVector = new Vector3(0, 0, 0);

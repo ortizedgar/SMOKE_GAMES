@@ -248,7 +248,7 @@ namespace TGC.Group.Model
             this.LightMesh = TgcBox.fromSize(this.Vector3Factory.CreateVector3(100, 100, 100), this.Vector3Factory.CreateVector3(0, 0, 0));
             this.LightMesh.AutoTransformEnable = true;
             this.LightMesh.Position = this.Camara.Position;
-            this.LightMesh.Color = Color.Red;
+            this.LightMesh.Color = Color.White;
             this.LightMesh.Enabled = true;
         }
 
@@ -348,17 +348,25 @@ namespace TGC.Group.Model
             {
                 this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
                 box.Technique = TgcShaders.Instance.getTgcMeshTechnique(TgcMesh.MeshRenderType.DIFFUSE_MAP);
-                box.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+                box.Effect = TgcShaders.Instance.TgcMeshSpotLightShader;
+
+                //Cargar variables shader de la luz
+                var spotLightDir = ((TgcFpsCamera)this.Camara).LightDir;
+                spotLightDir.Normalize();
+                box.Effect.SetValue(nameof(spotLightDir), TgcParserUtils.vector3ToFloat3Array(spotLightDir));
+                box.Effect.SetValue("spotLightAngleCos", FastMath.ToRad(0));
+                box.Effect.SetValue("spotLightExponent", 40f);
+
                 box.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
                 box.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
                 box.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
                 box.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-                box.Effect.SetValue("materialSpecularExp", 1f);
+                box.Effect.SetValue("materialSpecularExp", 20f);
                 box.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
                 box.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
                 box.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
                 box.Effect.SetValue("lightIntensity", this.LightIntensity);
-                box.Effect.SetValue("lightAttenuation", 0.5f);
+                box.Effect.SetValue("lightAttenuation", 0.01f);
             }
         }
 
@@ -373,17 +381,24 @@ namespace TGC.Group.Model
             {
                 this.LightIntensity = this.LightIntensity > 0.25f ? this.LightIntensity - this.LightIntensityVariation : 0.25f;
                 mesh.Technique = TgcShaders.Instance.getTgcMeshTechnique(mesh.RenderType);
-                mesh.Effect = TgcShaders.Instance.TgcMeshPointLightShader;
+                mesh.Effect = TgcShaders.Instance.TgcMeshSpotLightShader;
+
+                var spotLightDir = ((TgcFpsCamera)this.Camara).LightDir;
+                spotLightDir.Normalize();
+                mesh.Effect.SetValue(nameof(spotLightDir), TgcParserUtils.vector3ToFloat3Array(spotLightDir));
+                mesh.Effect.SetValue("spotLightAngleCos", FastMath.ToRad(0));
+                mesh.Effect.SetValue("spotLightExponent", 40f);
+
                 mesh.Effect.SetValue("materialEmissiveColor", ColorValue.FromColor(Color.Black));
                 mesh.Effect.SetValue("materialAmbientColor", ColorValue.FromColor(Color.White));
                 mesh.Effect.SetValue("materialDiffuseColor", ColorValue.FromColor(Color.White));
                 mesh.Effect.SetValue("materialSpecularColor", ColorValue.FromColor(Color.White));
-                mesh.Effect.SetValue("materialSpecularExp", 1f);
+                mesh.Effect.SetValue("materialSpecularExp", 20f);
                 mesh.Effect.SetValue("eyePosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
                 mesh.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(this.Camara.Position));
                 mesh.Effect.SetValue("lightColor", ColorValue.FromColor(this.LightMesh.Color));
                 mesh.Effect.SetValue("lightIntensity", this.LightIntensity);
-                mesh.Effect.SetValue("lightAttenuation", 0.5f);
+                mesh.Effect.SetValue("lightAttenuation", 0.01f);
             }
         }
 
@@ -396,7 +411,7 @@ namespace TGC.Group.Model
             {
                 this.LightIntensity = 1;
                 this.LightIntensityVariation = 0.000001f;
-                this.LightMesh.Color = Color.Red;
+                this.LightMesh.Color = Color.White;
             }
 
             if (this.Input.keyPressed(Microsoft.DirectX.DirectInput.Key.F2))

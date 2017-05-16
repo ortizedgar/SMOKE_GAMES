@@ -204,7 +204,7 @@
 
                 this.PositionEye = new Vector3(
                    this.Character.Item2.InterpolationWorldTransform.Origin.X,
-                   this.Character.Item2.InterpolationWorldTransform.Origin.Y + 1,
+                   this.Character.Item2.InterpolationWorldTransform.Origin.Y + 4,
                    this.Character.Item2.InterpolationWorldTransform.Origin.Z);
 
                 // Calculamos el target de la camara, segun su direccion inicial y las rotaciones en screen space x, y.
@@ -296,7 +296,7 @@
         /// </summary>
         private void InitCharacter()
         {
-            var characterMesh = TgcBox.fromSize(this.PositionEye, new Vector3(2.5f, 10, 2.5f));
+            var characterMesh = TgcBox.fromSize(this.PositionEye, new Vector3(1f, 5, 1f));
             var boundingBoxAxisRadius = characterMesh.BoundingBox.calculateAxisRadius();
             var capsuleShape = new CapsuleShape(boundingBoxAxisRadius.X, boundingBoxAxisRadius.Y);
             var position = characterMesh.Position;

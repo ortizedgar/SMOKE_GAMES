@@ -54,10 +54,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IScenarioLayer.cs" />
+    <Compile Include="IScenarioElement.cs" />
     <Compile Include="ITgcTextureFactory.cs" />
     <Compile Include="IScenarioCreator.cs" />
     <Compile Include="ITGCPlaneFactory.cs" />
     <Compile Include="IVector3Factory.cs" />
+    <Compile Include="IPortal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

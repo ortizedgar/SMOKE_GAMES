@@ -1,6 +1,5 @@
 namespace TGC.Group.Model
 {
-    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
@@ -8,6 +7,7 @@ namespace TGC.Group.Model
     using BulletSharp;
     using BulletSharp.Math;
     using Microsoft.DirectX.Direct3D;
+    using TGC.Core.Collision;
     using TGC.Core.Example;
     using TGC.Core.Geometry;
     using TGC.Core.SceneLoader;
@@ -32,6 +32,7 @@ namespace TGC.Group.Model
             this.Description = Game.Default.Description;
             this.Container = container;
             this.Vector3Factory = container.Resolve<IVector3Factory>();
+            this.LayerRenderList = new List<IScenarioLayer>();
 
             // Se crea el mundo fisico por defecto
             this.CollisionConfiguration = new DefaultCollisionConfiguration();
@@ -87,11 +88,6 @@ namespace TGC.Group.Model
         /// Indica si el techo y el piso deben renderizarse
         /// </summary>
         private bool RenderFloorAndRoof { get; set; } = false;
-
-        /// <summary>
-        /// Lista de <see cref="IRenderObject"/> que contiene las paredes, pisos, techos y objetos del escenario
-        /// </summary>
-        private List<Tuple<string, List<Tuple<IRenderObject, RigidBody>>>> ScenarioElements { get; set; }
 
         /// <summary>
         /// Fabrica de objetos <see cref="Vector3"/>
@@ -153,7 +149,63 @@ namespace TGC.Group.Model
                 UpdateLights();
                 UpdateScenario();
                 UpdateCharacter();
+
+                UpdateLayerRenderList();
             }
+        }
+
+        private bool FrustumPortal { get; set; }
+
+        private void UpdateLayerRenderList()
+        {
+            var portal = this.ScenarioCreator.PortalUnionList.FirstOrDefault(element =>
+            {
+                FrustumPortal = !TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.OUTSIDE);
+
+                return !TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.OUTSIDE);
+            });
+
+            if (portal == null)
+            {
+                portal = getClosestPortal(this.Camara.Position);
+            }
+
+            this.LayerRenderList.Clear();
+            this.ScenarioCreator.PortalUnionList.ForEach(element => this.LayerRenderList.Add(new ScenarioLayer { LayerName = "Portals", ScenarioElements = element.DoorWalls }));
+            this.ScenarioCreator.ScenarioLayers.ForEach(
+                scenarioLayer =>
+                {
+                    var scenarioElements = scenarioLayer.ScenarioElements.Where(element => element.RoomsId.Contains(portal.RoomA) || element.RoomsId.Contains(portal.RoomB)).ToList();
+                    this.LayerRenderList.Add(
+                        new ScenarioLayer
+                        {
+                            LayerName = scenarioLayer.LayerName,
+                            ScenarioElements = scenarioElements
+                        });
+                });
+        }
+
+        private List<IScenarioLayer> LayerRenderList { get; set; }
+
+        /// <summary>
+        ///     Devuelve la luz mas cercana a la posicion especificada
+        /// </summary>
+        private IPortal getClosestPortal(Microsoft.DirectX.Vector3 pos)
+        {
+            var minDist = float.MaxValue;
+            IPortal minPortal = null;
+
+            foreach (var portal in this.ScenarioCreator.PortalUnionList)
+            {
+                var distSq = Microsoft.DirectX.Vector3.LengthSq(pos - portal.Door.BoundingBox.calculateBoxCenter());
+                if (distSq < minDist)
+                {
+                    minDist = distSq;
+                    minPortal = portal;
+                }
+            }
+
+            return minPortal;
         }
 
         /// <summary>
@@ -219,15 +271,15 @@ namespace TGC.Group.Model
         /// <summary>
         /// Libera la memoria utilizada para el escenario
         /// </summary>
-        private void DisposeScenario() => this.ScenarioElements
+        private void DisposeScenario() => this.ScenarioCreator.ScenarioLayers
                 .AsParallel()
                 .SelectMany(
                     element =>
-                        element.Item2)
+                        element.ScenarioElements)
                 .ForAll(
                     element =>
                     {
-                        element.Item1.dispose();
+                        element.RenderObject.dispose();
                     });
 
         /// <summary>
@@ -235,8 +287,8 @@ namespace TGC.Group.Model
         /// </summary>
         private void InitCamara() => this.Camara = this.Container.Resolve<TgcFpsCamera>(
                             new NamedParameter("positionEye", this.Vector3Factory.CreateVector3(0, 0, 0)),
-                            new NamedParameter("moveSpeed", 5),
-                            new NamedParameter("jumpSpeed", 5),
+                            new NamedParameter("moveSpeed", 50),
+                            new NamedParameter("jumpSpeed", 50),
                             new NamedParameter("input", this.Input),
                             new NamedParameter("dynamicsWorld", this.DynamicsWorld));
 
@@ -252,31 +304,37 @@ namespace TGC.Group.Model
             this.LightMesh.Enabled = true;
         }
 
+        private IScenarioCreator ScenarioCreator { get; set; }
+
         /// <summary>
         /// Inicializa el escenario
         /// </summary>
-        private void InitScenario() => this.ScenarioElements = this.Container.Resolve<IScenarioCreator>().CreateScenario(this.Container, this.MediaDir, this.DynamicsWorld);
+        private void InitScenario()
+        {
+            this.ScenarioCreator = this.Container.Resolve<IScenarioCreator>();
+            this.ScenarioCreator.CreateScenario(this.Container, this.MediaDir, this.DynamicsWorld);
+        }
 
         /// <summary>
         /// Dibuja los elementos
         /// </summary>
         /// <param name="element"></param>
-        private void RenderElement(Tuple<IRenderObject, RigidBody> element)
+        private void RenderElement(IScenarioElement element)
         {
             if (this.RenderBoundingBox)
             {
-                if (element.Item1 is TgcMesh mesh)
+                if (element.RenderObject is TgcMesh mesh)
                 {
                     mesh.BoundingBox.render();
                 }
 
-                if (element.Item1 is TgcBox box)
+                if (element.RenderObject is TgcBox box)
                 {
                     box.BoundingBox.render();
                 }
             }
 
-            element.Item1?.render();
+            element.RenderObject?.render();
         }
 
         /// <summary>
@@ -291,6 +349,8 @@ namespace TGC.Group.Model
             this.DrawText.drawText("Presione B para dibujar/eliminar los Bounding Box", 0, 100, Color.OrangeRed);
             this.DrawText.drawText("Presione F para activar/desactivar la iluminacion", 0, 120, Color.OrangeRed);
             this.DrawText.drawText("Presione LShift para correr", 0, 140, Color.OrangeRed);
+
+            this.DrawText.drawText("Frustum-Portal: " + FrustumPortal, 500, 0, Color.Black);
         }
 
         /// <summary>
@@ -311,11 +371,11 @@ namespace TGC.Group.Model
         /// <summary>
         /// Renderiza el escenario con piso y techo
         /// </summary>
-        private void RenderWithFloorAndRoof() => this.ScenarioElements
+        private void RenderWithFloorAndRoof() => this.LayerRenderList
             .AsParallel()
             .SelectMany(
-                element =>
-                    element.Item2)
+                 layer =>
+                    layer.ScenarioElements)
             .ToList()
             .ForEach(
                 element =>
@@ -324,14 +384,14 @@ namespace TGC.Group.Model
         /// <summary>
         /// Renderiza el escenario sin piso y techo
         /// </summary>
-        private void RenderWithoutFloorAndRoof() => this.ScenarioElements
+        private void RenderWithoutFloorAndRoof() => this.LayerRenderList
             .AsParallel()
             .Where(
-                element =>
-                    !element.Item1.Equals("Floor") && !element.Item1.Equals("Roof"))
+                layer =>
+                    !layer.LayerName.Equals("Floor") && !layer.LayerName.Equals("Roof"))
             .SelectMany(
-                element =>
-                    element.Item2)
+                 layer =>
+                    layer.ScenarioElements)
             .ToList()
             .ForEach(
                 element =>
@@ -436,17 +496,17 @@ namespace TGC.Group.Model
             this.LightMesh.updateValues();
         }
 
-        private void UpdateScenario() => this.ScenarioElements
+        private void UpdateScenario() => this.ScenarioCreator.ScenarioLayers
             .AsParallel()
             .SelectMany(
                 element =>
-                    element.Item2)
+                    element.ScenarioElements)
             .ForAll(
                 element =>
                 {
-                    if (element.Item1 is TgcMesh mesh)
+                    if (element.RenderObject is TgcMesh mesh)
                     {
-                        if (element.Item2 is RigidBody rigidBody)
+                        if (element.Body is RigidBody rigidBody)
                         {
                             mesh.Transform = Microsoft.DirectX.Matrix.Scaling(mesh.Scale.X, mesh.Scale.Y, mesh.Scale.Z);
                             mesh.Transform *= new Microsoft.DirectX.Matrix
@@ -485,9 +545,9 @@ namespace TGC.Group.Model
                         this.SetMeshEffect(mesh);
                     }
 
-                    if (element.Item1 is TgcBox box)
+                    if (element.RenderObject is TgcBox box)
                     {
-                        if (element.Item2 is RigidBody rigidBody)
+                        if (element.Body is RigidBody rigidBody)
                         {
                             box.Transform = new Microsoft.DirectX.Matrix
                             {

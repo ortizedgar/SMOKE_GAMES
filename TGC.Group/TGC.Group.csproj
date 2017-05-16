@@ -100,6 +100,9 @@
     </Compile>
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Model\IocConfigurator.cs" />
+    <Compile Include="Model\PortalRendering\ScenarioElement.cs" />
+    <Compile Include="Model\PortalRendering\ScenarioLayer.cs" />
+    <Compile Include="Model\PortalRendering\Portal.cs" />
     <Compile Include="Model\ScenarioCreator.cs" />
     <Compile Include="Model\TgcFpsCamera.cs" />
     <Compile Include="Model\TgcPlaneFactory.cs" />

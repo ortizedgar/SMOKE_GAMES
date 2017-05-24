@@ -157,7 +157,7 @@
                 Cursor.Position = this.MouseCenter;
 
                 // Correr
-                this.MovementSpeed = this.Input.keyDown(Key.LeftShift) ? 40 : 20;
+                this.MovementSpeed = this.Input.keyDown(Key.LeftShift) ? 10 : 5;
 
                 var lookVector = new Vector3(this.PositionEye.X - this.LookAt.X, 0, this.PositionEye.Z - this.LookAt.Z) * this.MovementSpeed;
                 var moveVector = new Vector3(0, 0, 0);
@@ -204,7 +204,7 @@
 
                 this.PositionEye = new Vector3(
                    this.Character.Item2.InterpolationWorldTransform.Origin.X,
-                   this.Character.Item2.InterpolationWorldTransform.Origin.Y + 4,
+                   this.Character.Item2.InterpolationWorldTransform.Origin.Y + 2,
                    this.Character.Item2.InterpolationWorldTransform.Origin.Z);
 
                 // Calculamos el target de la camara, segun su direccion inicial y las rotaciones en screen space x, y.
@@ -296,7 +296,7 @@
         /// </summary>
         private void InitCharacter()
         {
-            var characterMesh = TgcBox.fromSize(this.PositionEye, new Vector3(1f, 5, 1f));
+            var characterMesh = TgcBox.fromSize(this.PositionEye, new Vector3(2.5f, 5, 2.5f));
             var boundingBoxAxisRadius = characterMesh.BoundingBox.calculateAxisRadius();
             var capsuleShape = new CapsuleShape(boundingBoxAxisRadius.X, boundingBoxAxisRadius.Y);
             var position = characterMesh.Position;

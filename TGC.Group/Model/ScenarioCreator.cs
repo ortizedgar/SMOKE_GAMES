@@ -473,52 +473,38 @@
             var meshEsqueleto = this.LoadMesh(@"Esqueleto\Esqueleto-TgcScene.xml");
             var doorWallsTexture = TgcTexture.createTexture(D3DDevice.Instance.Device, this.MediaDir + @"Pared\Textures\techua.jpg");
 
-            //this.CreateDebugBox(133, 100, 50, 10);
+            this.CreateDebugBox(133, 100, 50, 10);
 
             // Puertas horizontales
-            //CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 0, 0, 0, 1, 2);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 0, 1, 2);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 90, 0, 0, 2, 3);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 90, 0, 20, 6, 7);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 90, 0, 70, 7, 11);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 80, 0, 40, 5, 11);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 10, 0, 30, 8, 9);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 10, 0, 70, 8, 10);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 40, 0, 90, 13, 14);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 40, 0, 160, 16, 17);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 100, 0, 180, 19, 20);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 100, 0, 210, 20, 23);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 70, 0, 190, 22, 23);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 40, 0, 230, 24, 25);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 0, 0, 170, 40, 18);
 
 
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 5, 0, new float[] { 40, 200 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 25, 0, new float[] { 100, 200 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 45, 0, 200);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, 200);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 95, 0, new float[] { 0, 60, 160, 220 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 105, 0, new float[] { 0, 60, 160, 220 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, 40);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 130, 0, 200);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 40, 200 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 30, 40 });
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 175, 0, 70);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 180, 0, 200);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, 20);
-            //CreateObjectsLine(meshPuerta, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, 190);
+            //PUERTAS VERTICALES
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 50, 0, 10, 2, 4);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 80, 0, 20, 2, 6);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 30, 5, 9);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 80, 10, 12);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 100, 0, 90, 12, 14);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 120, 13, 15);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 0, 0, 150, 15, 16);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 90, 0, 170, 17, 19);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 40, 0, 220, 22, 25);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 0, 0, 190, 18, 21);
+            CreatePortal(meshPuerta, doorWallsTexture, this.Norte, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 210, 21, 24);
 
-            //// Puertas verticales
-            //CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, 0, 1, 2);
-            //CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, 10, 2, 3);
-            //CreatePortal(meshPuerta, doorWallsTexture, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 70, 0, 0, 3, 4);
-
-
-
-
-
-
-
-
-
-
-
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 20, 0, new float[] { 80, 100, 140 });
-            ////CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 30, 0, new float[] { 10, 30 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 50, 0, 160);
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 60, 0, new float[] { 0, 20, 40, 80, 140, 205 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 120, 0, 170);
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 140, 0, new float[] { 50, 160 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 150, 0, new float[] { 0, 20, 70, 120, 200 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 170, 0, new float[] { 0, 40, 130 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 190, 0, new float[] { 40, 80, 200 });
-            //CreateObjectsLine(meshPuerta, this.Este, this.Vector3Factory.CreateVector3(0.17f, 0.17f, 0.17f), 200, 0, new float[] { 90, 140, 160 });
 
             // Entarda
             // Lockers
@@ -1134,203 +1120,202 @@
             CreateWallsLine(this.Este, 0, new float[] { 0 }, new List<int> { 1 });
             CreateWallsLine(this.Este, 1, new float[] { 0 }, new List<int> { 1});
             CreateWallsLine(this.Este, 2, new float[] { 0}, new List<int> { 1 });
-            CreateWallsLine(this.Este, 0, new float[] { 2 }, new List<int> { 1});
-            CreateWallsLine(this.Este, 1, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 2 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 2 }, new List<int> { 1, 5});
+            CreateWallsLine(this.Este, 1, new float[] { 2 }, new List<int> { 1, 5});
+            CreateWallsLine(this.Este, 2, new float[] { 2 }, new List<int> { 1, 5});
 
             //2
-            CreateWallsLine(this.Norte, 8, new float[] { 1 }, new List<int> { });
-            CreateWallsLine(this.Norte, 9, new float[] { 1 }, new List<int> { });
+            CreateWallsLine(this.Norte, 8, new float[] { 1 }, new List<int> {2, 3 });
+            CreateWallsLine(this.Norte, 9, new float[] { 1 }, new List<int> {  3 });
             
 
-            CreateWallsLine(this.Este, 3, new float[] { 1 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 1 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 1 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 1 }, new List<int> { });
+            CreateWallsLine(this.Este, 3, new float[] { 1 }, new List<int> { 2, 4});
+            CreateWallsLine(this.Este, 4, new float[] { 1 }, new List<int> { 2, 4 });
+            CreateWallsLine(this.Este, 6, new float[] { 1 }, new List<int> { 2 ,4});
+            CreateWallsLine(this.Este, 7, new float[] { 1 }, new List<int> { 2 ,4});
 
-            CreateWallsLine(this.Este, 3, new float[] { 0 }, new List<int> {  });
-            CreateWallsLine(this.Este, 4, new float[] { 0 }, new List<int> {  });
-            CreateWallsLine(this.Este, 3, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 8, new float[] { 0 }, new List<int> { });
+            CreateWallsLine(this.Este, 3, new float[] { 0 }, new List<int> { 2 });
+            CreateWallsLine(this.Este, 4, new float[] { 0 }, new List<int> { 2 });
+            CreateWallsLine(this.Este, 3, new float[] { 0 }, new List<int> { 2});
+            CreateWallsLine(this.Este, 4, new float[] { 0 }, new List<int> { 2});
+            CreateWallsLine(this.Este, 5, new float[] { 0 }, new List<int> { 2});
+            CreateWallsLine(this.Este, 6, new float[] { 0 }, new List<int> { 2});
+            CreateWallsLine(this.Este, 7, new float[] { 0 }, new List<int> { 2});
+            CreateWallsLine(this.Este, 8, new float[] { 0 }, new List<int> { 2});
             //3
-            CreateWallsLine(this.Norte, 11, new float[] { 0, 1 }, new List<int> { });            
+            CreateWallsLine(this.Norte, 11, new float[] { 0, 1 }, new List<int> { 3 });            
 
-            CreateWallsLine(this.Este, 9, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 10, new float[] { 0 }, new List<int> { });
-            CreateWallsLine(this.Este, 9, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 10, new float[] { 2 }, new List<int> { });
+            CreateWallsLine(this.Este, 9, new float[] { 0 }, new List<int> { 3 });
+            CreateWallsLine(this.Este, 10, new float[] { 0 }, new List<int> { 3});
+            CreateWallsLine(this.Este, 9, new float[] { 2 }, new List<int> { 3, 7});
+            CreateWallsLine(this.Este, 10, new float[] { 2 }, new List<int> { 3, 7});
 
             //4    
 
-            CreateWallsLine(this.Este, 3, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 2 }, new List<int> { });
+            CreateWallsLine(this.Este, 3, new float[] { 2 }, new List<int> { 4, 5});
+            CreateWallsLine(this.Este, 4, new float[] { 2 }, new List<int> { 4, 5});
+            CreateWallsLine(this.Este, 5, new float[] { 2 }, new List<int> { 4, 5});
+            CreateWallsLine(this.Este, 6, new float[] { 2 }, new List<int> { 4, 5});
+            CreateWallsLine(this.Este, 7, new float[] { 2 }, new List<int> { 4, 5});
 
             //5
-            CreateWallsLine(this.Norte, 0, new float[] { 2 }, new List<int> { });
-            CreateWallsLine(this.Norte, 4, new float[] { 3, 4, 5, 6, 7}, new List<int> { });
-            CreateWallsLine(this.Norte, 8, new float[] { 2, 3, 5, 6, 7}, new List<int> { });
+            CreateWallsLine(this.Norte, 0, new float[] { 2 }, new List<int> { 5 });
+            CreateWallsLine(this.Norte, 4, new float[] { 3, 4, 5, 6, 7}, new List<int> {5, 9, 10 });
+            CreateWallsLine(this.Norte, 8, new float[] { 2, 3, 5, 6, 7}, new List<int> { 5, 6, 11});
 
-            CreateWallsLine(this.Este, 0, new float[] { 3 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 3 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 3 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 3 }, new List<int> { 1, 5});
+            CreateWallsLine(this.Este, 1, new float[] { 3 }, new List<int> { 1, 5 });
+            CreateWallsLine(this.Este, 2, new float[] { 3 }, new List<int> {1, 5 });
             
 
-            CreateWallsLine(this.Este, 4, new float[] { 8 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 8 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 8 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Este, 4, new float[] { 8 }, new List<int> { 5, 12});
+            CreateWallsLine(this.Este, 5, new float[] { 8 }, new List<int> { 5, 12 });
+            CreateWallsLine(this.Este, 6, new float[] { 8 }, new List<int> { 5, 12 });
+            CreateWallsLine(this.Este, 7, new float[] { 8 }, new List<int> { 5, 12 });
 
             //6
 
-            CreateWallsLine(this.Norte, 9, new float[] { 3 }, new List<int> { });
-            //
+            CreateWallsLine(this.Norte, 9, new float[] { 3 }, new List<int> { 6, 7});
+           
 
-            CreateWallsLine(this.Este, 8, new float[] { 4 }, new List<int> { });
+            CreateWallsLine(this.Este, 8, new float[] { 4 }, new List<int> { 6, 11});
 
             //7
-            CreateWallsLine(this.Norte, 9, new float[] { 4, 5, 6,}, new List<int> { });
-            CreateWallsLine(this.Norte, 11, new float[] { 2, 3, 4, 5, 6, 7}, new List<int> { });
+            CreateWallsLine(this.Norte, 9, new float[] { 4, 5, 6,}, new List<int> { 7, 11 });
+            CreateWallsLine(this.Norte, 11, new float[] { 2, 3, 4, 5, 6, 7}, new List<int> { 7 });
 
 
-            CreateWallsLine(this.Este, 9, new float[] { 8 }, new List<int> { });
-            CreateWallsLine(this.Este, 10, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Este, 9, new float[] { 8 }, new List<int> { 7, 12});
+            CreateWallsLine(this.Este, 10, new float[] { 8 }, new List<int> { 7, 12});
 
             //8
-            CreateWallsLine(this.Norte, 0, new float[] { 2, 3, 4, 5, 6 ,7 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 1, new float[] { 4, 5, 6 }, new List<int> {  });
+            CreateWallsLine(this.Norte, 0, new float[] { 2, 3, 4, 5, 6 ,7 }, new List<int> { 8 });
+            CreateWallsLine(this.Norte, 1, new float[] { 4, 5, 6 }, new List<int> { 8, 9 });
 
-            CreateWallsLine(this.Este, 0, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 8 }, new List<int> { 8, 12 });
 
             //9
 
-            CreateWallsLine(this.Este, 1, new float[] { 7 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 7 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 7 }, new List<int> { });
+            CreateWallsLine(this.Este, 1, new float[] { 7 }, new List<int> { 9, 10 });
+            CreateWallsLine(this.Este, 2, new float[] { 7 }, new List<int> { 9 , 10 });
+            CreateWallsLine(this.Este, 3, new float[] { 7 }, new List<int> { 9, 10});
 
             //10
 
-            CreateWallsLine(this.Este, 1, new float[] { 8 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Este, 1, new float[] { 8 }, new List<int> { 10, 12 });
+            CreateWallsLine(this.Este, 2, new float[] { 8 }, new List<int> { 10, 12});
             
 
             //11
-            CreateWallsLine(this.Este, 8, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Este, 8, new float[] { 8 }, new List<int> {11, 12 });
 
             //12
-            CreateWallsLine(this.Norte, 0, new float[] { 8 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 11, new float[] { 8 }, new List<int> { });
+            CreateWallsLine(this.Norte, 0, new float[] { 8 }, new List<int> { 12 });
+            CreateWallsLine(this.Norte, 11, new float[] { 8 }, new List<int> { 12});
 
-            CreateWallsLine(this.Este, 0, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 8, new float[] { 9 }, new List<int> { });
-            CreateWallsLine(this.Este, 9, new float[] { 9 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 9 }, new List<int> { 12, 13});
+            CreateWallsLine(this.Este, 1, new float[] { 9 }, new List<int> {12, 13 });
+            CreateWallsLine(this.Este, 2, new float[] { 9 }, new List<int> { 12, 13});
+            CreateWallsLine(this.Este, 3, new float[] { 9 }, new List<int> { 12, 13 });
+            CreateWallsLine(this.Este, 4, new float[] { 9 }, new List<int> { 12, 14});
+            CreateWallsLine(this.Este, 5, new float[] { 9 }, new List<int> { 12, 14 });
+            CreateWallsLine(this.Este, 6, new float[] { 9 }, new List<int> { 12, 14 });
+            CreateWallsLine(this.Este, 7, new float[] { 9 }, new List<int> { 12, 14 });
+            CreateWallsLine(this.Este, 8, new float[] { 9 }, new List<int> { 12, 14 });
+            CreateWallsLine(this.Este, 9, new float[] { 9 }, new List<int> { 12, 14 });
 
             //13
-            CreateWallsLine(this.Norte, 0, new float[] { 9, 10, 11}, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 4, new float[] { 10, 11 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 0, new float[] { 9, 10, 11}, new List<int> { 13 });
+            CreateWallsLine(this.Norte, 4, new float[] { 10, 11 }, new List<int> { 13, 14 });
 
-            CreateWallsLine(this.Este, 0, new float[] { 12 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 12 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 12 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 12 }, new List<int> { 13, 15 });
+            CreateWallsLine(this.Este, 1, new float[] { 12 }, new List<int> { 13, 15 });
+            CreateWallsLine(this.Este, 2, new float[] { 12 }, new List<int> { 13, 15 });
 
             //14
-            CreateWallsLine(this.Norte, 4, new float[] { 12, 13, 14 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 11, new float[] { 9, 10, 11, 12, 13, 14 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 4, new float[] { 12, 13, 14 }, new List<int> { 14, 15 });
+            CreateWallsLine(this.Norte, 11, new float[] { 9, 10, 11, 12, 13, 14 }, new List<int> { 14 });
            
-            CreateWallsLine(this.Este, 4, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 8, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 9, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 10, new float[] { 15 }, new List<int> { });
+            CreateWallsLine(this.Este, 4, new float[] { 15 }, new List<int> {14, 17 });
+            CreateWallsLine(this.Este, 5, new float[] { 15 }, new List<int> { 14, 17 });
+            CreateWallsLine(this.Este, 6, new float[] { 15 }, new List<int> { 14, 17 });
+            CreateWallsLine(this.Este, 7, new float[] { 15 }, new List<int> { 14, 17 });
+            CreateWallsLine(this.Este, 8, new float[] { 15 }, new List<int> { 14, 17 });
+            CreateWallsLine(this.Este, 9, new float[] { 15 }, new List<int> { 14, 17 });
+            CreateWallsLine(this.Este, 10, new float[] { 15 }, new List<int> { 14, 17 });
 
             //15
-            CreateWallsLine(this.Norte, 0, new float[] { 12, 13, 14 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 0, new float[] { 12, 13, 14 }, new List<int> { 15 });
 
-            CreateWallsLine(this.Este, 1, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 15 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 15 }, new List<int> { });
+            CreateWallsLine(this.Este, 1, new float[] { 15 }, new List<int> { 15, 16 });
+            CreateWallsLine(this.Este, 2, new float[] { 15 }, new List<int> { 15, 16 });
+            CreateWallsLine(this.Este, 3, new float[] { 15 }, new List<int> { 15, 16 });
 
             //16
-            CreateWallsLine(this.Norte, 0, new float[] { 15, 16 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 4, new float[] { 15, }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 0, new float[] { 15, 16 }, new List<int> { 16 });
+            CreateWallsLine(this.Norte, 4, new float[] { 15, }, new List<int> { 16, 17 });
 
-            CreateWallsLine(this.Este, 0, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 17 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 17 }, new List<int> { 16, 18 });
+            CreateWallsLine(this.Este, 1, new float[] { 17 }, new List<int> { 16, 18 });
+            CreateWallsLine(this.Este, 2, new float[] { 17 }, new List<int> { 16, 18 });
+            CreateWallsLine(this.Este, 3, new float[] { 17 }, new List<int> { 16, 18 });
 
 
             //17
-            CreateWallsLine(this.Norte, 11, new float[] { 15, 16 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 11, new float[] { 15, 16 }, new List<int> { 17 });
 
-            CreateWallsLine(this.Este, 4, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 7, new float[] { 17 }, new List<int> { });
-            CreateWallsLine(this.Este, 8, new float[] { 17 }, new List<int> { });            
-            CreateWallsLine(this.Este, 10, new float[] { 17 }, new List<int> { });
+            CreateWallsLine(this.Este, 4, new float[] { 17 }, new List<int> {17, 18});
+            CreateWallsLine(this.Este, 5, new float[] { 17 }, new List<int> { 17, 18 });
+            CreateWallsLine(this.Este, 6, new float[] { 17 }, new List<int> { 17, 18 });
+            CreateWallsLine(this.Este, 7, new float[] { 17 }, new List<int> { 17, 19 });
+            CreateWallsLine(this.Este, 8, new float[] { 17 }, new List<int> { 17, 19 });            
+            CreateWallsLine(this.Este, 10, new float[] { 17 }, new List<int> { 17, 20 });
 
             //18
-            CreateWallsLine(this.Norte, 0, new float[] { 17, 18 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 7, new float[] { 17, 18 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 0, new float[] {  18 }, new List<int> { 18 });
+            CreateWallsLine(this.Norte, 7, new float[] { 17, 18 }, new List<int> { 18, 19 });
 
-            CreateWallsLine(this.Este, 0, new float[] { 18 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 18 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 18 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 18 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 18 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 18 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 18 }, new List<int> { 18 });
+            CreateWallsLine(this.Este, 1, new float[] { 18 }, new List<int> { 18 });
+            CreateWallsLine(this.Este, 2, new float[] { 18 }, new List<int> { 18 });
+            CreateWallsLine(this.Este, 3, new float[] { 18 }, new List<int> { 18 });
+            CreateWallsLine(this.Este, 4, new float[] { 18 }, new List<int> { 18 });
+            CreateWallsLine(this.Este, 5, new float[] { 18 }, new List<int> { 18 });
 
-            CreateWallsLine(this.Este, 1, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 3, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 4, new float[] { 19}, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 5, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 19 }, new List<int> { });
+            CreateWallsLine(this.Este, 1, new float[] { 19 }, new List<int> { 18,21});
+            CreateWallsLine(this.Este, 2, new float[] { 19 }, new List<int> { 18, 21 });
+            CreateWallsLine(this.Este, 3, new float[] { 19 }, new List<int> { 18, 21 });
+            CreateWallsLine(this.Este, 4, new float[] { 19}, new List<int> { 18, 22 });
+            CreateWallsLine(this.Este, 5, new float[] { 19 }, new List<int> { 18, 22 });            
+            CreateWallsLine(this.Este, 6, new float[] { 19 }, new List<int> { 18, 22 });
 
             //19
-            CreateWallsLine(this.Norte, 10, new float[] { 17 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 10, new float[] { 17 }, new List<int> { 19, 20 });
 
-            CreateWallsLine(this.Este, 7, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 8, new float[] { 19 }, new List<int> { });
-            CreateWallsLine(this.Este, 9, new float[] { 19 }, new List<int> { });
+            CreateWallsLine(this.Este, 7, new float[] { 19 }, new List<int> { 19, 23});
+            CreateWallsLine(this.Este, 8, new float[] { 19 }, new List<int> { 19, 23});
+            CreateWallsLine(this.Este, 9, new float[] { 19 }, new List<int> { 19,  23});
 
             //20
-            CreateWallsLine(this.Norte, 10, new float[] { 19, 20, }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 11, new float[] { 17, 18, 19, 20, 21 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 10, new float[] { 19, 20, }, new List<int> { 20, 23 });
+            CreateWallsLine(this.Norte, 11, new float[] { 17, 18, 19, 20, 21 }, new List<int> { 20 });
 
-            CreateWallsLine(this.Este, 10, new float[] { 22 }, new List<int> { });
+            CreateWallsLine(this.Este, 10, new float[] { 22 }, new List<int> { 20, 25 });
 
             //21
-            CreateWallsLine(this.Norte, 0, new float[] { 19, 20}, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 4, new float[] { 19, 20 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 0, new float[] { 19, 20}, new List<int> { 21 });
+            CreateWallsLine(this.Norte, 4, new float[] { 19, 20 }, new List<int> { 21, 22 });
 
-            CreateWallsLine(this.Este, 0, new float[] { 21 }, new List<int> { });
-            CreateWallsLine(this.Este, 1, new float[] { 21 }, new List<int> { });
-            CreateWallsLine(this.Este, 2, new float[] { 21 }, new List<int> { });
+            CreateWallsLine(this.Este, 0, new float[] { 21 }, new List<int> { 21, 24});
+            CreateWallsLine(this.Este, 1, new float[] { 21 }, new List<int> { 21, 24});
+            CreateWallsLine(this.Este, 2, new float[] { 21 }, new List<int> { 21, 24});
 
             //22
-            CreateWallsLine(this.Norte, 4, new float[] { 21 }, new List<int> { 1 });
-            CreateWallsLine(this.Norte, 7, new float[] { 20, 21 }, new List<int> { 1 });
+            CreateWallsLine(this.Norte, 4, new float[] { 21 }, new List<int> { 22, 24 });
+            CreateWallsLine(this.Norte, 7, new float[] { 20, 21 }, new List<int> { 22, 23 });
 
-            CreateWallsLine(this.Este, 5, new float[] { 22 }, new List<int> { });
-            CreateWallsLine(this.Este, 6, new float[] { 22 }, new List<int> { });
+            //CreateWallsLine(this.Este, 5, new float[] { 22 }, new List<int> { });
+            //CreateWallsLine(this.Este, 6, new float[] { 22 }, new List<int> { });
 
             //23
             CreateWallsLine(this.Este, 7, new float[] { 22 }, new List<int> { });

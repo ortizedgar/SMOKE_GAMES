@@ -311,25 +311,85 @@
             var rightWall = CreateRightWall(doorWallsTexture, orientation, door, size, wallRotation, halfDoorLenght, doorWidth, halfDoorWidth, sideWallLenght, sideWallHalfLenght, sideWallEastDisplacementX);
             var upWall = CreateUpWall(doorWallsTexture, door, size, wallRotation, doorLenght, halfDoorLenght, halfDoorWidth);
 
+            var doorRigidBody = this.CreateRigidBody(door, rotation, false);
+            var leftWallRigidBody = this.CreateRigidBody(leftWall, wallRotation, true);
+            var rightWallRigidBody = this.CreateRigidBody(rightWall, wallRotation, true);
+
+            if (orientation == this.Este)
+            {
+                var constraint = new HingeConstraint(
+                        doorRigidBody,
+                        leftWallRigidBody,
+                        new BulletSharp.Math.Vector3(door.BoundingBox.calculateAxisRadius().X, -door.BoundingBox.calculateAxisRadius().Y, door.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(-leftWall.BoundingBox.calculateAxisRadius().X, -leftWall.BoundingBox.calculateAxisRadius().Y, -leftWall.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        true);
+                constraint.SetLimit(Geometry.DegreeToRadian(0), Geometry.DegreeToRadian(90), 0.1f, 0.5f, 1f);
+                this.DynamicsWorld.AddConstraint(constraint);
+            }
+
+            if (orientation == this.Oeste)
+            {
+                var constraint = new HingeConstraint(
+                        doorRigidBody,
+                        rightWallRigidBody,
+                        new BulletSharp.Math.Vector3(door.BoundingBox.calculateAxisRadius().X, -door.BoundingBox.calculateAxisRadius().Y, door.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(-rightWall.BoundingBox.calculateAxisRadius().X, -rightWall.BoundingBox.calculateAxisRadius().Y, -rightWall.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        true);
+                constraint.SetLimit(Geometry.DegreeToRadian(0), Geometry.DegreeToRadian(90), 0.1f, 0.5f, 1f);
+                this.DynamicsWorld.AddConstraint(constraint);
+            }
+
+            if (orientation == this.Norte)
+            {
+                var constraint = new HingeConstraint(
+                        doorRigidBody,
+                        rightWallRigidBody,
+                        new BulletSharp.Math.Vector3(door.BoundingBox.calculateAxisRadius().X, -door.BoundingBox.calculateAxisRadius().Y, door.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(-rightWall.BoundingBox.calculateAxisRadius().X, -rightWall.BoundingBox.calculateAxisRadius().Y, -rightWall.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        true);
+                constraint.SetLimit(Geometry.DegreeToRadian(0), Geometry.DegreeToRadian(90), 0.1f, 0.5f, 1f);
+                this.DynamicsWorld.AddConstraint(constraint);
+            }
+
+            if (orientation == this.Sur)
+            {
+                var constraint = new HingeConstraint(
+                        doorRigidBody,
+                        leftWallRigidBody,
+                        new BulletSharp.Math.Vector3(door.BoundingBox.calculateAxisRadius().X, -door.BoundingBox.calculateAxisRadius().Y, door.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(-leftWall.BoundingBox.calculateAxisRadius().X, -leftWall.BoundingBox.calculateAxisRadius().Y, -leftWall.BoundingBox.calculateAxisRadius().Z),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        new BulletSharp.Math.Vector3(0, 1, 0),
+                        true);
+                constraint.SetLimit(Geometry.DegreeToRadian(0), Geometry.DegreeToRadian(90), 0.1f, 0.5f, 1f);
+                this.DynamicsWorld.AddConstraint(constraint);
+            }
+
             var doorWallsList = new List<IScenarioElement>
             {
                 new ScenarioElement
                 {
                     RoomsId = new List<int>(),
                     RenderObject = door,
-                    Body = this.CreateRigidBody(door, rotation, false)
+                    Body = doorRigidBody
                 },
                 new ScenarioElement
                 {
                     RoomsId = new List<int>(),
                     RenderObject = leftWall,
-                    Body = this.CreateRigidBody(leftWall, wallRotation, true)
+                    Body = leftWallRigidBody
                 },
                 new ScenarioElement
                 {
                     RoomsId = new List<int>(),
                     RenderObject = rightWall,
-                    Body = this.CreateRigidBody(rightWall, wallRotation, true)
+                    Body = rightWallRigidBody
                 },
                 new ScenarioElement
                 {
@@ -1039,12 +1099,12 @@
                 mass = mesh.Name.Contains("LamparaTecho") ? 0f : 1f;
             }
 
+            //if (isDoor)
+            //{
+            //    mass = 2.5f;
+            //}
+
             var rigidBody = new RigidBody(new RigidBodyConstructionInfo(mass, new DefaultMotionState(transform), boxshape, boxshape.CalculateLocalInertia(mass)));
-            if (isDoor)
-            {
-                rigidBody.SetSleepingThresholds(0, 0);
-                rigidBody.AngularFactor = new BulletSharp.Math.Vector3(0, 0, 0);
-            }
 
             this.DynamicsWorld.AddRigidBody(rigidBody);
             return rigidBody;

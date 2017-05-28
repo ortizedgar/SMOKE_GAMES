@@ -111,7 +111,7 @@
         /// <summary>
         /// Debug, indica camara libre o no
         /// </summary>
-        private bool FreeCamera { get; } = false;
+        private bool FreeCamera { get; } = true;
 
         private TgcD3dInput Input { get; }
 

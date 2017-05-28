@@ -154,35 +154,40 @@ namespace TGC.Group.Model
             }
         }
 
-        private bool FrustumPortal { get; set; }
+        private string FrustumPortal { get; set; }
 
         private void UpdateLayerRenderList()
         {
-            var portal = this.ScenarioCreator.PortalUnionList.FirstOrDefault(element =>
+            var portalFrustumList = this.ScenarioCreator.PortalUnionList.Where(element =>
             {
-                FrustumPortal = !TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.OUTSIDE);
+                //FrustumPortal = TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.INSIDE);
 
-                return !TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.OUTSIDE);
+                return TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.INSIDE) || TgcCollisionUtils.classifyFrustumAABB(this.Frustum, element.Door.BoundingBox).Equals(TgcCollisionUtils.FrustumResult.INTERSECT);
             });
+
+            var portal = getClosestPortal(this.Camara.Position, portalFrustumList.ToList());
+
+            FrustumPortal = portal?.RoomA.ToString() + " - " + portal?.RoomB.ToString();
 
             if (portal == null)
             {
-                portal = getClosestPortal(this.Camara.Position);
+                portal = getClosestPortal(this.Camara.Position, this.ScenarioCreator.PortalUnionList);
             }
 
-            this.LayerRenderList.Clear();
-            this.ScenarioCreator.PortalUnionList.ForEach(element => this.LayerRenderList.Add(new ScenarioLayer { LayerName = "Portals", ScenarioElements = element.DoorWalls }));
-            this.ScenarioCreator.ScenarioLayers.ForEach(
-                scenarioLayer =>
-                {
-                    var scenarioElements = scenarioLayer.ScenarioElements.Where(element => element.RoomsId.Contains(portal.RoomA) || element.RoomsId.Contains(portal.RoomB)).ToList();
-                    this.LayerRenderList.Add(
-                        new ScenarioLayer
-                        {
-                            LayerName = scenarioLayer.LayerName,
-                            ScenarioElements = scenarioElements
-                        });
-                });
+            this.LayerRenderList = this.ScenarioCreator.ScenarioLayers;
+            //this.LayerRenderList.Clear();
+            //this.ScenarioCreator.PortalUnionList.ForEach(element => this.LayerRenderList.Add(new ScenarioLayer { LayerName = "Portals", ScenarioElements = element.DoorWalls }));
+            //this.ScenarioCreator.ScenarioLayers.ForEach(
+            //    scenarioLayer =>
+            //    {
+            //        var scenarioElements = scenarioLayer.ScenarioElements.Where(element => element.RoomsId.Contains(portal.RoomA) || element.RoomsId.Contains(portal.RoomB)).ToList();
+            //        this.LayerRenderList.Add(
+            //            new ScenarioLayer
+            //            {
+            //                LayerName = scenarioLayer.LayerName,
+            //                ScenarioElements = scenarioElements
+            //            });
+            //    });
         }
 
         private List<IScenarioLayer> LayerRenderList { get; set; }
@@ -190,12 +195,12 @@ namespace TGC.Group.Model
         /// <summary>
         ///     Devuelve la luz mas cercana a la posicion especificada
         /// </summary>
-        private IPortal getClosestPortal(Microsoft.DirectX.Vector3 pos)
+        private IPortal getClosestPortal(Microsoft.DirectX.Vector3 pos, List<IPortal> portalsList)
         {
             var minDist = float.MaxValue;
             IPortal minPortal = null;
 
-            foreach (var portal in this.ScenarioCreator.PortalUnionList)
+            foreach (var portal in portalsList)
             {
                 var distSq = Microsoft.DirectX.Vector3.LengthSq(pos - portal.Door.BoundingBox.calculateBoxCenter());
                 if (distSq < minDist)
